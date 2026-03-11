@@ -10,7 +10,8 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { useAuth } from "@/lib/auth-provider"
 import { ROLE_LABELS } from "@/lib/permissions"
-import { Camera, Shield, Key, Building2, User, Receipt, Loader2 } from "lucide-react"
+import { Camera, Shield, Key, Building2, User, Receipt, Loader2, Globe } from "lucide-react"
+import { LanguageSwitcher } from "@/components/language-switcher"
 import { useState, useRef, useEffect } from "react"
 import { toast } from "sonner"
 import { Toaster } from "@/components/ui/sonner"
@@ -418,6 +419,28 @@ export default function SettingsProfilePage() {
               </p>
             </div>
             <Switch checked={twoFactor} onCheckedChange={(v) => { setTwoFactor(v); toast.success(v ? "2FA enabled" : "2FA disabled") }} />
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Language Settings */}
+      <Card className="border-border/60">
+        <CardHeader>
+          <CardTitle className="text-base flex items-center gap-2">
+            <Globe className="h-4 w-4" />
+            Language
+          </CardTitle>
+          <CardDescription>Choose your preferred display language</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="flex items-center justify-between rounded-lg border border-border p-4">
+            <div>
+              <p className="text-sm font-medium text-foreground">Display Language</p>
+              <p className="text-xs text-muted-foreground mt-0.5">
+                Select your preferred language for the interface
+              </p>
+            </div>
+            <LanguageSwitcher variant="outline" size="sm" showLabel />
           </div>
         </CardContent>
       </Card>

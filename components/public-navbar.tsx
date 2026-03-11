@@ -5,6 +5,7 @@ import Image from "next/image"
 import { useState } from "react"
 import { useTheme } from "next-themes"
 import { Button } from "@/components/ui/button"
+import { LanguageSwitcher } from "@/components/language-switcher"
 import { Menu, X, Sun, Moon, LayoutDashboard, Settings, LogOut, User } from "lucide-react"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import {
@@ -68,6 +69,7 @@ export function PublicNavbar() {
         </nav>
 
         <div className="hidden items-center gap-3 md:flex">
+          <LanguageSwitcher variant="ghost" size="icon" />
           <Button
             variant="ghost"
             size="icon"
@@ -184,6 +186,10 @@ export function PublicNavbar() {
             ))}
           </nav>
           <div className="mt-4 flex items-center justify-between border-t border-border pt-4">
+            <span className="text-xs text-muted-foreground">Language</span>
+            <LanguageSwitcher variant="outline" size="sm" showLabel />
+          </div>
+          <div className="mt-4 flex items-center justify-between">
             <span className="text-xs text-muted-foreground">Appearance</span>
             <Button
               variant="outline"
