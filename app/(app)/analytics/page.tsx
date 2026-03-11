@@ -13,6 +13,7 @@ import {
 import { getJourneys, getUsers, getDashboardStats } from "@/lib/data"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
+import { getTranslations } from "next-intl/server"
 
 function MetricCard({ 
   title, 
@@ -63,10 +64,11 @@ function scoreColor(score: number) {
 }
 
 export default async function AnalyticsPage() {
-  const [journeys, users, stats] = await Promise.all([
+  const [journeys, users, stats, t] = await Promise.all([
     getJourneys(),
     getUsers(),
     getDashboardStats(),
+    getTranslations(),
   ])
 
   // Calculate journey performance metrics
@@ -114,32 +116,32 @@ export default async function AnalyticsPage() {
     <div className="mx-auto flex max-w-6xl flex-col gap-6 px-4 py-6 lg:px-6">
       <div>
         <h1 className="text-2xl font-bold tracking-tight text-foreground">
-          Analytics
+          {t("analytics.title")}
         </h1>
         <p className="text-sm text-muted-foreground">
-          Organization-wide insights into journey performance and CX health
+          {t("analytics.subtitle")}
         </p>
       </div>
 
       {/* Stats row */}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <MetricCard 
-          title="Total Journeys" 
+          title={t("analytics.totalJourneys")} 
           value={stats.totalJourneys.toString()} 
           iconType="route" 
         />
         <MetricCard 
-          title="Active Users" 
+          title={t("analytics.activeUsers")} 
           value={stats.activeCollaborators.toString()} 
           iconType="users" 
         />
         <MetricCard 
-          title="Avg Emotional Score" 
+          title={t("analytics.avgEmotionalScore")} 
           value={avgEmotionalScore > 0 ? `+${avgEmotionalScore.toFixed(1)}` : avgEmotionalScore.toFixed(1)} 
           iconType="trending" 
         />
         <MetricCard 
-          title="Pain Points Identified" 
+          title={t("analytics.painPointsIdentified")} 
           value={totalPainPoints.toString()} 
           iconType="target" 
         />
@@ -150,7 +152,7 @@ export default async function AnalyticsPage() {
         <CardHeader className="pb-2">
           <CardTitle className="text-sm font-medium flex items-center gap-2">
             <BarChart3 className="h-4 w-4 text-muted-foreground" />
-            Journey Performance
+            {t("analytics.journeyPerformance")}
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -159,11 +161,11 @@ export default async function AnalyticsPage() {
               <table className="w-full text-left text-sm">
                 <thead>
                   <tr className="border-b border-border text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                    <th className="py-3 pr-4">Journey</th>
-                    <th className="py-3 pr-4 text-right">Score</th>
-                    <th className="py-3 pr-4 text-right">Touchpoints</th>
-                    <th className="py-3 pr-4 text-right">Pain Points</th>
-                    <th className="py-3">Status</th>
+                    <th className="py-3 pr-4">{t("analytics.journey")}</th>
+                    <th className="py-3 pr-4 text-right">{t("analytics.score")}</th>
+                    <th className="py-3 pr-4 text-right">{t("analytics.touchpoints")}</th>
+                    <th className="py-3 pr-4 text-right">{t("analytics.painPoints")}</th>
+                    <th className="py-3">{t("analytics.status")}</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -192,12 +194,12 @@ export default async function AnalyticsPage() {
           ) : (
             <div className="flex flex-col items-center justify-center py-12 text-center">
               <FileQuestion className="h-12 w-12 text-muted-foreground/40 mb-4" />
-              <h3 className="text-lg font-medium text-foreground mb-1">No journeys yet</h3>
+              <h3 className="text-lg font-medium text-foreground mb-1">{t("analytics.noJourneys")}</h3>
               <p className="text-sm text-muted-foreground mb-4">
-                Create your first journey to start tracking performance metrics
+                {t("analytics.noJourneysDesc")}
               </p>
               <Button asChild>
-                <Link href="/journeys">Create Journey</Link>
+                <Link href="/journeys">{t("dashboard.createJourney")}</Link>
               </Button>
             </div>
           )}
@@ -210,10 +212,10 @@ export default async function AnalyticsPage() {
           <CardContent className="flex flex-col items-center justify-center py-16">
             <Activity className="h-10 w-10 text-muted-foreground/40 mb-3" />
             <p className="text-sm font-medium text-muted-foreground">
-              Emotional Score Trends
+              {t("analytics.emotionalScoreTrends")}
             </p>
             <p className="text-xs text-muted-foreground/70 mt-1">
-              Time-series chart coming soon
+              {t("analytics.emotionalScoreTrendsDesc")}
             </p>
           </CardContent>
         </Card>
@@ -221,10 +223,10 @@ export default async function AnalyticsPage() {
           <CardContent className="flex flex-col items-center justify-center py-16">
             <BarChart3 className="h-10 w-10 text-muted-foreground/40 mb-3" />
             <p className="text-sm font-medium text-muted-foreground">
-              Channel Distribution
+              {t("analytics.channelDistribution")}
             </p>
             <p className="text-xs text-muted-foreground/70 mt-1">
-              Breakdown chart coming soon
+              {t("analytics.channelDistributionDesc")}
             </p>
           </CardContent>
         </Card>

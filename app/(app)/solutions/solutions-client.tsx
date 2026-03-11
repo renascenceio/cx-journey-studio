@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useMemo } from "react"
+import { useTranslations } from "next-intl"
 import {
   Brain,
   Repeat,
@@ -378,6 +379,7 @@ interface SolutionsClientProps {
 }
 
 export function SolutionsClient({ platformSolutions, crowdSolutions, mySolutions, futureJourneys }: SolutionsClientProps) {
+  const t = useTranslations()
   const [activeCategory, setActiveCategory] = useState<SolutionCategory | "all">("all")
   const [search, setSearch] = useState("")
   const [sort, setSort] = useState<SortMode>("relevance")
@@ -473,9 +475,9 @@ export function SolutionsClient({ platformSolutions, crowdSolutions, mySolutions
 
       {/* Header */}
       <div className="flex flex-col gap-1">
-        <h1 className="text-2xl font-bold tracking-tight text-foreground">Solutions</h1>
+        <h1 className="text-2xl font-bold tracking-tight text-foreground">{t("solutions.title")}</h1>
         <p className="text-sm text-muted-foreground">
-          Discover proven strategies, behavioral patterns, and crowd-sourced approaches to improve customer journeys
+          {t("solutions.subtitle")}
         </p>
       </div>
 
@@ -484,7 +486,7 @@ export function SolutionsClient({ platformSolutions, crowdSolutions, mySolutions
         <CardContent className="flex items-center gap-3 py-3">
           <Sparkles className="h-5 w-5 shrink-0 text-primary" />
           <Input
-            placeholder="Ask AI to find specific solutions (e.g., 'reduce cart abandonment for mobile users')..."
+            placeholder={t("solutions.aiSearchPlaceholder")}
             value={aiQuery}
             onChange={(e) => setAiQuery(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && handleAiSearch()}
@@ -501,7 +503,7 @@ export function SolutionsClient({ platformSolutions, crowdSolutions, mySolutions
             ) : (
               <Sparkles className="h-3.5 w-3.5" />
             )}
-            {aiSearching ? "Searching..." : "Search"}
+            {aiSearching ? t("solutions.searching") : t("solutions.search")}
           </Button>
         </CardContent>
       </Card>
@@ -511,17 +513,17 @@ export function SolutionsClient({ platformSolutions, crowdSolutions, mySolutions
         <TabsList className="h-auto p-1 w-fit">
           <TabsTrigger value="platform" className="gap-2 px-4 py-2 data-[state=active]:bg-background">
             <Crown className="h-3.5 w-3.5" />
-            <span>Studio</span>
+            <span>{t("templates.studio")}</span>
             <Badge variant="secondary" className="ml-1 text-[9px] px-1.5 h-5">{platformItems.length}</Badge>
           </TabsTrigger>
           <TabsTrigger value="crowd" className="gap-2 px-4 py-2 data-[state=active]:bg-background">
             <UsersRound className="h-3.5 w-3.5" />
-            <span>Public</span>
+            <span>{t("archetypes.public")}</span>
             <Badge variant="secondary" className="ml-1 text-[9px] px-1.5 h-5">{crowdItems.length}</Badge>
           </TabsTrigger>
           <TabsTrigger value="my" className="gap-2 px-4 py-2 data-[state=active]:bg-background">
             <User className="h-3.5 w-3.5" />
-            <span>My Solutions</span>
+            <span>{t("solutions.mySolutions")}</span>
             <Badge variant="secondary" className="ml-1 text-[9px] px-1.5 h-5">{myItems.length}</Badge>
           </TabsTrigger>
         </TabsList>
@@ -531,7 +533,7 @@ export function SolutionsClient({ platformSolutions, crowdSolutions, mySolutions
           <div className="relative">
             <Search className="absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground" />
             <Input
-              placeholder="Search solutions..."
+              placeholder={t("solutions.searchSolutions")}
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               className="h-8 w-48 pl-8 text-xs"
@@ -541,7 +543,7 @@ export function SolutionsClient({ platformSolutions, crowdSolutions, mySolutions
           <PopoverTrigger asChild>
             <Button variant="outline" size="sm" className="h-8 w-36 justify-between text-xs">
               {activeCategory === "all" ? (
-                <span className="text-muted-foreground">All Types</span>
+                <span className="text-muted-foreground">{t("solutions.allTypes")}</span>
               ) : (
                 <span className="flex items-center gap-2">
                   {(() => {
@@ -585,7 +587,7 @@ export function SolutionsClient({ platformSolutions, crowdSolutions, mySolutions
             <PopoverTrigger asChild>
               <Button variant="outline" size="sm" className="h-8 w-44 justify-between text-xs">
                 {selectedIndustry === "all" ? (
-                  <span className="text-muted-foreground">All Industries</span>
+                  <span className="text-muted-foreground">{t("solutions.allIndustries")}</span>
                 ) : (
                   <span className="flex items-center gap-2">
                     {(() => {
