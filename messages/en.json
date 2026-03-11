@@ -249,6 +249,10 @@
     "noJourneys": "No journeys found",
     "noJourneysDesc": "Create your first journey to get started",
     "createFirst": "Create your first journey",
+    "public": "Public",
+    "noTeam": "No team",
+    "quickView": "Quick view",
+    "openJourney": "Open journey",
     "searchJourneys": "Search journeys...",
     "filterByStatus": "Filter by status",
     "sortBy": "Sort by",
@@ -332,7 +336,25 @@
     "relevance": "Relevance",
     "saved": "Saved",
     "upvotes": "Upvotes",
-    "newest": "Newest"
+    "newest": "Newest",
+    "removedFromSaved": "Removed from saved",
+    "savedToCollection": "Saved to collection",
+    "editSolution": "Edit Solution",
+    "editSolutionDesc": "Update the title and description of your solution.",
+    "description": "Description",
+    "solutionUpdated": "Solution updated",
+    "failedToUpdate": "Failed to update solution",
+    "deleteSolution": "Delete Solution",
+    "deleteSolutionConfirm": "Are you sure you want to delete \"{title}\"? This action cannot be undone.",
+    "solutionDeleted": "Solution deleted",
+    "failedToDelete": "Failed to delete solution"
+  },
+  "notifications": {
+    "title": "Notifications",
+    "new": "new",
+    "empty": "No notifications yet",
+    "viewAll": "View all notifications",
+    "markAllRead": "Mark all as read"
   },
   "settings": {
     "title": "Settings",
@@ -450,7 +472,14 @@
     "addSolution": "Add Solution",
     "pressEnter": "to select",
     "typeToSearch": "Type to search",
-    "escToClose": "ESC to close"
+    "escToClose": "ESC to close",
+    "resultsFound": "results found",
+    "inJourney": "in",
+    "proTip": "Pro tip",
+    "proTipDesc": "Type type:pain_point to filter by content type, or search any keyword to find journeys, solutions, and more.",
+    "navigate": "Navigate",
+    "select": "Select",
+    "poweredByAi": "Powered by AI"
   },
   "workspace": {
     "title": "Workspace",

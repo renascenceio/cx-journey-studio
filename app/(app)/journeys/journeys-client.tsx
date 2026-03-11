@@ -35,7 +35,8 @@ import { updateJourneyStatus } from "@/lib/actions/data"
 import { mutate } from "swr"
 import { useRouter } from "next/navigation"
 
-function DeployJourneyDialog({ journeys, children }: { journeys: Journey[]; children: React.ReactNode; t: ReturnType<typeof useTranslations> }) {
+function DeployJourneyDialog({ journeys, children }: { journeys: Journey[]; children: React.ReactNode }) {
+  const t = useTranslations()
   const [open, setOpen] = useState(false)
   const [deploying, setDeploying] = useState<string | null>(null)
   const router = useRouter()

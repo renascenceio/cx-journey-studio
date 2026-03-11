@@ -249,6 +249,10 @@
     "noJourneys": "未找到旅程",
     "noJourneysDesc": "创建您的第一个旅程开始",
     "createFirst": "创建您的第一个旅程",
+    "public": "公开",
+    "noTeam": "暂无团队",
+    "quickView": "快速查看",
+    "openJourney": "打开旅程",
     "searchJourneys": "搜索旅程...",
     "filterByStatus": "按状态筛选",
     "sortBy": "排序方式",
@@ -332,7 +336,25 @@
     "relevance": "相关性",
     "saved": "已保存",
     "upvotes": "点赞",
-    "newest": "最新"
+    "newest": "最新",
+    "removedFromSaved": "已从收藏中移除",
+    "savedToCollection": "已保存到收藏",
+    "editSolution": "编辑解决方案",
+    "editSolutionDesc": "更新解决方案的标题和描述。",
+    "description": "描述",
+    "solutionUpdated": "解决方案已更新",
+    "failedToUpdate": "更新解决方案失败",
+    "deleteSolution": "删除解决方案",
+    "deleteSolutionConfirm": "确定要删除"{title}"吗？此操作无法撤销。",
+    "solutionDeleted": "解决方案已删除",
+    "failedToDelete": "删除解决方案失败"
+  },
+  "notifications": {
+    "title": "通知",
+    "new": "新",
+    "empty": "暂无通知",
+    "viewAll": "查看所有通知",
+    "markAllRead": "全部标记为已读"
   },
   "settings": {
     "title": "设置",
@@ -411,7 +433,7 @@
   },
   "sounds": {
     "title": "声音设置",
-    "description": "配置操作和通知的音频反馈",
+    "description": "配置操作和���知的音频反馈",
     "enableSounds": "启用声音",
     "enableSoundsDesc": "在整个应用程序中播放音频反馈",
     "volume": "音量",
@@ -433,7 +455,7 @@
   "spotlight": {
     "title": "搜索",
     "placeholder": "搜索任何内容...",
-    "searchPlaceholder": "搜索旅程、解决方案、原型、痛点...",
+    "searchPlaceholder": "搜索旅程、解决方案���原型、痛点...",
     "aiPowered": "AI驱动",
     "quickFilters": "快速筛选",
     "journeys": "旅程",
@@ -450,7 +472,14 @@
     "addSolution": "添加解决方案",
     "pressEnter": "选择",
     "typeToSearch": "输入以搜索",
-    "escToClose": "ESC 关闭"
+    "escToClose": "ESC 关闭",
+    "resultsFound": "个结果",
+    "inJourney": "在",
+    "proTip": "小技巧",
+    "proTipDesc": "输入 type:pain_point 按内容类型筛选，或搜索任何关键词查找旅程、解决方案等。",
+    "navigate": "导航",
+    "select": "选择",
+    "poweredByAi": "AI 驱动"
   },
   "workspace": {
     "title": "工作区",

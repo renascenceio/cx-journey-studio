@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+import { useTranslations } from "next-intl"
 import {
   Dialog,
   DialogContent,
@@ -375,6 +376,7 @@ interface DeleteConfirmDialogProps {
 }
 
 export function DeleteConfirmDialog({ title, description, onConfirm, children }: DeleteConfirmDialogProps) {
+  const t = useTranslations()
   const [open, setOpen] = useState(false)
   const [loading, setLoading] = useState(false)
 
@@ -384,7 +386,7 @@ export function DeleteConfirmDialog({ title, description, onConfirm, children }:
       await onConfirm()
       setOpen(false)
     } catch (e) {
-      toast.error(e instanceof Error ? e.message : "Failed to delete")
+      toast.error(e instanceof Error ? e.message : t("common.error"))
     } finally {
       setLoading(false)
     }
@@ -399,9 +401,9 @@ export function DeleteConfirmDialog({ title, description, onConfirm, children }:
           <DialogDescription>{description}</DialogDescription>
         </DialogHeader>
         <DialogFooter>
-          <Button variant="outline" onClick={() => setOpen(false)}>Cancel</Button>
+          <Button variant="outline" onClick={() => setOpen(false)}>{t("common.cancel")}</Button>
           <Button variant="destructive" onClick={handleConfirm} disabled={loading}>
-            {loading ? "Deleting..." : "Delete"}
+            {loading ? t("common.deleting") : t("common.delete")}
           </Button>
         </DialogFooter>
       </DialogContent>

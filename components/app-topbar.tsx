@@ -317,10 +317,10 @@ export function AppTopbar() {
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-96">
               <div className="flex items-center justify-between px-2 py-1.5">
-                <DropdownMenuLabel className="p-0">Notifications</DropdownMenuLabel>
+                <DropdownMenuLabel className="p-0">{t("notifications.title")}</DropdownMenuLabel>
                 {unreadCount > 0 && (
                   <span className="text-[10px] font-medium text-primary bg-primary/10 rounded-full px-2 py-0.5">
-                    {unreadCount} new
+                    {unreadCount} {t("notifications.new")}
                   </span>
                 )}
               </div>
@@ -328,7 +328,7 @@ export function AppTopbar() {
 {notifications.length === 0 ? (
     <div className="py-6 text-center">
       <Bell className="h-8 w-8 mx-auto text-muted-foreground/40 mb-2" />
-      <p className="text-sm text-muted-foreground">No notifications yet</p>
+      <p className="text-sm text-muted-foreground">{t("notifications.empty")}</p>
     </div>
   ) : (
     notifications.slice(0, 5).map((notif) => {
@@ -376,7 +376,7 @@ export function AppTopbar() {
                     className="justify-center text-xs text-primary hover:text-primary cursor-pointer py-2"
                     onClick={() => router.push("/settings/notifications")}
                   >
-                    View all notifications
+                    {t("notifications.viewAll")}
                   </DropdownMenuItem>
                 </>
               )}
@@ -470,7 +470,7 @@ export function AppTopbar() {
               trigger={
                 <Button variant="outline" className="w-full justify-start gap-2 text-muted-foreground">
                   <Search className="h-3.5 w-3.5" />
-                  Search...
+                  {t("spotlight.placeholder")}
                 </Button>
               }
             />

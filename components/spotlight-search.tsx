@@ -395,7 +395,7 @@ export function SpotlightSearch({ trigger }: SpotlightSearchProps) {
                 {/* Results summary */}
                 <div className="flex items-center justify-between px-4 py-2">
                   <span className="text-xs font-medium text-muted-foreground">
-                    {searchData?.total || 0} results found
+                    {searchData?.total || 0} {t("spotlight.resultsFound")}
                   </span>
                   <div className="flex items-center gap-1">
                     {Object.entries(searchData?.categories || {}).slice(0, 4).map(([cat, count]) => (
@@ -459,7 +459,7 @@ export function SpotlightSearch({ trigger }: SpotlightSearchProps) {
                                 )}
                                 {result.meta?.journeyTitle && (
                                   <p className="truncate text-[10px] text-muted-foreground/60">
-                                    in {result.meta.journeyTitle as string}
+                                    {t("spotlight.inJourney")} {result.meta.journeyTitle as string}
                                   </p>
                                 )}
                               </div>
@@ -617,9 +617,9 @@ export function SpotlightSearch({ trigger }: SpotlightSearchProps) {
                       <TrendingUp className="h-4 w-4 text-primary" />
                     </div>
                     <div>
-                      <p className="text-xs font-medium text-foreground">Pro tip</p>
+                      <p className="text-xs font-medium text-foreground">{t("spotlight.proTip")}</p>
                       <p className="mt-0.5 text-[11px] text-muted-foreground">
-                        Type <kbd className="rounded bg-muted px-1 py-0.5 text-[10px]">type:pain_point</kbd> to filter by content type, or search any keyword to find journeys, solutions, and more.
+                        {t("spotlight.proTipDesc")}
                       </p>
                     </div>
                   </div>
@@ -638,25 +638,25 @@ export function SpotlightSearch({ trigger }: SpotlightSearchProps) {
                 <kbd className="flex h-5 w-5 items-center justify-center rounded border border-border/50 bg-background text-[10px] shadow-sm">
                   <ArrowRight className="h-2.5 w-2.5 rotate-90" />
                 </kbd>
-                <span>Navigate</span>
+                <span>{t("spotlight.navigate")}</span>
               </div>
               <div className="flex items-center gap-1.5">
                 <kbd className="flex h-5 items-center justify-center rounded border border-border/50 bg-background px-1.5 text-[10px] shadow-sm">
                   <CornerDownLeft className="h-2.5 w-2.5" />
                 </kbd>
-                <span>Select</span>
+                <span>{t("spotlight.select")}</span>
               </div>
               <div className="flex items-center gap-1.5">
                 <kbd className="flex h-5 items-center justify-center rounded border border-border/50 bg-background px-1.5 text-[10px] shadow-sm">
                   esc
                 </kbd>
-                <span>Close</span>
+                <span>{t("common.close")}</span>
               </div>
             </div>
             
             <div className="flex items-center gap-1.5 text-[10px] text-muted-foreground/60">
               <Sparkles className="h-3 w-3" />
-              <span>Powered by AI</span>
+              <span>{t("spotlight.poweredByAi")}</span>
             </div>
           </div>
         </DialogContent>
