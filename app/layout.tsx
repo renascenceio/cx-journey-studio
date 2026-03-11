@@ -1,8 +1,11 @@
 import type { Metadata } from 'next'
 import { Geist, Geist_Mono } from 'next/font/google'
 import { Analytics } from '@vercel/analytics/next'
+import { getLocale, getMessages } from 'next-intl/server'
 import { ThemeProvider } from '@/components/theme-provider'
 import { AuthProvider } from '@/lib/auth-provider'
+import { I18nProvider } from '@/components/i18n-provider'
+import { isRtlLocale, type Locale } from '@/lib/i18n/config'
 import './globals.css'
 
 const _geist = Geist({ subsets: ["latin"] });
@@ -34,18 +37,24 @@ export const metadata: Metadata = {
   },
 }
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode
 }>) {
+  const locale = await getLocale()
+  const messages = await getMessages()
+  const isRtl = isRtlLocale(locale as Locale)
+
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang={locale} dir={isRtl ? 'rtl' : 'ltr'} suppressHydrationWarning>
       <body className="font-sans antialiased">
         <ThemeProvider attribute="class" defaultTheme="light" enableSystem disableTransitionOnChange>
-          <AuthProvider>
-            {children}
-          </AuthProvider>
+          <I18nProvider locale={locale} messages={messages}>
+            <AuthProvider>
+              {children}
+            </AuthProvider>
+          </I18nProvider>
         </ThemeProvider>
         <Analytics />
       </body>
