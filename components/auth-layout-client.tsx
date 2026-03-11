@@ -28,7 +28,8 @@ interface AuthLayoutClientProps {
 }
 
 export function AuthLayoutClient({ children, logoDark, logoLight, siteName }: AuthLayoutClientProps) {
-  const t = testimonials[Math.floor(Math.random() * testimonials.length)]
+  // Use first testimonial for SSR consistency, avoiding hydration mismatch from Math.random()
+  const t = testimonials[0]
 
   return (
     <AuthProvider>
