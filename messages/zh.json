@@ -620,5 +620,6 @@
     "npsImprovement": "NPS 提升",
     "crossTeamAlignment": "更多跨团队协调",
     "churnReduction": "流失率降低"
-  }
+  },
+  "_version": "1.0.0"
 }

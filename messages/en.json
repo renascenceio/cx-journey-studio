@@ -620,5 +620,6 @@
     "npsImprovement": "NPS improvement",
     "crossTeamAlignment": "more cross-team alignment",
     "churnReduction": "reduction in churn"
-  }
+  },
+  "_version": "1.0.0"
 }
