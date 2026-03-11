@@ -1,5 +1,6 @@
 "use client"
 
+import { useTranslations } from "next-intl"
 import { useSounds, type SoundPreferences, preloadCommonSounds } from "@/hooks/use-sounds"
 import { Switch } from "@/components/ui/switch"
 import { Slider } from "@/components/ui/slider"
@@ -19,44 +20,45 @@ import {
 import { useEffect } from "react"
 
 const categoryInfo: Record<keyof SoundPreferences["categories"], { 
-  label: string
-  description: string
+  labelKey: string
+  descKey: string
   icon: typeof Volume2
   testSound: Parameters<ReturnType<typeof useSounds>["play"]>[0]
 }> = {
   success: {
-    label: "Success Sounds",
-    description: "Play when actions complete successfully (saving, creating, exporting)",
+    labelKey: "sounds.success",
+    descKey: "sounds.successDesc",
     icon: CheckCircle,
     testSound: "success",
   },
   notification: {
-    label: "Notification Sounds",
-    description: "Play for comments, mentions, and collaborator activity",
+    labelKey: "sounds.notification",
+    descKey: "sounds.notificationDesc",
     icon: Bell,
     testSound: "notification",
   },
   action: {
-    label: "Action Sounds",
-    description: "Subtle sounds for clicks, tabs, and interactions",
+    labelKey: "sounds.action",
+    descKey: "sounds.actionDesc",
     icon: MousePointer,
     testSound: "click",
   },
   alert: {
-    label: "Alert Sounds",
-    description: "Play for errors, warnings, and important alerts",
+    labelKey: "sounds.alert",
+    descKey: "sounds.alertDesc",
     icon: AlertCircle,
     testSound: "error",
   },
   ai: {
-    label: "AI Sounds",
-    description: "Play when AI generation starts or completes",
+    labelKey: "sounds.ai",
+    descKey: "sounds.aiDesc",
     icon: Sparkles,
     testSound: "ai-complete",
   },
 }
 
 export function SoundSettings() {
+  const t = useTranslations()
   const { 
     play, 
     preferences, 
@@ -77,7 +79,7 @@ export function SoundSettings() {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Volume2 className="h-5 w-5" />
-            Sound Settings
+            {t("sounds.title")}
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -99,19 +101,19 @@ export function SoundSettings() {
           ) : (
             <VolumeX className="h-5 w-5 text-muted-foreground" />
           )}
-          Sound Settings
+          {t("sounds.title")}
         </CardTitle>
         <CardDescription>
-          Configure audio feedback for actions and notifications
+          {t("sounds.description")}
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">
         {/* Master toggle */}
         <div className="flex items-center justify-between">
           <div className="space-y-0.5">
-            <Label className="text-base font-medium">Enable Sounds</Label>
+            <Label className="text-base font-medium">{t("sounds.enableSounds")}</Label>
             <p className="text-sm text-muted-foreground">
-              Play audio feedback throughout the app
+              {t("sounds.enableSoundsDesc")}
             </p>
           </div>
           <Switch
@@ -124,7 +126,7 @@ export function SoundSettings() {
         {preferences.enabled && (
           <div className="space-y-3">
             <div className="flex items-center justify-between">
-              <Label className="text-sm font-medium">Volume</Label>
+              <Label className="text-sm font-medium">{t("sounds.volume")}</Label>
               <span className="text-sm text-muted-foreground">
                 {Math.round(preferences.volume * 100)}%
               </span>
@@ -142,7 +144,7 @@ export function SoundSettings() {
         {/* Category toggles */}
         {preferences.enabled && (
           <div className="space-y-4 pt-4 border-t border-border">
-            <Label className="text-sm font-medium text-muted-foreground">Sound Categories</Label>
+            <Label className="text-sm font-medium text-muted-foreground">{t("sounds.categories")}</Label>
             {(Object.keys(categoryInfo) as Array<keyof typeof categoryInfo>).map((category) => {
               const info = categoryInfo[category]
               const IconComponent = info.icon
@@ -153,7 +155,7 @@ export function SoundSettings() {
                   </div>
                   <div className="flex-1 space-y-1">
                     <div className="flex items-center justify-between">
-                      <Label className="text-sm font-medium">{info.label}</Label>
+                      <Label className="text-sm font-medium">{t(info.labelKey)}</Label>
                       <div className="flex items-center gap-2">
                         <Button
                           variant="ghost"
@@ -163,7 +165,7 @@ export function SoundSettings() {
                           disabled={!preferences.categories[category]}
                         >
                           <Play className="h-3 w-3 mr-1" />
-                          Test
+                          {t("sounds.test")}
                         </Button>
                         <Switch
                           checked={preferences.categories[category]}
@@ -171,7 +173,7 @@ export function SoundSettings() {
                         />
                       </div>
                     </div>
-                    <p className="text-xs text-muted-foreground">{info.description}</p>
+                    <p className="text-xs text-muted-foreground">{t(info.descKey)}</p>
                   </div>
                 </div>
               )
@@ -237,8 +239,7 @@ export function SoundSettings() {
         {/* Accessibility note */}
         <div className="rounded-lg bg-muted/50 p-3 text-xs text-muted-foreground">
           <p>
-            Sounds respect your system&apos;s &quot;Reduce Motion&quot; accessibility setting. 
-            When enabled, no sounds will play.
+            {t("sounds.accessibilityNote")}
           </p>
         </div>
       </CardContent>
