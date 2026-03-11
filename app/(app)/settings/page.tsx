@@ -11,7 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useAuth } from "@/lib/auth-provider"
 import { ROLE_LABELS } from "@/lib/permissions"
 import { Camera, Shield, Key, Building2, User, Receipt, Loader2, Globe } from "lucide-react"
-import { LanguageSwitcher } from "@/components/language-switcher"
+import { LanguageSwitcher } from "@/components/locale-switcher"
 import { useState, useRef, useEffect } from "react"
 import { toast } from "sonner"
 import { Toaster } from "@/components/ui/sonner"

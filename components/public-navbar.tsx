@@ -5,7 +5,7 @@ import Image from "next/image"
 import { useState } from "react"
 import { useTheme } from "next-themes"
 import { Button } from "@/components/ui/button"
-import { LanguageSwitcher } from "@/components/language-switcher"
+import { LanguageSwitcher } from "@/components/locale-switcher"
 import { Menu, X, Sun, Moon, LayoutDashboard, Settings, LogOut, User } from "lucide-react"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import {
