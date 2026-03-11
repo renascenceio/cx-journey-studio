@@ -41,27 +41,7 @@ import { useDebounce } from "@/hooks/use-debounce"
 
 const fetcher = (url: string) => fetch(url).then((r) => r.json())
 
-// Quick actions/pages (always available)
-const pages = [
-  { name: "Dashboard", icon: LayoutDashboard, href: "/dashboard", keywords: ["home", "overview", "main"], description: "Your command center" },
-  { name: "Journeys", icon: Route, href: "/journeys", keywords: ["maps", "customer", "cx"], description: "Customer experience maps" },
-  { name: "Archetypes", icon: UserCircle, href: "/archetypes", keywords: ["personas", "users", "customers"], description: "User personas & segments" },
-  { name: "Templates", icon: LayoutTemplate, href: "/templates", keywords: ["presets", "starting"], description: "Pre-built journey templates" },
-  { name: "Solutions", icon: Lightbulb, href: "/solutions", keywords: ["ideas", "fixes", "improvements"], description: "Improvement ideas & fixes" },
-  { name: "Roadmap", icon: Milestone, href: "/roadmap", keywords: ["initiatives", "planning", "timeline"], description: "Strategic planning" },
-  { name: "Analytics", icon: BarChart3, href: "/analytics", keywords: ["metrics", "data", "reports"], description: "Insights & metrics" },
-  { name: "Settings", icon: Settings, href: "/settings", keywords: ["preferences", "config"], description: "App preferences" },
-  { name: "Team", icon: Users, href: "/settings/team", keywords: ["members", "people", "invite"], description: "Manage team members" },
-  { name: "Workspace", icon: Building2, href: "/settings/workspace", keywords: ["organization", "company"], description: "Organization settings" },
-  { name: "Help Center", icon: HelpCircle, href: "/faq", keywords: ["support", "questions", "docs"], description: "Support & documentation" },
-]
-
-// Quick actions
-const actions = [
-  { name: "Create Journey", icon: Plus, action: "create-journey", keywords: ["new", "add", "journey"], color: "emerald" },
-  { name: "New Archetype", icon: Plus, action: "create-archetype", keywords: ["add", "persona", "archetype"], color: "violet" },
-  { name: "Add Solution", icon: Plus, action: "create-solution", keywords: ["add", "idea", "solution"], color: "amber" },
-]
+// Pages and actions are defined inside the component to use translations
 
 // Icons for different result types
 const typeConfig: Record<string, { icon: typeof Route; gradient: string; bgLight: string; bgDark: string }> = {
@@ -100,6 +80,28 @@ export function SpotlightSearch({ trigger }: SpotlightSearchProps) {
   const t = useTranslations()
   const router = useRouter()
   const [open, setOpen] = useState(false)
+  
+  // Quick actions/pages (always available) - defined inside component for translations
+  const pages = [
+    { name: t("spotlightPages.dashboard"), icon: LayoutDashboard, href: "/dashboard", keywords: ["home", "overview", "main"], description: t("spotlightPages.dashboardDesc") },
+    { name: t("spotlightPages.journeys"), icon: Route, href: "/journeys", keywords: ["maps", "customer", "cx"], description: t("spotlightPages.journeysDesc") },
+    { name: t("spotlightPages.archetypes"), icon: UserCircle, href: "/archetypes", keywords: ["personas", "users", "customers"], description: t("spotlightPages.archetypesDesc") },
+    { name: t("spotlightPages.templates"), icon: LayoutTemplate, href: "/templates", keywords: ["presets", "starting"], description: t("spotlightPages.templatesDesc") },
+    { name: t("spotlightPages.solutions"), icon: Lightbulb, href: "/solutions", keywords: ["ideas", "fixes", "improvements"], description: t("spotlightPages.solutionsDesc") },
+    { name: t("spotlightPages.roadmap"), icon: Milestone, href: "/roadmap", keywords: ["initiatives", "planning", "timeline"], description: t("spotlightPages.roadmapDesc") },
+    { name: t("spotlightPages.analytics"), icon: BarChart3, href: "/analytics", keywords: ["metrics", "data", "reports"], description: t("spotlightPages.analyticsDesc") },
+    { name: t("spotlightPages.settings"), icon: Settings, href: "/settings", keywords: ["preferences", "config"], description: t("spotlightPages.settingsDesc") },
+    { name: t("spotlightPages.team"), icon: Users, href: "/settings/team", keywords: ["members", "people", "invite"], description: t("spotlightPages.teamDesc") },
+    { name: t("spotlightPages.workspace"), icon: Building2, href: "/settings/workspace", keywords: ["organization", "company"], description: t("spotlightPages.workspaceDesc") },
+    { name: t("spotlightPages.helpCenter"), icon: HelpCircle, href: "/faq", keywords: ["support", "questions", "docs"], description: t("spotlightPages.helpCenterDesc") },
+  ]
+
+  // Quick actions
+  const actions = [
+    { name: t("spotlight.createJourney"), icon: Plus, action: "create-journey", keywords: ["new", "add", "journey"], color: "emerald" },
+    { name: t("spotlight.newArchetype"), icon: Plus, action: "create-archetype", keywords: ["add", "persona", "archetype"], color: "violet" },
+    { name: t("spotlight.addSolution"), icon: Plus, action: "create-solution", keywords: ["add", "idea", "solution"], color: "amber" },
+  ]
   const [query, setQuery] = useState("")
   const [selectedIndex, setSelectedIndex] = useState(0)
   const inputRef = useRef<HTMLInputElement>(null)
@@ -269,14 +271,14 @@ export function SpotlightSearch({ trigger }: SpotlightSearchProps) {
   const showSearchResults = debouncedQuery.length >= 2
 
   const categoryLabels: Record<string, string> = {
-    journey: "Journeys",
-    solution: "Solutions",
-    archetype: "Archetypes",
-    template: "Templates",
-    stage: "Stages",
-    step: "Steps",
-    pain_point: "Pain Points",
-    highlight: "Highlights",
+    journey: t("nav.journeys"),
+    solution: t("nav.solutions"),
+    archetype: t("nav.archetypes"),
+    template: t("nav.templates"),
+    stage: t("journey.stages"),
+    step: t("journey.step"),
+    pain_point: t("journey.painPoints"),
+    highlight: t("journey.highlights"),
   }
 
   let itemIndex = -1

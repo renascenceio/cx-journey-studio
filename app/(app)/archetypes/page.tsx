@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+import { useTranslations } from "next-intl"
 import Link from "next/link"
 import { BrainstormArchetypesDialog } from "@/components/brainstorm-archetypes-dialog"
 import { Card, CardContent } from "@/components/ui/card"
@@ -243,6 +244,7 @@ function ArchetypeRadarChart({ chart }: { chart: Archetype["radarCharts"][number
 }
 
 export default function ArchetypesPage() {
+  const t = useTranslations()
   const { archetypes: allArchetypes, isLoading, mutate } = useArchetypes()
   const { journeys: allJourneys } = useJourneys()
 
@@ -326,20 +328,20 @@ export default function ArchetypesPage() {
       {/* Header */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-xl font-semibold text-foreground">Archetypes</h1>
+          <h1 className="text-xl font-semibold text-foreground">{t("archetypes.title")}</h1>
           <p className="text-sm text-muted-foreground mt-0.5">
-            Define and manage customer archetypes used across your journeys.
+            {t("archetypes.subtitle")}
           </p>
         </div>
         <div className="flex items-center gap-2">
           <Button variant="outline" size="sm" className="gap-1.5" onClick={() => setImportOpen(true)}>
             <Upload className="h-3.5 w-3.5" />
-            Import
+            {t("archetypes.import")}
           </Button>
           <BrainstormArchetypesDialog onArchetypesCreated={() => mutate()}>
             <Button size="sm" className="gap-1.5">
               <Sparkles className="h-3.5 w-3.5" />
-              Brainstorm Archetypes
+              {t("archetypes.brainstorm")}
             </Button>
           </BrainstormArchetypesDialog>
         </div>
@@ -350,7 +352,7 @@ export default function ArchetypesPage() {
         <div className="relative flex-1 max-w-sm">
           <Search className="absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground" />
           <Input
-            placeholder="Search archetypes..."
+            placeholder={t("archetypes.searchPlaceholder")}
             className="h-8 pl-8 text-sm"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
@@ -372,7 +374,7 @@ export default function ArchetypesPage() {
                       }
                       return null
                     })()}
-                    {selectedCategory === "all" ? `All Categories (${allArchetypes.length})` : (categoryLabels[selectedCategory] || selectedCategory)}
+                    {selectedCategory === "all" ? `${t("archetypes.allCategories")} (${allArchetypes.length})` : (categoryLabels[selectedCategory] || selectedCategory)}
                   </span>
                   <ChevronDown className="h-3.5 w-3.5 opacity-50" />
                 </Button>
@@ -429,25 +431,25 @@ export default function ArchetypesPage() {
           <TabsList className="h-auto p-1 w-fit">
             <TabsTrigger value="my" className="gap-2 px-4 py-2 data-[state=active]:bg-background">
               <User className="h-3.5 w-3.5" />
-              <span>My Archetypes</span>
+              <span>{t("archetypes.myArchetypes")}</span>
               <Badge variant="secondary" className="ml-1 text-[9px] px-1.5 h-5">{myArchetypes.length}</Badge>
             </TabsTrigger>
             <TabsTrigger value="public" className="gap-2 px-4 py-2 data-[state=active]:bg-background">
               <Globe className="h-3.5 w-3.5" />
-              <span>Public</span>
+              <span>{t("archetypes.public")}</span>
               <Badge variant="secondary" className="ml-1 text-[9px] px-1.5 h-5">{publicArchetypes.length}</Badge>
             </TabsTrigger>
             <TabsTrigger value="studio" className="gap-2 px-4 py-2 data-[state=active]:bg-background">
               <Crown className="h-3.5 w-3.5" />
-              <span>Studio</span>
+              <span>{t("archetypes.studioTab")}</span>
               <Badge variant="secondary" className="ml-1 text-[9px] px-1.5 h-5">{studioArchetypes.length}</Badge>
             </TabsTrigger>
           </TabsList>
           
           <p className="text-xs text-muted-foreground mt-3">
-            {visibilityTab === "my" && "Archetypes you've created or imported for your organization."}
-            {visibilityTab === "public" && "Community archetypes shared by other users."}
-            {visibilityTab === "studio" && "Premium archetypes curated by the Journey Studio team."}
+            {visibilityTab === "my" && t("archetypes.myArchetypesDesc")}
+            {visibilityTab === "public" && t("archetypes.publicDesc")}
+            {visibilityTab === "studio" && t("archetypes.studioDesc")}
           </p>
         </Tabs>
       </div>

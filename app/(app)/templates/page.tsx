@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useMemo, useEffect } from "react"
+import { useTranslations } from "next-intl"
 import { 
   Search, BookTemplate, Layers, GitBranch, Plus, Users, Globe, User, X, Sparkles, Loader2, ChevronDown, Crown,
 } from "lucide-react"
@@ -42,6 +43,7 @@ const CATEGORIES = INDUSTRIES
 const categoryLabels = industryLabels
 
 export default function TemplatesPage() {
+  const t = useTranslations()
   const [templates, setTemplates] = useState<JourneyTemplate[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [search, setSearch] = useState("")
@@ -195,14 +197,14 @@ export default function TemplatesPage() {
 
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight text-foreground">Template Library</h1>
+          <h1 className="text-2xl font-bold tracking-tight text-foreground">{t("templates.title")}</h1>
           <p className="text-sm text-muted-foreground">
-            Start fast with industry-proven journey templates
+            {t("templates.subtitle")}
           </p>
         </div>
         <Button size="sm" className="gap-1.5" onClick={() => setAiDialogOpen(true)}>
           <Sparkles className="h-3.5 w-3.5" />
-          Generate with AI
+          {t("templates.generateWithAI")}
         </Button>
       </div>
 
@@ -212,15 +214,15 @@ export default function TemplatesPage() {
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <Sparkles className="h-4 w-4 text-primary" />
-              Generate Journey Template with AI
+              {t("templates.generateAITitle")}
             </DialogTitle>
             <DialogDescription>
-              Describe the type of journey you want and AI will create a complete template with stages, steps, and touch points.
+              {t("templates.generateAIDesc")}
             </DialogDescription>
           </DialogHeader>
           <div className="flex flex-col gap-4 py-2">
             <div className="flex flex-col gap-2">
-              <Label>Industry</Label>
+              <Label>{t("templates.industry")}</Label>
               <Popover>
                 <PopoverTrigger asChild>
                   <Button variant="outline" className="w-full justify-between">
@@ -272,9 +274,9 @@ export default function TemplatesPage() {
               </Popover>
             </div>
             <div className="flex flex-col gap-2">
-              <Label>Describe the journey</Label>
+              <Label>{t("templates.describeJourney")}</Label>
               <Textarea
-                placeholder="e.g., A new customer onboarding journey for a fintech mobile banking app, from initial download through first transaction and establishing regular usage habits..."
+                placeholder={t("templates.describeJourneyPlaceholder")}
                 value={aiPrompt}
                 onChange={(e) => setAiPrompt(e.target.value)}
                 rows={4}
@@ -283,12 +285,12 @@ export default function TemplatesPage() {
             </div>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setAiDialogOpen(false)} disabled={aiGenerating}>Cancel</Button>
+            <Button variant="outline" onClick={() => setAiDialogOpen(false)} disabled={aiGenerating}>{t("common.cancel")}</Button>
             <Button onClick={handleAiGenerate} disabled={!aiPrompt.trim() || aiGenerating} className="gap-1.5">
               {aiGenerating ? (
-                <><Loader2 className="h-3.5 w-3.5 animate-spin" />Generating...</>
+                <><Loader2 className="h-3.5 w-3.5 animate-spin" />{t("templates.generating")}</>
               ) : (
-                <><Sparkles className="h-3.5 w-3.5" />Generate Template</>
+                <><Sparkles className="h-3.5 w-3.5" />{t("templates.generateTemplate")}</>
               )}
             </Button>
           </DialogFooter>
@@ -300,14 +302,14 @@ export default function TemplatesPage() {
         <TabsList className="h-auto p-1 w-fit">
           <TabsTrigger value="public" className="gap-2 px-4 py-2 data-[state=active]:bg-background">
             <Crown className="h-3.5 w-3.5" />
-            <span>Studio</span>
+            <span>{t("templates.studio")}</span>
             <Badge variant="secondary" className="ml-1 text-[9px] px-1.5 h-5">
               {scope === "public" ? filtered.length : ""}
             </Badge>
           </TabsTrigger>
           <TabsTrigger value="my" className="gap-2 px-4 py-2 data-[state=active]:bg-background">
             <User className="h-3.5 w-3.5" />
-            <span>My Templates</span>
+            <span>{t("templates.myTemplates")}</span>
             <Badge variant="secondary" className="ml-1 text-[9px] px-1.5 h-5">
               {scope === "my" ? filtered.length : ""}
             </Badge>
@@ -322,7 +324,7 @@ export default function TemplatesPage() {
             <Button variant="outline" size="sm" className="h-8 w-52 justify-between text-xs">
               <span className="flex items-center gap-2">
                 {selectedCategory === "all" ? (
-                  `All Categories (${templates.length})`
+                  `${t("templates.allCategories")} (${templates.length})`
                 ) : (() => {
                   const cat = CATEGORIES.find(c => c.value === selectedCategory)
                   if (cat) {
@@ -379,7 +381,7 @@ export default function TemplatesPage() {
         </Popover>
         <div className="relative">
           <Search className="absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground" />
-          <Input type="search" placeholder="Search templates..." value={search} onChange={(e) => setSearch(e.target.value)} className="h-8 w-56 pl-8 text-sm" />
+          <Input type="search" placeholder={t("templates.searchTemplates")} value={search} onChange={(e) => setSearch(e.target.value)} className="h-8 w-56 pl-8 text-sm" />
         </div>
       </div>
 
@@ -392,8 +394,8 @@ export default function TemplatesPage() {
         <Card className="border-dashed border-border/60">
           <CardContent className="flex flex-col items-center gap-2 py-16 text-center">
             <BookTemplate className="h-8 w-8 text-muted-foreground/50" />
-            <p className="text-sm font-medium text-foreground">No templates found</p>
-            <p className="text-xs text-muted-foreground">Try adjusting your search or filters</p>
+            <p className="text-sm font-medium text-foreground">{t("templates.noTemplates")}</p>
+            <p className="text-xs text-muted-foreground">{t("templates.noTemplatesDesc")}</p>
           </CardContent>
         </Card>
       ) : (
@@ -420,8 +422,8 @@ export default function TemplatesPage() {
 
                 {/* Stats */}
                 <div className="flex items-center gap-3 text-[11px] text-muted-foreground">
-                  <span className="flex items-center gap-1"><Layers className="h-3 w-3" />{template.stages.length} stages</span>
-                  <span className="flex items-center gap-1"><GitBranch className="h-3 w-3" />{template.stages.reduce((s, st) => s + st.steps.length, 0)} steps</span>
+                  <span className="flex items-center gap-1"><Layers className="h-3 w-3" />{template.stages.length} {t("templates.stages")}</span>
+                  <span className="flex items-center gap-1"><GitBranch className="h-3 w-3" />{template.stages.reduce((s, st) => s + st.steps.length, 0)} {t("templates.steps")}</span>
                 </div>
 
                 {/* Action */}
@@ -435,7 +437,7 @@ export default function TemplatesPage() {
                     }}
                   >
                     <Plus className="mr-1 h-3 w-3" />
-                    Use Template
+                    {t("templates.useTemplate")}
                   </Button>
                 </div>
               </CardContent>

@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useMemo } from "react"
+import { useTranslations } from "next-intl"
 import {
   Brain,
   Repeat,
@@ -378,6 +379,7 @@ interface SolutionsClientProps {
 }
 
 export function SolutionsClient({ platformSolutions, crowdSolutions, mySolutions, futureJourneys }: SolutionsClientProps) {
+  const t = useTranslations()
   const [activeCategory, setActiveCategory] = useState<SolutionCategory | "all">("all")
   const [search, setSearch] = useState("")
   const [sort, setSort] = useState<SortMode>("relevance")
@@ -473,9 +475,9 @@ export function SolutionsClient({ platformSolutions, crowdSolutions, mySolutions
 
       {/* Header */}
       <div className="flex flex-col gap-1">
-        <h1 className="text-2xl font-bold tracking-tight text-foreground">Solutions</h1>
+        <h1 className="text-2xl font-bold tracking-tight text-foreground">{t("solutions.title")}</h1>
         <p className="text-sm text-muted-foreground">
-          Discover proven strategies, behavioral patterns, and crowd-sourced approaches to improve customer journeys
+          {t("solutions.subtitle")}
         </p>
       </div>
 
@@ -484,7 +486,7 @@ export function SolutionsClient({ platformSolutions, crowdSolutions, mySolutions
         <CardContent className="flex items-center gap-3 py-3">
           <Sparkles className="h-5 w-5 shrink-0 text-primary" />
           <Input
-            placeholder="Ask AI to find specific solutions (e.g., 'reduce cart abandonment for mobile users')..."
+            placeholder={t("solutions.aiSearchPlaceholder")}
             value={aiQuery}
             onChange={(e) => setAiQuery(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && handleAiSearch()}
@@ -501,7 +503,7 @@ export function SolutionsClient({ platformSolutions, crowdSolutions, mySolutions
             ) : (
               <Sparkles className="h-3.5 w-3.5" />
             )}
-            {aiSearching ? "Searching..." : "Search"}
+            {aiSearching ? t("solutions.searching") : t("solutions.search")}
           </Button>
         </CardContent>
       </Card>
