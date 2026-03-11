@@ -345,7 +345,7 @@
     "solutionUpdated": "解决方案已更新",
     "failedToUpdate": "更新解决方案失败",
     "deleteSolution": "删除解决方案",
-    "deleteSolutionConfirm": "确定要删除"{title}"吗？此操作无法撤销。",
+    "deleteSolutionConfirm": "确定要删除「{title}」吗？此操作无法撤销。",
     "solutionDeleted": "解决方案已删除",
     "failedToDelete": "删除解决方案失败"
   },
@@ -435,7 +435,7 @@
     "title": "声音设置",
     "description": "配置操作和���知的音频反馈",
     "enableSounds": "启用声音",
-    "enableSoundsDesc": "在整个应用程序中播放音频反馈",
+    "enableSoundsDesc": "在整个应用程序中播放音频���馈",
     "volume": "音量",
     "categories": "声音类别",
     "success": "成功声音",
@@ -734,9 +734,6 @@
     "workspace": "工作区",
     "workspaceDesc": "组织设置",
     "helpCenter": "帮助中心",
-    "helpCenterDesc": "支持和文档"
-  }
-}
     "helpCenterDesc": "支持和文档"
   },
   "_version": "1.0.1"
