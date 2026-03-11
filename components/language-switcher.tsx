@@ -1,9 +1,10 @@
 "use client"
 
-import { useLocale, useTranslations } from "next-intl"
+// v2 - Fixed: removed useTranslations, added debug logging
+import { useLocale } from "next-intl"
 import { useTransition } from "react"
 import { useRouter } from "next/navigation"
-import { Globe } from "lucide-react"
+import { Globe, Loader2 } from "lucide-react"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -29,14 +30,17 @@ export function LanguageSwitcher({
   className,
 }: LanguageSwitcherProps) {
   const locale = useLocale() as Locale
-  const t = useTranslations("language")
   const router = useRouter()
   const [isPending, startTransition] = useTransition()
 
   function handleLocaleChange(newLocale: Locale) {
+    console.log("[v0] Language change requested:", newLocale)
     startTransition(async () => {
-      await setLocale(newLocale)
+      console.log("[v0] Setting locale to:", newLocale)
+      const result = await setLocale(newLocale)
+      console.log("[v0] setLocale result:", result)
       router.refresh()
+      console.log("[v0] Router refresh called")
     })
   }
 
@@ -49,7 +53,11 @@ export function LanguageSwitcher({
           className={cn("gap-2", className)}
           disabled={isPending}
         >
-          <Globe className="h-4 w-4" />
+          {isPending ? (
+            <Loader2 className="h-4 w-4 animate-spin" />
+          ) : (
+            <Globe className="h-4 w-4" />
+          )}
           {showLabel && <span>{languageNames[locale]}</span>}
         </Button>
       </DropdownMenuTrigger>
