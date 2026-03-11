@@ -1,6 +1,6 @@
 "use client"
 
-// v3 - Complete rewrite to force cache invalidation
+// v4 - Complete rewrite, no useTranslations, pure client-side
 import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { Globe, Loader2, Check } from "lucide-react"
