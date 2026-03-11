@@ -386,7 +386,7 @@
     "aiDesc": "AI生成开始或完成时播放",
     "test": "测试",
     "whenSoundsPlay": "声音播放时机",
-    "accessibilityNote": "声音遵循您系统的「减少动态效果」无障碍设置。启用后，将不会播放声音。"
+    "accessibilityNote": "声音遵循您系统的「减少动态效果」辅助功能设置。启用后将不播放任何声音。"
   },
   "spotlight": {
     "title": "搜索",
