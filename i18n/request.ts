@@ -1,6 +1,6 @@
 import { getRequestConfig } from 'next-intl/server'
 import { cookies, headers } from 'next/headers'
-import { locales, defaultLocale, type Locale, LOCALE_COOKIE } from './config'
+import { locales, defaultLocale, type Locale, LOCALE_COOKIE } from '@/lib/i18n/config'
 
 // Get locale from request (cookies, headers, or default)
 async function getLocale(): Promise<Locale> {
