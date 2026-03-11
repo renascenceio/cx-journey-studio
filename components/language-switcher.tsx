@@ -1,5 +1,6 @@
 "use client"
 
+// v2 - Fixed: removed useTranslations, added debug logging
 import { useLocale } from "next-intl"
 import { useTransition } from "react"
 import { useRouter } from "next/navigation"
