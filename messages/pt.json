@@ -66,8 +66,14 @@
     "verifyEmailSent": "Enviamos um link de verificação para seu e-mail"
   },
   "landing": {
-    "heroTitle": "Projete jornadas de cliente que geram resultados",
-    "heroSubtitle": "Crie, visualize e otimize experiências do cliente com nossa plataforma intuitiva de mapeamento de jornadas.",
+    "hero": {
+      "title": "A plataforma completa para mapear jornadas de cliente.",
+      "subtitle": "O kit de ferramentas da sua equipe CX para parar de adivinhar e começar a melhorar. Mapeie arcos emocionais, defina arquétipos, monitore a saúde com NPS, CSAT e CES — tudo em um estúdio colaborativo.",
+      "startFree": "Começar Grátis",
+      "signIn": "Entrar",
+      "goToDashboard": "Ir para o Painel",
+      "viewJourneys": "Ver Jornadas"
+    },
     "getStarted": "Começar",
     "learnMore": "Saiba mais",
     "watchDemo": "Ver demonstração",

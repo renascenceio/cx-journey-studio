@@ -66,8 +66,14 @@
     "verifyEmailSent": "Hemos enviado un enlace de verificación a tu correo"
   },
   "landing": {
-    "heroTitle": "Diseña viajes de cliente que generan resultados",
-    "heroSubtitle": "Crea, visualiza y optimiza experiencias de cliente con nuestra plataforma intuitiva de mapeo de viajes.",
+    "hero": {
+      "title": "La plataforma completa para mapear viajes de cliente.",
+      "subtitle": "El kit de herramientas de tu equipo CX para dejar de adivinar y empezar a mejorar. Mapea arcos emocionales, define arquetipos, monitorea la salud con NPS, CSAT y CES — todo en un estudio colaborativo.",
+      "startFree": "Comenzar Gratis",
+      "signIn": "Iniciar Sesión",
+      "goToDashboard": "Ir al Panel",
+      "viewJourneys": "Ver Viajes"
+    },
     "getStarted": "Comenzar",
     "learnMore": "Saber más",
     "watchDemo": "Ver demo",

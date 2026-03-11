@@ -66,8 +66,14 @@
     "verifyEmailSent": "我们已向您的邮箱发送了验证链接"
   },
   "landing": {
-    "heroTitle": "设计驱动成果的客户旅程",
-    "heroSubtitle": "使用我们直观的旅程地图平台创建、可视化和优化客户体验。",
+    "hero": {
+      "title": "完整的客户旅程映射平台。",
+      "subtitle": "您的CX团队工具包，停止猜测，开始改进。映射情感弧线，定义原型，使用NPS、CSAT和CES监控健康状况——一切尽在协作工作室。",
+      "startFree": "免费开始",
+      "signIn": "登录",
+      "goToDashboard": "进入仪表板",
+      "viewJourneys": "查看旅程"
+    },
     "getStarted": "开始使用",
     "learnMore": "了解更多",
     "watchDemo": "观看演示",

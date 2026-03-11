@@ -66,8 +66,14 @@
     "verifyEmailSent": "Nous avons envoyé un lien de vérification à votre adresse e-mail"
   },
   "landing": {
-    "heroTitle": "Concevez des parcours clients qui génèrent des résultats",
-    "heroSubtitle": "Créez, visualisez et optimisez les expériences clients avec notre plateforme intuitive de cartographie.",
+    "hero": {
+      "title": "La plateforme complète pour cartographier les parcours clients.",
+      "subtitle": "La boîte à outils de votre équipe CX pour arrêter de deviner et commencer à améliorer. Cartographiez les arcs émotionnels, définissez les archétypes, surveillez la santé avec NPS, CSAT et CES — le tout dans un studio collaboratif.",
+      "startFree": "Commencer gratuitement",
+      "signIn": "Se connecter",
+      "goToDashboard": "Aller au tableau de bord",
+      "viewJourneys": "Voir les parcours"
+    },
     "getStarted": "Commencer",
     "learnMore": "En savoir plus",
     "watchDemo": "Voir la démo",
