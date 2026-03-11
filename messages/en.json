@@ -1,4 +1,5 @@
 {
+  "_version": "2.0",
   "common": {
     "loading": "Loading...",
     "save": "Save",
