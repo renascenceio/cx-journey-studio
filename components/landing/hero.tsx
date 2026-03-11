@@ -8,7 +8,7 @@ import { useAuth } from "@/lib/auth-provider"
 
 export function LandingHero() {
   const { isAuthenticated, isLoading } = useAuth()
-  const t = useTranslations("landing")
+  const t = useTranslations()
 
   return (
     <section className="relative overflow-hidden">
@@ -21,14 +21,14 @@ export function LandingHero() {
           {/* Left: Headline */}
           <div className="flex flex-col justify-center">
             <h1 className="text-balance text-4xl font-bold leading-[1.08] tracking-tight text-foreground sm:text-5xl lg:text-6xl">
-              {t("hero.title")}
+              {t("landing.hero.title")}
             </h1>
           </div>
 
           {/* Right: Description + CTA */}
           <div className="flex flex-col justify-center gap-6">
             <p className="max-w-lg text-pretty text-lg leading-relaxed text-muted-foreground">
-              {t("hero.subtitle")}
+              {t("landing.hero.subtitle")}
             </p>
             <div className="flex flex-wrap items-center gap-4">
               {!isLoading && isAuthenticated ? (
@@ -36,7 +36,7 @@ export function LandingHero() {
                   <Button size="lg" className="h-12 px-8 text-base" asChild>
                     <Link href="/dashboard">
                       <LayoutDashboard className="mr-2 h-4 w-4" />
-                      {t("hero.goToDashboard")}
+                      {t("landing.hero.goToDashboard")}
                     </Link>
                   </Button>
                   <Button
@@ -45,14 +45,14 @@ export function LandingHero() {
                     className="h-12 px-8 text-base"
                     asChild
                   >
-                    <Link href="/journeys">{t("hero.viewJourneys")}</Link>
+                    <Link href="/journeys">{t("landing.hero.viewJourneys")}</Link>
                   </Button>
                 </>
               ) : (
                 <>
                   <Button size="lg" className="h-12 px-8 text-base" asChild>
                     <Link href="/signup">
-                      {t("hero.startFree")}
+                      {t("landing.hero.startFree")}
                       <ArrowRight className="ml-2 h-4 w-4" />
                     </Link>
                   </Button>
@@ -62,7 +62,7 @@ export function LandingHero() {
                     className="h-12 px-8 text-base"
                     asChild
                   >
-                    <Link href="/login">{t("hero.signIn")}</Link>
+                    <Link href="/login">{t("landing.hero.signIn")}</Link>
                   </Button>
                 </>
               )}
@@ -75,22 +75,22 @@ export function LandingHero() {
           {[
             {
               stat: "72%",
-              label: "faster journey mapping",
+              label: t("impactMetrics.fasterMapping"),
               company: "Meridian Health",
             },
             {
               stat: "+34 pts",
-              label: "NPS improvement",
+              label: t("impactMetrics.npsImprovement"),
               company: "NovaPay",
             },
             {
               stat: "3x",
-              label: "more cross-team alignment",
+              label: t("impactMetrics.crossTeamAlignment"),
               company: "Catalyst Retail",
             },
             {
               stat: "40%",
-              label: "reduction in churn",
+              label: t("impactMetrics.churnReduction"),
               company: "Vertex Labs",
             },
           ].map((item) => (

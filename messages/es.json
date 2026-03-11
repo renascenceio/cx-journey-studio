@@ -565,5 +565,60 @@
     "contactSales": "Contactar ventas",
     "features": "Características",
     "includedFeatures": "Qué incluye"
+  },
+  "publicNav": {
+    "features": "Características",
+    "pricing": "Precios",
+    "howItWorks": "Cómo funciona",
+    "dashboard": "Panel",
+    "myJourneys": "Mis Viajes",
+    "settings": "Configuración",
+    "logOut": "Cerrar sesión",
+    "logIn": "Iniciar sesión",
+    "getStarted": "Comenzar",
+    "language": "Idioma",
+    "appearance": "Apariencia",
+    "light": "Claro",
+    "dark": "Oscuro"
+  },
+  "createWorkspace": {
+    "title": "Crear Espacio de Trabajo",
+    "subtitle": "Configura un nuevo espacio de trabajo para tu equipo",
+    "workspaceName": "Nombre del Espacio",
+    "workspaceNamePlaceholder": "ej. Acme Corporation",
+    "uploadLogo": "Subir logo (opcional)",
+    "clickToChangeLogo": "Clic para cambiar logo",
+    "cancel": "Cancelar",
+    "create": "Crear Espacio",
+    "creating": "Creando {name}",
+    "settingUp": "Configurando espacio",
+    "configuringPermissions": "Configurando permisos",
+    "creatingTeam": "Creando equipo",
+    "finalizing": "Finalizando",
+    "congratulations": "¡Felicidades!",
+    "workspaceReady": "{name} está listo",
+    "startCreating": "Comienza a crear mapas de viajes y colabora con tu equipo.",
+    "goToWorkspace": "Ir al Espacio",
+    "imageMustBeLess": "La imagen debe ser menor a 2MB",
+    "pleaseSelectImage": "Por favor selecciona una imagen"
+  },
+  "journeyTabs": {
+    "current": "Actual",
+    "currentDesc": "Mapas de viaje activos que reflejan la experiencia real hoy",
+    "future": "Futuro",
+    "futureDesc": "Mejoras planificadas y rediseños basados en oportunidades",
+    "deployed": "Desplegado",
+    "deployedDesc": "Viajes publicados con monitoreo de salud en vivo",
+    "deployJourney": "Desplegar Viaje",
+    "deployJourneyDesc": "Selecciona un viaje Actual o Futuro para desplegar. Los viajes desplegados son los que tu equipo se ha comprometido a implementar.",
+    "noJourneysToDeployDesc": "No hay viajes actuales o futuros disponibles para desplegar. Crea un viaje primero.",
+    "stages": "etapas",
+    "loadingJourneys": "Cargando viajes..."
+  },
+  "impactMetrics": {
+    "fasterMapping": "mapeo de viajes más rápido",
+    "npsImprovement": "mejora en NPS",
+    "crossTeamAlignment": "más alineación entre equipos",
+    "churnReduction": "reducción de abandono"
   }
 }

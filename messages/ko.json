@@ -484,5 +484,60 @@
     "contactSales": "영업팀 문의",
     "features": "기능",
     "includedFeatures": "포함된 기능"
+  },
+  "publicNav": {
+    "features": "기능",
+    "pricing": "가격",
+    "howItWorks": "사용 방법",
+    "dashboard": "대시보드",
+    "myJourneys": "내 여정",
+    "settings": "설정",
+    "logOut": "로그아웃",
+    "logIn": "로그인",
+    "getStarted": "시작하기",
+    "language": "언어",
+    "appearance": "테마",
+    "light": "라이트",
+    "dark": "다크"
+  },
+  "createWorkspace": {
+    "title": "워크스페이스 만들기",
+    "subtitle": "팀을 위한 새 워크스페이스 설정",
+    "workspaceName": "워크스페이스 이름",
+    "workspaceNamePlaceholder": "예: ABC 회사",
+    "uploadLogo": "로고 업로드 (선택)",
+    "clickToChangeLogo": "로고 변경하려면 클릭",
+    "cancel": "취소",
+    "create": "워크스페이스 만들기",
+    "creating": "{name} 생성 중",
+    "settingUp": "워크스페이스 설정 중",
+    "configuringPermissions": "권한 구성 중",
+    "creatingTeam": "팀 생성 중",
+    "finalizing": "마무리 중",
+    "congratulations": "축하합니다!",
+    "workspaceReady": "{name}이(가) 준비되었습니다",
+    "startCreating": "고객 여정 맵을 만들고 팀과 협업을 시작하세요.",
+    "goToWorkspace": "워크스페이스로 이동",
+    "imageMustBeLess": "이미지는 2MB 이하여야 합니다",
+    "pleaseSelectImage": "이미지 파일을 선택해 주세요"
+  },
+  "journeyTabs": {
+    "current": "현재",
+    "currentDesc": "오늘의 실제 경험을 반영하는 활성 여정 맵",
+    "future": "미래",
+    "futureDesc": "계획된 개선 및 기회 기반 재설계",
+    "deployed": "배포됨",
+    "deployedDesc": "실시간 상태 모니터링이 있는 게시된 여정",
+    "deployJourney": "여정 배포",
+    "deployJourneyDesc": "배포할 현재 또는 미래 여정을 선택하세요. 배포된 여정은 팀이 구현하기로 약속한 여정입니다.",
+    "noJourneysToDeployDesc": "배포 가능한 현재 또는 미래 여정이 없습니다. 먼저 여정을 만드세요.",
+    "stages": "단계",
+    "loadingJourneys": "여정 로딩 중..."
+  },
+  "impactMetrics": {
+    "fasterMapping": "더 빠른 여정 매핑",
+    "npsImprovement": "NPS 개선",
+    "crossTeamAlignment": "팀 간 협력 향상",
+    "churnReduction": "이탈률 감소"
   }
 }

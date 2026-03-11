@@ -360,5 +360,60 @@
     "contact": "تواصل معنا",
     "features": "الميزات",
     "mostPopular": "الأكثر شعبية"
+  },
+  "publicNav": {
+    "features": "الميزات",
+    "pricing": "الأسعار",
+    "howItWorks": "كيف يعمل",
+    "dashboard": "لوحة التحكم",
+    "myJourneys": "رحلاتي",
+    "settings": "الإعدادات",
+    "logOut": "تسجيل الخروج",
+    "logIn": "تسجيل الدخول",
+    "getStarted": "ابدأ الآن",
+    "language": "اللغة",
+    "appearance": "المظهر",
+    "light": "فاتح",
+    "dark": "داكن"
+  },
+  "createWorkspace": {
+    "title": "إنشاء مساحة عمل",
+    "subtitle": "إعداد مساحة عمل جديدة لفريقك",
+    "workspaceName": "اسم مساحة العمل",
+    "workspaceNamePlaceholder": "مثال: شركة أكمي",
+    "uploadLogo": "رفع الشعار (اختياري)",
+    "clickToChangeLogo": "انقر لتغيير الشعار",
+    "cancel": "إلغاء",
+    "create": "إنشاء مساحة العمل",
+    "creating": "جاري إنشاء {name}",
+    "settingUp": "جاري إعداد مساحة العمل",
+    "configuringPermissions": "جاري تكوين الصلاحيات",
+    "creatingTeam": "جاري إنشاء الفريق",
+    "finalizing": "جاري الإنهاء",
+    "congratulations": "تهانينا!",
+    "workspaceReady": "{name} جاهزة الآن",
+    "startCreating": "ابدأ بإنشاء خرائط رحلة العميل والتعاون مع فريقك.",
+    "goToWorkspace": "الذهاب إلى مساحة العمل",
+    "imageMustBeLess": "يجب أن تكون الصورة أقل من 2 ميجابايت",
+    "pleaseSelectImage": "يرجى اختيار ملف صورة"
+  },
+  "journeyTabs": {
+    "current": "الحالي",
+    "currentDesc": "خرائط الرحلة النشطة التي تعكس التجربة الفعلية اليوم",
+    "future": "المستقبل",
+    "futureDesc": "التحسينات المخططة وإعادة التصميم القائمة على الفرص",
+    "deployed": "منشور",
+    "deployedDesc": "الرحلات المنشورة مع مراقبة الصحة المباشرة",
+    "deployJourney": "نشر رحلة",
+    "deployJourneyDesc": "اختر رحلة حالية أو مستقبلية للنشر. الرحلات المنشورة هي التي التزم فريقك بتنفيذها.",
+    "noJourneysToDeployDesc": "لا توجد رحلات حالية أو مستقبلية متاحة للنشر. أنشئ رحلة أولاً.",
+    "stages": "مراحل",
+    "loadingJourneys": "جاري تحميل الرحلات..."
+  },
+  "impactMetrics": {
+    "fasterMapping": "رسم خرائط أسرع للرحلات",
+    "npsImprovement": "تحسين NPS",
+    "crossTeamAlignment": "مزيد من التنسيق بين الفرق",
+    "churnReduction": "تقليل معدل التسرب"
   }
 }

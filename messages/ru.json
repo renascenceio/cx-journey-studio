@@ -240,7 +240,7 @@
     "confirmNewPassword": "Подтвердите новый пароль",
     "twoFactor": "Двухфакторная аутентификация",
     "twoFactorDesc": "Добавьте дополнительный уровень безопасности для вашего аккаунта",
-    "dangerZone": "Опасная зона",
+    "dangerZone": "Опасная ��она",
     "deleteAccount": "Удалить аккаунт",
     "deleteAccountDesc": "Навсегда удалить ваш аккаунт и все данные"
   },
@@ -360,5 +360,60 @@
     "contact": "Связаться",
     "features": "Функции",
     "mostPopular": "Самый популярный"
+  },
+  "publicNav": {
+    "features": "Функции",
+    "pricing": "Цены",
+    "howItWorks": "Как это работает",
+    "dashboard": "Панель",
+    "myJourneys": "Мои пути",
+    "settings": "Настройки",
+    "logOut": "Выйти",
+    "logIn": "Войти",
+    "getStarted": "Начать",
+    "language": "Язык",
+    "appearance": "Внешний вид",
+    "light": "Светлая",
+    "dark": "Тёмная"
+  },
+  "createWorkspace": {
+    "title": "Создать рабочее пространство",
+    "subtitle": "Настройте новое пространство для вашей команды",
+    "workspaceName": "Название пространства",
+    "workspaceNamePlaceholder": "например, Acme Corporation",
+    "uploadLogo": "Загрузить логотип (необязательно)",
+    "clickToChangeLogo": "Нажмите для смены логотипа",
+    "cancel": "Отмена",
+    "create": "Создать пространство",
+    "creating": "Создание {name}",
+    "settingUp": "Настройка пространства",
+    "configuringPermissions": "Настройка прав",
+    "creatingTeam": "Создание команды",
+    "finalizing": "Завершение",
+    "congratulations": "Поздравляем!",
+    "workspaceReady": "{name} готово",
+    "startCreating": "Начните создавать карты путей клиентов и сотрудничайте с командой.",
+    "goToWorkspace": "Перейти к пространству",
+    "imageMustBeLess": "Изображение должно быть меньше 2 МБ",
+    "pleaseSelectImage": "Пожалуйста, выберите изображение"
+  },
+  "journeyTabs": {
+    "current": "Текущий",
+    "currentDesc": "Активные карты путей, отражающие реальный опыт сегодня",
+    "future": "Будущий",
+    "futureDesc": "Запланированные улучшения и редизайн на основе возможностей",
+    "deployed": "Развёрнуто",
+    "deployedDesc": "Опубликованные пути с мониторингом в реальном времени",
+    "deployJourney": "Развернуть путь",
+    "deployJourneyDesc": "Выберите текущий или будущий путь для развёртывания. Развёрнутые пути — это те, которые ваша команда обязалась реализовать.",
+    "noJourneysToDeployDesc": "Нет доступных путей для развёртывания. Сначала создайте путь.",
+    "stages": "этапов",
+    "loadingJourneys": "Загрузка путей..."
+  },
+  "impactMetrics": {
+    "fasterMapping": "ускорение маппинга",
+    "npsImprovement": "улучшение NPS",
+    "crossTeamAlignment": "больше согласованности команд",
+    "churnReduction": "снижение оттока"
   }
 }

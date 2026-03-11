@@ -565,5 +565,60 @@
     "contactSales": "Contatar vendas",
     "features": "Recursos",
     "includedFeatures": "O que está incluído"
+  },
+  "publicNav": {
+    "features": "Recursos",
+    "pricing": "Preços",
+    "howItWorks": "Como Funciona",
+    "dashboard": "Painel",
+    "myJourneys": "Minhas Jornadas",
+    "settings": "Configurações",
+    "logOut": "Sair",
+    "logIn": "Entrar",
+    "getStarted": "Começar",
+    "language": "Idioma",
+    "appearance": "Aparência",
+    "light": "Claro",
+    "dark": "Escuro"
+  },
+  "createWorkspace": {
+    "title": "Criar Espaço de Trabalho",
+    "subtitle": "Configure um novo espaço para sua equipe",
+    "workspaceName": "Nome do Espaço",
+    "workspaceNamePlaceholder": "ex. Acme Corporation",
+    "uploadLogo": "Enviar logo (opcional)",
+    "clickToChangeLogo": "Clique para trocar logo",
+    "cancel": "Cancelar",
+    "create": "Criar Espaço",
+    "creating": "Criando {name}",
+    "settingUp": "Configurando espaço",
+    "configuringPermissions": "Configurando permissões",
+    "creatingTeam": "Criando equipe",
+    "finalizing": "Finalizando",
+    "congratulations": "Parabéns!",
+    "workspaceReady": "{name} está pronto",
+    "startCreating": "Comece a criar mapas de jornada e colabore com sua equipe.",
+    "goToWorkspace": "Ir para o Espaço",
+    "imageMustBeLess": "A imagem deve ter menos de 2MB",
+    "pleaseSelectImage": "Por favor selecione uma imagem"
+  },
+  "journeyTabs": {
+    "current": "Atual",
+    "currentDesc": "Mapas de jornada ativos refletindo a experiência real hoje",
+    "future": "Futuro",
+    "futureDesc": "Melhorias planejadas e redesenhos baseados em oportunidades",
+    "deployed": "Implantado",
+    "deployedDesc": "Jornadas publicadas com monitoramento de saúde ao vivo",
+    "deployJourney": "Implantar Jornada",
+    "deployJourneyDesc": "Selecione uma jornada Atual ou Futura para implantar. Jornadas implantadas são aquelas que sua equipe se comprometeu a implementar.",
+    "noJourneysToDeployDesc": "Nenhuma jornada atual ou futura disponível para implantar. Crie uma jornada primeiro.",
+    "stages": "etapas",
+    "loadingJourneys": "Carregando jornadas..."
+  },
+  "impactMetrics": {
+    "fasterMapping": "mapeamento mais rápido",
+    "npsImprovement": "melhoria no NPS",
+    "crossTeamAlignment": "mais alinhamento entre equipes",
+    "churnReduction": "redução de churn"
   }
 }

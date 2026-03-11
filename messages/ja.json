@@ -565,5 +565,60 @@
     "contactSales": "営業に問い合わせ",
     "features": "機能",
     "includedFeatures": "含まれる機能"
+  },
+  "publicNav": {
+    "features": "機能",
+    "pricing": "料金",
+    "howItWorks": "使い方",
+    "dashboard": "ダッシュボード",
+    "myJourneys": "マイジャーニー",
+    "settings": "設定",
+    "logOut": "ログアウト",
+    "logIn": "ログイン",
+    "getStarted": "始める",
+    "language": "言語",
+    "appearance": "外観",
+    "light": "ライト",
+    "dark": "ダーク"
+  },
+  "createWorkspace": {
+    "title": "ワークスペースを作成",
+    "subtitle": "チーム用の新しいワークスペースを設定",
+    "workspaceName": "ワークスペース名",
+    "workspaceNamePlaceholder": "例：株式会社ABC",
+    "uploadLogo": "ロゴをアップロード（任意）",
+    "clickToChangeLogo": "クリックでロゴを変更",
+    "cancel": "キャンセル",
+    "create": "ワークスペースを作成",
+    "creating": "{name}を作成中",
+    "settingUp": "ワークスペースを設定中",
+    "configuringPermissions": "権限を設定中",
+    "creatingTeam": "チームを作成中",
+    "finalizing": "完了処理中",
+    "congratulations": "おめでとうございます！",
+    "workspaceReady": "{name}の準備が完了しました",
+    "startCreating": "カスタマージャーニーマップを作成し、チームと共同作業を始めましょう。",
+    "goToWorkspace": "ワークスペースへ",
+    "imageMustBeLess": "画像は2MB以下にしてください",
+    "pleaseSelectImage": "画像ファイルを選択してください"
+  },
+  "journeyTabs": {
+    "current": "現在",
+    "currentDesc": "今日の実際の体験を反映したアクティブなジャーニーマップ",
+    "future": "将来",
+    "futureDesc": "計画された改善と機会主導の再設計",
+    "deployed": "デプロイ済み",
+    "deployedDesc": "ライブヘルスモニタリング付きの公開済みジャーニー",
+    "deployJourney": "ジャーニーをデプロイ",
+    "deployJourneyDesc": "デプロイする現在または将来のジャーニーを選択してください。デプロイされたジャーニーは、チームが実装を約束したものです。",
+    "noJourneysToDeployDesc": "デプロイ可能な現在または将来のジャーニーがありません。まずジャーニーを作成してください。",
+    "stages": "ステージ",
+    "loadingJourneys": "ジャーニーを読み込み中..."
+  },
+  "impactMetrics": {
+    "fasterMapping": "ジャーニーマッピング高速化",
+    "npsImprovement": "NPS改善",
+    "crossTeamAlignment": "チーム間連携向上",
+    "churnReduction": "解約率低減"
   }
 }

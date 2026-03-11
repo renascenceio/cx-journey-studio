@@ -565,5 +565,60 @@
     "contactSales": "Contact Sales",
     "features": "Features",
     "includedFeatures": "What's included"
+  },
+  "publicNav": {
+    "features": "Features",
+    "pricing": "Pricing",
+    "howItWorks": "How It Works",
+    "dashboard": "Dashboard",
+    "myJourneys": "My Journeys",
+    "settings": "Settings",
+    "logOut": "Log out",
+    "logIn": "Log in",
+    "getStarted": "Get Started",
+    "language": "Language",
+    "appearance": "Appearance",
+    "light": "Light",
+    "dark": "Dark"
+  },
+  "createWorkspace": {
+    "title": "Create Workspace",
+    "subtitle": "Set up a new workspace for your team",
+    "workspaceName": "Workspace Name",
+    "workspaceNamePlaceholder": "e.g. Acme Corporation",
+    "uploadLogo": "Upload workspace logo (optional)",
+    "clickToChangeLogo": "Click to change logo",
+    "cancel": "Cancel",
+    "create": "Create Workspace",
+    "creating": "Creating {name}",
+    "settingUp": "Setting up workspace",
+    "configuringPermissions": "Configuring permissions",
+    "creatingTeam": "Creating default team",
+    "finalizing": "Finalizing setup",
+    "congratulations": "Congratulations!",
+    "workspaceReady": "{name} is now ready to go",
+    "startCreating": "Start creating customer journey maps and collaborate with your team.",
+    "goToWorkspace": "Go to Workspace",
+    "imageMustBeLess": "Image must be less than 2MB",
+    "pleaseSelectImage": "Please select an image file"
+  },
+  "journeyTabs": {
+    "current": "Current",
+    "currentDesc": "Active journey maps reflecting the real experience today",
+    "future": "Future",
+    "futureDesc": "Planned improvements and opportunity-driven redesigns",
+    "deployed": "Deployed",
+    "deployedDesc": "Published journeys with live health monitoring",
+    "deployJourney": "Deploy a Journey",
+    "deployJourneyDesc": "Select a Current or Future journey to deploy. Deployed journeys are the ones your team has committed to implementing.",
+    "noJourneysToDeployDesc": "No current or future journeys available to deploy. Create a journey first.",
+    "stages": "stages",
+    "loadingJourneys": "Loading journeys..."
+  },
+  "impactMetrics": {
+    "fasterMapping": "faster journey mapping",
+    "npsImprovement": "NPS improvement",
+    "crossTeamAlignment": "more cross-team alignment",
+    "churnReduction": "reduction in churn"
   }
 }

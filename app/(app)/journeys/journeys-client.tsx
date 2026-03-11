@@ -35,7 +35,7 @@ import { updateJourneyStatus } from "@/lib/actions/data"
 import { mutate } from "swr"
 import { useRouter } from "next/navigation"
 
-function DeployJourneyDialog({ journeys, children }: { journeys: Journey[]; children: React.ReactNode }) {
+function DeployJourneyDialog({ journeys, children }: { journeys: Journey[]; children: React.ReactNode; t: ReturnType<typeof useTranslations> }) {
   const [open, setOpen] = useState(false)
   const [deploying, setDeploying] = useState<string | null>(null)
   const router = useRouter()
@@ -60,15 +60,15 @@ function DeployJourneyDialog({ journeys, children }: { journeys: Journey[]; chil
       <DialogTrigger asChild>{children}</DialogTrigger>
       <DialogContent className="sm:max-w-lg">
         <DialogHeader>
-          <DialogTitle>Deploy a Journey</DialogTitle>
+          <DialogTitle>{t("journeyTabs.deployJourney")}</DialogTitle>
           <DialogDescription>
-            Select a Current or Future journey to deploy. Deployed journeys are the ones your team has committed to implementing.
+            {t("journeyTabs.deployJourneyDesc")}
           </DialogDescription>
         </DialogHeader>
         <div className="mt-2 flex flex-col gap-2 max-h-80 overflow-y-auto">
           {journeys.length === 0 ? (
             <p className="py-6 text-center text-sm text-muted-foreground">
-              No current or future journeys available to deploy. Create a journey first.
+              {t("journeyTabs.noJourneysToDeployDesc")}
             </p>
           ) : (
             journeys.map((j) => (
@@ -82,7 +82,7 @@ function DeployJourneyDialog({ journeys, children }: { journeys: Journey[]; chil
                   <p className="text-sm font-medium text-foreground truncate">{j.title}</p>
                   <div className="flex items-center gap-2 mt-0.5">
                     <span className="text-[10px] text-muted-foreground capitalize">{j.type}</span>
-                    <span className="text-[10px] text-muted-foreground">{j.stages.length} stages</span>
+                    <span className="text-[10px] text-muted-foreground">{j.stages.length} {t("journeyTabs.stages")}</span>
                   </div>
                 </div>
                 <Rocket className={`h-4 w-4 shrink-0 ${deploying === j.id ? "animate-pulse text-primary" : "text-muted-foreground"}`} />
@@ -97,15 +97,11 @@ function DeployJourneyDialog({ journeys, children }: { journeys: Journey[]; chil
 
 type TabType = "current" | "future" | "deployed"
 
-const tabs: { value: TabType; label: string; description: string; icon: typeof Map }[] = [
-  { value: "current", label: "Current", description: "Active journey maps reflecting the real experience today", icon: Map },
-  { value: "future", label: "Future", description: "Planned improvements and opportunity-driven redesigns", icon: Compass },
-  { value: "deployed", label: "Deployed", description: "Published journeys with live health monitoring", icon: CheckCircle2 },
-]
+// Note: tabs are defined inside the component to use translations
 
 export function JourneysClient({ journeys }: { journeys: Journey[] }) {
   return (
-    <Suspense fallback={<div className="p-6 text-sm text-muted-foreground">Loading journeys...</div>}>
+    <Suspense fallback={<div className="p-6 text-sm text-muted-foreground">{/* Loading journeys... */}</div>}>
       <JourneysContent journeys={journeys} />
     </Suspense>
   )
@@ -115,6 +111,12 @@ function JourneysContent({ journeys }: { journeys: Journey[] }) {
   const t = useTranslations()
   const searchParams = useSearchParams()
   const initialTab = (searchParams.get("tab") as TabType) || "current"
+  
+  const tabs: { value: TabType; label: string; description: string; icon: typeof Map }[] = [
+    { value: "current", label: t("journeyTabs.current"), description: t("journeyTabs.currentDesc"), icon: Map },
+    { value: "future", label: t("journeyTabs.future"), description: t("journeyTabs.futureDesc"), icon: Compass },
+    { value: "deployed", label: t("journeyTabs.deployed"), description: t("journeyTabs.deployedDesc"), icon: CheckCircle2 },
+  ]
   const [activeTab, setActiveTab] = useState<TabType>(initialTab)
   const [searchQuery, setSearchQuery] = useState("")
   const [sortBy, setSortBy] = useState("updated")
@@ -192,17 +194,17 @@ function JourneysContent({ journeys }: { journeys: Journey[] }) {
             {t("common.import")}
           </Button>
           {activeTab === "deployed" ? (
-            <DeployJourneyDialog journeys={journeys.filter((j) => j.type === "current" || j.type === "future")}>
+            <DeployJourneyDialog journeys={journeys.filter((j) => j.type === "current" || j.type === "future")} t={t}>
               <Button size="sm" className="gap-1.5">
                 <Rocket className="h-3.5 w-3.5" />
-                Deploy a Journey
+                {t("journeyTabs.deployJourney")}
               </Button>
             </DeployJourneyDialog>
           ) : (
             <CreateJourneyDialog defaultType={activeTab}>
               <Button size="sm" className="gap-1.5">
                 <Plus className="h-3.5 w-3.5" />
-                New Journey
+                {t("dashboard.newJourney")}
               </Button>
             </CreateJourneyDialog>
           )}
