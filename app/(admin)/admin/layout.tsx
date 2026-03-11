@@ -16,6 +16,7 @@ import {
   Headphones,
   Sparkles,
   Calculator,
+  Languages,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Toaster } from "@/components/ui/sonner"
@@ -29,6 +30,7 @@ const adminNav = [
   { label: "Billing & Plans", href: "/admin/billing", icon: CreditCard, segment: "billing" },
   { label: "Credits FAQ", href: "/admin/credits-faq", icon: Calculator, segment: "credits-faq" },
   { label: "Site Config", href: "/admin/config", icon: Settings, segment: "config" },
+  { label: "Translations", href: "/admin/translations", icon: Languages, segment: "translations" },
   { label: "Support", href: "/admin/support", icon: Headphones, segment: "support" },
 ]
 

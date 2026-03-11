@@ -2,6 +2,7 @@
 
 import { useState, useMemo, Suspense } from "react"
 import { useSearchParams } from "next/navigation"
+import { useTranslations } from "next-intl"
 import { Plus, Search, LayoutGrid, List, Upload, Rocket, Map, Compass, CheckCircle2 } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { JourneyImportDialog } from "@/components/journey-import-dialog"
@@ -111,6 +112,7 @@ export function JourneysClient({ journeys }: { journeys: Journey[] }) {
 }
 
 function JourneysContent({ journeys }: { journeys: Journey[] }) {
+  const t = useTranslations()
   const searchParams = useSearchParams()
   const initialTab = (searchParams.get("tab") as TabType) || "current"
   const [activeTab, setActiveTab] = useState<TabType>(initialTab)
@@ -178,16 +180,16 @@ function JourneysContent({ journeys }: { journeys: Journey[] }) {
       <div className="flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between">
         <div>
           <h1 className="text-2xl font-bold tracking-tight text-foreground">
-            Journeys
+            {t("journey.journeys")}
           </h1>
           <p className="text-sm text-muted-foreground">
-            Map, analyze, and transform customer experience journeys
+            {t("journey.noJourneysDesc")}
           </p>
         </div>
         <div className="flex items-center gap-2">
           <Button variant="outline" size="sm" onClick={() => setImportOpen(true)} className="gap-1.5">
             <Upload className="h-3.5 w-3.5" />
-            Import
+            {t("common.import")}
           </Button>
           {activeTab === "deployed" ? (
             <DeployJourneyDialog journeys={journeys.filter((j) => j.type === "current" || j.type === "future")}>
@@ -229,7 +231,7 @@ function JourneysContent({ journeys }: { journeys: Journey[] }) {
               <Search className="absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground" />
               <Input
                 type="search"
-                placeholder="Search..."
+                placeholder={t("common.searchPlaceholder")}
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="h-8 w-40 pl-8 text-sm sm:w-48 lg:w-56"
@@ -240,9 +242,9 @@ function JourneysContent({ journeys }: { journeys: Journey[] }) {
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="updated">Last Updated</SelectItem>
-                <SelectItem value="created">Date Created</SelectItem>
-                <SelectItem value="name">Name A-Z</SelectItem>
+                <SelectItem value="updated">{t("journey.lastUpdated")}</SelectItem>
+                <SelectItem value="created">{t("journey.dateCreated")}</SelectItem>
+                <SelectItem value="name">{t("journey.alphabetical")}</SelectItem>
               </SelectContent>
             </Select>
             {/* View toggle */}

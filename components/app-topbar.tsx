@@ -1,7 +1,7 @@
 "use client"
 
 import Link from "next/link"
-
+import { useTranslations } from "next-intl"
 import { usePathname, useRouter } from "next/navigation"
 import {
   Bell,
@@ -72,14 +72,14 @@ import { CreateWorkspaceDialog } from "@/components/create-workspace-dialog"
 import { SpotlightSearch } from "@/components/spotlight-search"
 
 
-const mainNav = [
-  { label: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
-  { label: "Journeys", href: "/journeys", icon: Route },
-  { label: "Archetypes", href: "/archetypes", icon: UserCircle },
-  { label: "Templates", href: "/templates", icon: LayoutTemplate },
-  { label: "Solutions", href: "/solutions", icon: Lightbulb },
-  { label: "Roadmap", href: "/roadmap", icon: Milestone },
-  { label: "Analytics", href: "/analytics", icon: BarChart3 },
+const mainNavItems = [
+  { key: "dashboard", href: "/dashboard", icon: LayoutDashboard },
+  { key: "journeys", href: "/journeys", icon: Route },
+  { key: "archetypes", href: "/archetypes", icon: UserCircle },
+  { key: "templates", href: "/templates", icon: LayoutTemplate },
+  { key: "solutions", href: "/solutions", icon: Lightbulb },
+  { key: "roadmap", href: "/roadmap", icon: Milestone },
+  { key: "analytics", href: "/analytics", icon: BarChart3 },
 ]
 
 
@@ -93,6 +93,7 @@ const planBadge: Record<string, string> = {
 }
 
 export function AppTopbar() {
+  const t = useTranslations()
   const pathname = usePathname()
   const router = useRouter()
   
@@ -254,8 +255,9 @@ export function AppTopbar() {
 
         {/* Desktop nav */}
         <nav className="hidden items-center gap-0.5 md:flex">
-          {mainNav.map((item) => {
+          {mainNavItems.map((item) => {
             const Icon = item.icon
+            const label = t(`nav.${item.key}`)
             return (
               <Link
                 key={item.href}
@@ -268,8 +270,8 @@ export function AppTopbar() {
                 )}
               >
                 <Icon className="h-4 w-4" />
-                {item.label}
-                {item.label === "Roadmap" && roadmapCount > 0 && (
+                {label}
+                {item.key === "roadmap" && roadmapCount > 0 && (
                   <span className="absolute -right-0.5 -top-0.5 flex h-2 w-2">
                     <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-primary opacity-75" />
                     <span className="relative inline-flex h-2 w-2 rounded-full bg-primary" />
@@ -407,34 +409,34 @@ export function AppTopbar() {
               </DropdownMenuLabel>
               <DropdownMenuSeparator />
               <DropdownMenuItem asChild>
-                <Link href="/settings"><Settings className="mr-2 h-4 w-4" />Settings</Link>
+                <Link href="/settings"><Settings className="mr-2 h-4 w-4" />{t("nav.settings")}</Link>
               </DropdownMenuItem>
               <DropdownMenuItem asChild>
-                <Link href="/settings/team"><Users className="mr-2 h-4 w-4" />Team</Link>
+                <Link href="/settings/team"><Users className="mr-2 h-4 w-4" />{t("nav.team")}</Link>
               </DropdownMenuItem>
               {user?.role === "admin" || user?.role === "journey_master" ? (
                 <>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem asChild>
                     <Link href="/admin" className="text-primary">
-                      <Shield className="mr-2 h-4 w-4" />Admin Panel
+                      <Shield className="mr-2 h-4 w-4" />{t("nav.admin")}
                     </Link>
                   </DropdownMenuItem>
                 </>
               ) : null}
               <DropdownMenuItem asChild>
                 <Link href="/faq">
-                  <HelpCircle className="mr-2 h-4 w-4" />Help & FAQ
+                  <HelpCircle className="mr-2 h-4 w-4" />{t("nav.faq")}
                 </Link>
               </DropdownMenuItem>
               <DropdownMenuItem asChild>
                 <Link href="/support">
-                  <HelpCircle className="mr-2 h-4 w-4" />Support Tickets
+                  <HelpCircle className="mr-2 h-4 w-4" />{t("nav.support")}
                 </Link>
               </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem onClick={() => logout()}>
-                <LogOut className="mr-2 h-4 w-4" />Log out
+                <LogOut className="mr-2 h-4 w-4" />{t("nav.logout")}
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
@@ -450,14 +452,15 @@ export function AppTopbar() {
       {mobileMenuOpen && (
         <div className="border-t border-border bg-background p-4 md:hidden">
           <nav className="flex flex-col gap-1">
-            {mainNav.map((item) => {
+            {mainNavItems.map((item) => {
               const Icon = item.icon
+              const label = t(`nav.${item.key}`)
               return (
                 <Link key={item.href} href={item.href} onClick={() => setMobileMenuOpen(false)}
                   className={cn("flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium transition-colors",
                     isActive(item.href) ? "bg-accent text-foreground" : "text-muted-foreground hover:bg-accent/50 hover:text-foreground"
                   )}>
-                  <Icon className="h-4 w-4" />{item.label}
+                  <Icon className="h-4 w-4" />{label}
                 </Link>
               )
             })}
