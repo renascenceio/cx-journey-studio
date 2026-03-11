@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect, useCallback } from "react"
+import { useTranslations } from "next-intl"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -64,6 +65,7 @@ const emptyForm = {
 }
 
 export default function RoadmapPage() {
+  const t = useTranslations()
   const { profile } = useProfile()
   const perms = getPermissions(profile?.role || "viewer")
 
@@ -133,20 +135,20 @@ export default function RoadmapPage() {
           body: JSON.stringify(form),
         })
         if (!res.ok) throw new Error("Create failed")
-        toast.success("Initiative created")
+        toast.success(t("roadmap.initiativeCreated"))
       }
       setDialogOpen(false)
       setEditingId(null)
       setForm(emptyForm)
       reload()
-    } catch { toast.error("Failed to save") }
+    } catch { toast.error(t("roadmap.failedToSave")) }
     finally { setSaving(false) }
   }
 
   async function handleDelete(id: string) {
     const res = await fetch(`/api/roadmap?id=${id}`, { method: "DELETE" })
-    if (res.ok) { toast.success("Initiative deleted"); reload() }
-    else toast.error("Failed to delete")
+    if (res.ok) { toast.success(t("roadmap.initiativeDeleted")); reload() }
+    else toast.error(t("roadmap.failedToDelete"))
   }
 
   async function handleStatusChange(id: string, newStatus: string) {
@@ -155,8 +157,8 @@ export default function RoadmapPage() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ id, status: newStatus }),
     })
-    if (res.ok) { toast.success(`Status changed to ${statusConfig[newStatus]?.label || newStatus}`); reload() }
-    else toast.error("Failed to update status")
+    if (res.ok) { toast.success(t("roadmap.statusChanged")); reload() }
+    else toast.error(t("roadmap.failedToUpdateStatus"))
   }
 
   async function handleApprove(id: string) {
@@ -226,7 +228,7 @@ export default function RoadmapPage() {
     a.download = "roadmap.csv"
     a.click()
     URL.revokeObjectURL(url)
-    toast.success("Roadmap downloaded as CSV")
+    toast.success(t("roadmap.downloadedAsCsv"))
   }
 
   return (
@@ -236,21 +238,21 @@ export default function RoadmapPage() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight text-foreground">Roadmap</h1>
+          <h1 className="text-2xl font-bold tracking-tight text-foreground">{t("roadmap.title")}</h1>
           <p className="text-sm text-muted-foreground">
-            Implementation initiatives from applied solutions, with RASCI assignments
+            {t("roadmap.subtitle")}
           </p>
         </div>
         <div className="flex items-center gap-2">
           {canManageRoadmap && (
             <Button size="sm" className="gap-1.5" onClick={() => { setEditingId(null); setForm(emptyForm); setDialogOpen(true) }}>
               <Plus className="h-3.5 w-3.5" />
-              Add Initiative
+              {t("roadmap.addInitiative")}
             </Button>
           )}
           <Button variant="outline" size="sm" className="gap-1.5" onClick={handleDownload} disabled={initiatives.length === 0}>
             <Download className="h-3.5 w-3.5" />
-            Export CSV
+            {t("roadmap.exportCsv")}
           </Button>
         </div>
       </div>
@@ -258,10 +260,10 @@ export default function RoadmapPage() {
       {/* Stats */}
       <div className="grid gap-3 sm:grid-cols-4">
         {([
-          { label: "Total Initiatives", value: stats.total, icon: Hash },
-          { label: "Planned", value: stats.planned, icon: Target },
-          { label: "In Progress", value: stats.in_progress, icon: Clock },
-          { label: "Completed", value: stats.completed, icon: CheckCircle2 },
+          { label: t("roadmap.totalInitiatives"), value: stats.total, icon: Hash },
+          { label: t("roadmap.planned"), value: stats.planned, icon: Target },
+          { label: t("roadmap.inProgress"), value: stats.in_progress, icon: Clock },
+          { label: t("roadmap.completed"), value: stats.completed, icon: CheckCircle2 },
         ] as const).map((stat) => (
           <Card key={stat.label} className="border-border/60">
             <CardContent className="flex items-center gap-3 py-3 px-4">
@@ -281,7 +283,7 @@ export default function RoadmapPage() {
       <div className="flex items-center gap-1.5 flex-wrap">
         {["all", "planned", "in_progress", "pending_approval", "completed", "on_hold"].map((s) => (
           <Button key={s} variant={filter === s ? "default" : "outline"} size="sm" className="h-7 text-xs capitalize" onClick={() => setFilter(s)}>
-            {s === "all" ? "All" : s === "pending_approval" ? "Pending Approval" : s.replace("_", " ")}
+            {s === "all" ? t("common.all") : t(`roadmap.status.${s}`)}
             {s === "pending_approval" && stats.pending_approval > 0 && (
               <Badge className="ml-1.5 h-4 px-1 text-[9px] bg-violet-500 text-white">{stats.pending_approval}</Badge>
             )}
@@ -298,12 +300,12 @@ export default function RoadmapPage() {
         <Card className="border-dashed border-border/60">
           <CardContent className="flex flex-col items-center gap-3 py-16 text-center">
             <MapIcon className="h-8 w-8 text-muted-foreground/50" />
-            <p className="text-sm font-medium text-foreground">No initiatives yet</p>
+            <p className="text-sm font-medium text-foreground">{t("roadmap.noInitiatives")}</p>
             <p className="text-xs text-muted-foreground max-w-sm">
-              Apply solutions to future journeys from the Solutions page to create roadmap initiatives.
+              {t("roadmap.noInitiativesDesc")}
             </p>
             <Button variant="outline" size="sm" className="mt-2" asChild>
-              <Link href="/solutions">Browse Solutions</Link>
+              <Link href="/solutions">{t("solutions.browse")}</Link>
             </Button>
           </CardContent>
         </Card>

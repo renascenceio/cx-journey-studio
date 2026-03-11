@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+import { useTranslations } from "next-intl"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -33,6 +34,7 @@ interface Template {
 }
 
 export default function AdminTemplatesPage() {
+  const t = useTranslations()
   const { data, isLoading } = useSWR<Template[]>("/api/admin/templates", fetcher)
   const templates = Array.isArray(data) ? data : []
 
@@ -226,9 +228,9 @@ export default function AdminTemplatesPage() {
             </div>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setDialogOpen(false)}>Cancel</Button>
+            <Button variant="outline" onClick={() => setDialogOpen(false)}>{t("common.cancel")}</Button>
             <Button onClick={handleSave} disabled={!formTitle.trim() || saving}>
-              {saving ? "Saving..." : editingId ? "Update" : "Create"}
+              {saving ? t("common.saving") : editingId ? t("common.update") : t("common.create")}
             </Button>
           </DialogFooter>
         </DialogContent>

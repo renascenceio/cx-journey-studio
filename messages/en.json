@@ -249,6 +249,10 @@
     "noJourneys": "No journeys found",
     "noJourneysDesc": "Create your first journey to get started",
     "createFirst": "Create your first journey",
+    "public": "Public",
+    "noTeam": "No team",
+    "quickView": "Quick view",
+    "openJourney": "Open journey",
     "searchJourneys": "Search journeys...",
     "filterByStatus": "Filter by status",
     "sortBy": "Sort by",
@@ -258,6 +262,45 @@
     "draft": "Draft",
     "published": "Published",
     "archived": "Archived"
+  },
+  "touchpoint": {
+    "emotionalScore": "Emotional Score",
+    "painPoints": "Pain Points",
+    "highlights": "Highlights",
+    "addPainPoint": "Add Pain Point",
+    "addPainPointDesc": "Describe a pain point or friction the customer experiences at this touchpoint.",
+    "addHighlight": "Add Highlight",
+    "addHighlightDesc": "Describe a positive moment or delight the customer experiences at this touchpoint.",
+    "description": "Description",
+    "severity": "Severity",
+    "impact": "Impact",
+    "painPointPlaceholder": "What frustrates the customer at this moment?",
+    "highlightPlaceholder": "What delights the customer at this moment?",
+    "critical": "Critical",
+    "high": "High",
+    "medium": "Medium",
+    "low": "Low",
+    "aiSolutions": "AI Solutions",
+    "appliedSolutions": "Applied Solutions",
+    "evidence": "Evidence",
+    "attachments": "Attachments",
+    "comments": "Comments",
+    "noComments": "No comments yet",
+    "addComment": "Add Comment",
+    "generateSolutions": "Generate AI Solutions",
+    "applyToRoadmap": "Apply to Roadmap",
+    "deleted": "Touchpoint deleted",
+    "undo": "Undo"
+  },
+  "comments": {
+    "commentAdded": "Comment added",
+    "replyAdded": "Reply added",
+    "commentDeleted": "Comment deleted",
+    "noComments": "No comments yet",
+    "addComment": "Add a comment...",
+    "reply": "Reply",
+    "resolve": "Resolve",
+    "unresolve": "Unresolve"
   },
   "archetypes": {
     "title": "Archetypes",
@@ -332,7 +375,25 @@
     "relevance": "Relevance",
     "saved": "Saved",
     "upvotes": "Upvotes",
-    "newest": "Newest"
+    "newest": "Newest",
+    "removedFromSaved": "Removed from saved",
+    "savedToCollection": "Saved to collection",
+    "editSolution": "Edit Solution",
+    "editSolutionDesc": "Update the title and description of your solution.",
+    "description": "Description",
+    "solutionUpdated": "Solution updated",
+    "failedToUpdate": "Failed to update solution",
+    "deleteSolution": "Delete Solution",
+    "deleteSolutionConfirm": "Are you sure you want to delete \"{title}\"? This action cannot be undone.",
+    "solutionDeleted": "Solution deleted",
+    "failedToDelete": "Failed to delete solution"
+  },
+  "notifications": {
+    "title": "Notifications",
+    "new": "new",
+    "empty": "No notifications yet",
+    "viewAll": "View all notifications",
+    "markAllRead": "Mark all as read"
   },
   "settings": {
     "title": "Settings",
@@ -450,7 +511,14 @@
     "addSolution": "Add Solution",
     "pressEnter": "to select",
     "typeToSearch": "Type to search",
-    "escToClose": "ESC to close"
+    "escToClose": "ESC to close",
+    "resultsFound": "results found",
+    "inJourney": "in",
+    "proTip": "Pro tip",
+    "proTipDesc": "Type type:pain_point to filter by content type, or search any keyword to find journeys, solutions, and more.",
+    "navigate": "Navigate",
+    "select": "Select",
+    "poweredByAi": "Powered by AI"
   },
   "workspace": {
     "title": "Workspace",
@@ -706,5 +774,32 @@
     "workspaceDesc": "Organization settings",
     "helpCenter": "Help Center",
     "helpCenterDesc": "Support & documentation"
+  },
+  "roadmap": {
+    "title": "Roadmap",
+    "subtitle": "Implementation initiatives from applied solutions, with RASCI assignments",
+    "addInitiative": "Add Initiative",
+    "exportCsv": "Export CSV",
+    "downloadedAsCsv": "Roadmap downloaded as CSV",
+    "totalInitiatives": "Total Initiatives",
+    "planned": "Planned",
+    "inProgress": "In Progress",
+    "completed": "Completed",
+    "noInitiatives": "No initiatives yet",
+    "noInitiativesDesc": "Apply solutions to future journeys from the Solutions page to create roadmap initiatives.",
+    "initiativeCreated": "Initiative created",
+    "initiativeUpdated": "Initiative updated",
+    "initiativeDeleted": "Initiative deleted",
+    "failedToSave": "Failed to save",
+    "failedToDelete": "Failed to delete",
+    "statusChanged": "Status changed",
+    "failedToUpdateStatus": "Failed to update status",
+    "status": {
+      "planned": "Planned",
+      "in_progress": "In Progress",
+      "pending_approval": "Pending Approval",
+      "completed": "Completed",
+      "on_hold": "On Hold"
+    }
   }
 }

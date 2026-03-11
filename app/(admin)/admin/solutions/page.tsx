@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+import { useTranslations } from "next-intl"
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -32,6 +33,7 @@ interface SolutionRecord {
 }
 
 export default function AdminSolutionsPage() {
+  const t = useTranslations()
   const { data, isLoading } = useSWR<{ solutions: SolutionRecord[] }>("/api/admin/solutions", fetcher)
   const solutions = data?.solutions || []
   const [search, setSearch] = useState("")
@@ -209,8 +211,8 @@ export default function AdminSolutionsPage() {
             </div>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setDialogOpen(false)}>Cancel</Button>
-            <Button onClick={handleSave} disabled={!form.title.trim() || saving}>{saving ? "Saving..." : editingId ? "Update" : "Create"}</Button>
+            <Button variant="outline" onClick={() => setDialogOpen(false)}>{t("common.cancel")}</Button>
+            <Button onClick={handleSave} disabled={!form.title.trim() || saving}>{saving ? t("common.saving") : editingId ? t("common.update") : t("common.create")}</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

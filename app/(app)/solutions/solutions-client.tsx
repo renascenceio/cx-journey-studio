@@ -269,17 +269,17 @@ function SolutionCard({ solution, futureJourneys, showActions, onDeleted }: {
               className="h-7 gap-1 px-2 text-xs"
               onClick={() => {
                 setSaved(!saved)
-                toast.success(saved ? "Removed from saved" : "Saved to collection")
+                toast.success(saved ? t("solutions.removedFromSaved") : t("solutions.savedToCollection"))
               }}
             >
               {saved ? <BookmarkCheck className="h-3 w-3" /> : <Bookmark className="h-3 w-3" />}
-              {saved ? "Saved" : "Save"}
+              {saved ? t("solutions.saved") : t("common.save")}
             </Button>
           </div>
 
           <Button variant="outline" size="sm" className="h-7 gap-1 px-2 text-xs" onClick={() => setApplyOpen(true)}>
             <Send className="h-3 w-3" />
-            Apply
+            {t("common.apply")}
           </Button>
         </div>
   </CardContent>
@@ -288,38 +288,38 @@ function SolutionCard({ solution, futureJourneys, showActions, onDeleted }: {
       <Dialog open={editOpen} onOpenChange={setEditOpen}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle>Edit Solution</DialogTitle>
-            <DialogDescription>Update the title and description of your solution.</DialogDescription>
+            <DialogTitle>{t("solutions.editSolution")}</DialogTitle>
+            <DialogDescription>{t("solutions.editSolutionDesc")}</DialogDescription>
           </DialogHeader>
           <div className="flex flex-col gap-4 py-2">
             <div className="flex flex-col gap-2">
-              <Label htmlFor={`edit-title-${solution.id}`} className="text-sm">Title</Label>
+              <Label htmlFor={`edit-title-${solution.id}`} className="text-sm">{t("solutions.title")}</Label>
               <Input id={`edit-title-${solution.id}`} value={editTitle} onChange={(e) => setEditTitle(e.target.value)} className="h-9" />
             </div>
             <div className="flex flex-col gap-2">
-              <Label htmlFor={`edit-desc-${solution.id}`} className="text-sm">Description</Label>
+              <Label htmlFor={`edit-desc-${solution.id}`} className="text-sm">{t("solutions.description")}</Label>
               <Textarea id={`edit-desc-${solution.id}`} value={editDesc} onChange={(e) => setEditDesc(e.target.value)} rows={3} />
             </div>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setEditOpen(false)}>Cancel</Button>
+            <Button variant="outline" onClick={() => setEditOpen(false)}>{t("common.cancel")}</Button>
             <Button
               disabled={!editTitle.trim() || saving}
               onClick={async () => {
                 setSaving(true)
                 try {
                   await updateSolution(solution.id, { title: editTitle, description: editDesc })
-                  toast.success("Solution updated")
+                  toast.success(t("solutions.solutionUpdated"))
                   setEditOpen(false)
                   router.refresh()
                 } catch {
-                  toast.error("Failed to update solution")
+                  toast.error(t("solutions.failedToUpdate"))
                 } finally {
                   setSaving(false)
                 }
               }}
             >
-              {saving ? "Saving..." : "Save Changes"}
+              {saving ? t("common.saving") : t("common.saveChanges")}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -337,13 +337,13 @@ function SolutionCard({ solution, futureJourneys, showActions, onDeleted }: {
       <AlertDialog open={deleteOpen} onOpenChange={setDeleteOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Delete Solution</AlertDialogTitle>
+            <AlertDialogTitle>{t("solutions.deleteSolution")}</AlertDialogTitle>
             <AlertDialogDescription>
-              Are you sure you want to delete &ldquo;{solution.title}&rdquo;? This action cannot be undone.
+              {t("solutions.deleteSolutionConfirm", { title: solution.title })}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogCancel>{t("common.cancel")}</AlertDialogCancel>
             <AlertDialogAction
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
               disabled={deleting}
@@ -351,18 +351,18 @@ function SolutionCard({ solution, futureJourneys, showActions, onDeleted }: {
                 setDeleting(true)
                 try {
                   await deleteSolution(solution.id)
-                  toast.success("Solution deleted")
+                  toast.success(t("solutions.solutionDeleted"))
                   onDeleted?.(solution.id)
                   router.refresh()
                 } catch {
-                  toast.error("Failed to delete solution")
+                  toast.error(t("solutions.failedToDelete"))
                 } finally {
                   setDeleting(false)
                   setDeleteOpen(false)
                 }
               }}
             >
-              {deleting ? "Deleting..." : "Delete"}
+              {deleting ? t("common.deleting") : t("common.delete")}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

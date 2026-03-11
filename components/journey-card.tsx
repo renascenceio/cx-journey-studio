@@ -1,6 +1,7 @@
 "use client"
 
 import Link from "next/link"
+import { useTranslations } from "next-intl"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
@@ -68,6 +69,7 @@ interface JourneyCardProps {
 }
 
 export function JourneyCard({ journey, variant = "comprehensive", onPeek }: JourneyCardProps) {
+  const t = useTranslations()
   const emotionalArc = getEmotionalArc(journey)
   const touchPointCount = getAllTouchPoints(journey).length
   const stepCount = journey.stages.reduce((sum, s) => sum + s.steps.length, 0)
@@ -107,9 +109,9 @@ export function JourneyCard({ journey, variant = "comprehensive", onPeek }: Jour
           </span>
         </div>
         <div className="hidden items-center gap-4 text-[11px] text-muted-foreground md:flex">
-          <span>{journey.stages.length} stages</span>
-          <span>{stepCount} steps</span>
-          <span>{touchPointCount} tp</span>
+          <span>{journey.stages.length} {t("journey.stages")}</span>
+          <span>{stepCount} {t("journey.step")}</span>
+          <span>{touchPointCount} {t("journey.touchpoints")}</span>
           {solutionsCount > 0 && (
             <span className="flex items-center gap-1 text-primary font-medium">
               <Lightbulb className="h-3 w-3" />
@@ -122,7 +124,7 @@ export function JourneyCard({ journey, variant = "comprehensive", onPeek }: Jour
           {journey.is_public && (
             <span className="flex items-center gap-1 rounded-full bg-green-50 px-1.5 py-0.5 text-[10px] font-medium text-green-700 dark:bg-green-900/20 dark:text-green-300">
               <Globe className="h-2.5 w-2.5" />
-              Public
+              {t("journey.public")}
             </span>
           )}
           {(journey.upvotes ?? 0) > 0 && (
@@ -150,7 +152,7 @@ export function JourneyCard({ journey, variant = "comprehensive", onPeek }: Jour
                     <Eye className="h-3.5 w-3.5" />
                   </Button>
                 </TooltipTrigger>
-                <TooltipContent side="top" className="text-xs">Quick view</TooltipContent>
+                <TooltipContent side="top" className="text-xs">{t("journey.quickView")}</TooltipContent>
               </Tooltip>
             </TooltipProvider>
           )}
@@ -158,12 +160,12 @@ export function JourneyCard({ journey, variant = "comprehensive", onPeek }: Jour
             <Tooltip>
               <TooltipTrigger asChild>
                 <Button variant="ghost" size="icon" className="h-7 w-7 opacity-0 transition-opacity group-hover:opacity-100" asChild>
-                  <Link href={journeyHref} aria-label="Open journey">
+                  <Link href={journeyHref} aria-label={t("journey.openJourney")}>
                     <ExternalLink className="h-3.5 w-3.5" />
                   </Link>
                 </Button>
               </TooltipTrigger>
-              <TooltipContent side="top" className="text-xs">Open journey</TooltipContent>
+              <TooltipContent side="top" className="text-xs">{t("journey.openJourney")}</TooltipContent>
             </Tooltip>
           </TooltipProvider>
         </div>
@@ -232,27 +234,27 @@ export function JourneyCard({ journey, variant = "comprehensive", onPeek }: Jour
         <div className="flex items-center gap-3 text-[11px] text-muted-foreground flex-wrap">
           <span className="flex items-center gap-1">
             <Layers className="h-3 w-3" />
-            {journey.stages.length} stages
+            {journey.stages.length} {t("journey.stages")}
           </span>
           <span className="flex items-center gap-1">
             <GitBranch className="h-3 w-3" />
-            {stepCount} steps
+            {stepCount} {t("journey.step")}
           </span>
           <span className="flex items-center gap-1">
             <Activity className="h-3 w-3" />
-            {touchPointCount} tp
+            {touchPointCount} {t("journey.touchpoints")}
           </span>
           {solutionsCount > 0 && (
             <span className="flex items-center gap-1 text-primary font-medium">
               <Lightbulb className="h-3 w-3" />
-              {solutionsCount} solutions
+              {solutionsCount} {t("nav.solutions")}
             </span>
           )}
           {/* JDS-043: Public + Upvotes */}
           {journey.is_public && (
             <span className="flex items-center gap-1 text-green-600 dark:text-green-400 font-medium">
               <Globe className="h-3 w-3" />
-              Public
+              {t("journey.public")}
             </span>
           )}
           {(journey.upvotes ?? 0) > 0 && (
@@ -283,7 +285,7 @@ export function JourneyCard({ journey, variant = "comprehensive", onPeek }: Jour
             {journey.collaborators.length === 0 && (
               <span className="flex items-center gap-1 text-[11px] text-muted-foreground">
                 <Users className="h-3 w-3" />
-                No team
+                {t("journey.noTeam")}
               </span>
             )}
           </div>
@@ -306,7 +308,7 @@ export function JourneyCard({ journey, variant = "comprehensive", onPeek }: Jour
                       <Eye className="h-3.5 w-3.5 text-muted-foreground" />
                     </Button>
                   </TooltipTrigger>
-                  <TooltipContent side="top" className="text-xs">Quick view</TooltipContent>
+                  <TooltipContent side="top" className="text-xs">{t("journey.quickView")}</TooltipContent>
                 </Tooltip>
               </TooltipProvider>
             )}
@@ -314,12 +316,12 @@ export function JourneyCard({ journey, variant = "comprehensive", onPeek }: Jour
               <Tooltip>
                 <TooltipTrigger asChild>
                   <Button variant="ghost" size="icon" className="h-7 w-7" asChild>
-                    <Link href={journeyHref} aria-label="Open journey">
+                    <Link href={journeyHref} aria-label={t("journey.openJourney")}>
                       <ExternalLink className="h-3.5 w-3.5 text-muted-foreground" />
                     </Link>
                   </Button>
                 </TooltipTrigger>
-                <TooltipContent side="top" className="text-xs">Open journey</TooltipContent>
+                <TooltipContent side="top" className="text-xs">{t("journey.openJourney")}</TooltipContent>
               </Tooltip>
             </TooltipProvider>
           </div>
