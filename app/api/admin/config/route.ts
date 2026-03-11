@@ -74,6 +74,7 @@ export async function PATCH(req: Request) {
   const billingFields = ["registration_cost", "stripe_publishable_key", "stripe_secret_key"]
   const brandingFields = ["primary_color", "custom_css", "max_journeys_per_user"]
   const apiKeyFields = ["openai_key"]
+  const soundFields = ["sounds_config"]
 
   const updates: Record<string, Record<string, unknown>> = {}
 
@@ -95,6 +96,9 @@ export async function PATCH(req: Request) {
     } else if (apiKeyFields.includes(k)) {
       updates.apiKeys = updates.apiKeys || {}
       updates.apiKeys[camelKey] = v
+    } else if (soundFields.includes(k)) {
+      // Sounds config is stored as a full object, not merged field by field
+      updates.sounds = v as Record<string, unknown>
     }
   }
 

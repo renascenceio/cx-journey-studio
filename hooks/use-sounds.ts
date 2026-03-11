@@ -1,6 +1,7 @@
 "use client"
 
 import { useCallback, useEffect, useState } from "react"
+import { SOUND_LIBRARY, getSoundUrl, EVENT_CATEGORY_MAP } from "@/lib/sound-library"
 
 // Sound event types for the application
 export type SoundEvent =
@@ -108,6 +109,19 @@ const DEFAULT_PREFERENCES: SoundPreferences = {
   },
 }
 
+// Admin-configured sound settings (fetched from site_config)
+interface AdminSoundConfig {
+  enabled: boolean
+  globalVolume: number
+  categories: {
+    [key: string]: {
+      enabled: boolean
+      volume: number
+      soundId: string
+    }
+  }
+}
+
 function getCategory(event: SoundEvent): keyof SoundPreferences["categories"] {
   if (["success", "journey-created", "stage-added", "solution-applied", "archetype-added", "save-complete", "export-complete", "workspace-switch"].includes(event)) {
     return "success"
@@ -142,9 +156,26 @@ function preloadSound(event: SoundEvent): HTMLAudioElement | null {
 
 export function useSounds() {
   const [preferences, setPreferences] = useState<SoundPreferences>(DEFAULT_PREFERENCES)
+  const [adminConfig, setAdminConfig] = useState<AdminSoundConfig | null>(null)
   const [isLoaded, setIsLoaded] = useState(false)
   
-  // Load preferences from localStorage
+  // Load admin sound config from site-config API
+  useEffect(() => {
+    if (typeof window === "undefined") return
+    
+    fetch("/api/site-config")
+      .then(r => r.json())
+      .then(data => {
+        if (data.soundsConfig) {
+          setAdminConfig(data.soundsConfig)
+        }
+      })
+      .catch(() => {
+        // Ignore errors - use defaults
+      })
+  }, [])
+  
+  // Load user preferences from localStorage
   useEffect(() => {
     if (typeof window === "undefined") return
     
@@ -176,26 +207,45 @@ export function useSounds() {
     if (typeof window === "undefined") return
     if (!preferences.enabled) return
     
+    // Check admin config if sounds are globally disabled
+    if (adminConfig && !adminConfig.enabled) return
+    
     const category = getCategory(event)
     if (!preferences.categories[category]) return
+    
+    // Check if category is disabled in admin config
+    if (adminConfig?.categories[category] && !adminConfig.categories[category].enabled) return
     
     // Respect reduced motion preference
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return
     
     try {
-      const audio = preloadSound(event)
-      if (!audio) return
+      // Get sound URL from admin config if available, otherwise use default
+      let soundUrl: string
+      let categoryVolume = DEFAULT_VOLUMES[category] || 0.5
       
-      // Clone to allow overlapping sounds
-      const clone = audio.cloneNode() as HTMLAudioElement
-      clone.volume = preferences.volume * (DEFAULT_VOLUMES[category] || 0.5)
-      clone.play().catch(() => {
+      if (adminConfig?.categories[category]) {
+        const adminCat = adminConfig.categories[category]
+        const soundId = adminCat.soundId
+        if (soundId === "none") return // Sound disabled for this category
+        
+        soundUrl = getSoundUrl(category, soundId)
+        categoryVolume = adminCat.volume * (adminConfig.globalVolume || 1)
+      } else {
+        soundUrl = SOUND_URLS[event]
+      }
+      
+      if (!soundUrl) return
+      
+      const audio = new Audio(soundUrl)
+      audio.volume = preferences.volume * categoryVolume
+      audio.play().catch(() => {
         // Ignore autoplay restrictions
       })
     } catch {
       // Ignore errors
     }
-  }, [preferences])
+  }, [preferences, adminConfig])
   
   // Toggle all sounds
   const toggleSounds = useCallback(() => {

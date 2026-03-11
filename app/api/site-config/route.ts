@@ -32,6 +32,11 @@ export async function GET() {
       if (row.logo_mark_light_url) config.logo_mark_light_url = row.logo_mark_light_url
       if (row.logo_mark_dark_url) config.logo_mark_dark_url = row.logo_mark_dark_url
     }
+    
+    // Sound config - stored as the full value object
+    if (row.key === "sounds") {
+      config.soundsConfig = row.value
+    }
   }
   
   return NextResponse.json(config, {

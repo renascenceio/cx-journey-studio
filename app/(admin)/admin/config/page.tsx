@@ -8,7 +8,8 @@ import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Switch } from "@/components/ui/switch"
 import { Separator } from "@/components/ui/separator"
-import { Settings, Globe, Key, Palette, Mail, Shield, Upload, ImageIcon, Trash2 } from "lucide-react"
+import { Settings, Globe, Key, Palette, Mail, Shield, Upload, ImageIcon, Trash2, Volume2 } from "lucide-react"
+import { SoundConfigCard, type SoundConfig } from "@/components/admin/sound-config"
 import Image from "next/image"
 import { Badge } from "@/components/ui/badge"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
@@ -45,6 +46,8 @@ export default function AdminConfigPage() {
     logoMarkLight: "",
     logoMarkDark: "",
   })
+  const [soundConfig, setSoundConfig] = useState<SoundConfig | null>(null)
+  const [savingSounds, setSavingSounds] = useState(false)
 
   useEffect(() => {
     if (config) {
@@ -71,6 +74,10 @@ export default function AdminConfigPage() {
         logoMarkLight: config.logoMarkLightUrl || "",
         logoMarkDark: config.logoMarkDarkUrl || "",
       })
+      // Load sounds config
+      if (config.soundsConfig) {
+        setSoundConfig(config.soundsConfig)
+      }
     }
   }, [config])
 
@@ -101,6 +108,26 @@ export default function AdminConfigPage() {
       toast.error(err instanceof Error ? err.message : "Failed to upload logo")
     } finally {
       setLogoUploading(null)
+    }
+  }
+
+  async function handleSaveSounds(newSoundConfig: SoundConfig) {
+    setSavingSounds(true)
+    try {
+      await fetch("/api/admin/config", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          sounds_config: newSoundConfig,
+        }),
+      })
+      setSoundConfig(newSoundConfig)
+      mutate("/api/admin/config")
+      toast.success("Sound configuration saved")
+    } catch {
+      toast.error("Failed to save sound configuration")
+    } finally {
+      setSavingSounds(false)
     }
   }
 
@@ -466,6 +493,13 @@ export default function AdminConfigPage() {
           </div>
         </CardContent>
       </Card>
+
+      {/* Sound Configuration */}
+      <SoundConfigCard 
+        config={soundConfig} 
+        onSave={handleSaveSounds} 
+        saving={savingSounds} 
+      />
 
       {/* Security */}
       <Card className="border-border/60">
