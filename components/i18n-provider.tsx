@@ -1,25 +1,16 @@
 "use client"
 
-import { NextIntlClientProvider, AbstractIntlMessages } from "next-intl"
+import { NextIntlClientProvider } from "next-intl"
 import { type ReactNode } from "react"
 
 interface I18nProviderProps {
   children: ReactNode
-  locale: string
-  messages: AbstractIntlMessages
 }
 
-export function I18nProvider({ children, locale, messages }: I18nProviderProps) {
-  console.log("[v0] I18nProvider - locale:", locale)
-  console.log("[v0] I18nProvider - messages type:", typeof messages)
-  console.log("[v0] I18nProvider - messages keys:", messages ? Object.keys(messages) : "null")
-  
+export function I18nProvider({ children }: I18nProviderProps) {
+  // NextIntlClientProvider automatically gets locale and messages from the server request config
   return (
-    <NextIntlClientProvider 
-      locale={locale} 
-      messages={messages}
-      timeZone="UTC"
-    >
+    <NextIntlClientProvider timeZone="UTC">
       {children}
     </NextIntlClientProvider>
   )

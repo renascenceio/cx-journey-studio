@@ -1,6 +1,6 @@
 "use client"
 
-// v4 - Complete rewrite, no useTranslations, pure client-side
+// v5 - Recreated to override cached version - NO useTranslations
 import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { Globe, Loader2, Check } from "lucide-react"
@@ -28,17 +28,17 @@ export function LanguageSwitcher({
   className,
 }: LanguageSwitcherProps) {
   const router = useRouter()
-  const [currentLocale, setCurrentLocale] = useState<Locale>("en")
   const [isPending, setIsPending] = useState(false)
-
+  const [currentLocale, setCurrentLocale] = useState<Locale>("en")
+  
   // Read locale from cookie on mount
   useEffect(() => {
     const cookies = document.cookie.split(";")
-    const localeCookie = cookies.find((c) => c.trim().startsWith(LOCALE_COOKIE + "="))
-    if (localeCookie) {
-      const value = localeCookie.split("=")[1] as Locale
-      if (locales.includes(value)) {
-        setCurrentLocale(value)
+    for (const cookie of cookies) {
+      const [key, value] = cookie.trim().split("=")
+      if (key === LOCALE_COOKIE && locales.includes(value as Locale)) {
+        setCurrentLocale(value as Locale)
+        break
       }
     }
   }, [])
@@ -48,11 +48,11 @@ export function LanguageSwitcher({
     
     setIsPending(true)
     
-    // Set cookie directly on client
-    document.cookie = `${LOCALE_COOKIE}=${newLocale};path=/;max-age=${60 * 60 * 24 * 365};samesite=lax`
+    // Set cookie directly
+    document.cookie = `${LOCALE_COOKIE}=${newLocale}; path=/; max-age=${60 * 60 * 24 * 365}; samesite=lax`
     setCurrentLocale(newLocale)
     
-    // Full page reload to apply new locale
+    // Full page reload to get new translations from server
     window.location.reload()
   }
 
@@ -73,20 +73,15 @@ export function LanguageSwitcher({
           {showLabel && <span>{languageNames[currentLocale]}</span>}
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="max-h-[300px] overflow-y-auto">
+      <DropdownMenuContent align="end" className="max-h-80 overflow-y-auto">
         {locales.map((loc) => (
           <DropdownMenuItem
             key={loc}
             onClick={() => handleLocaleChange(loc)}
-            className={cn(
-              "cursor-pointer",
-              loc === currentLocale && "bg-accent font-medium"
-            )}
+            className="flex items-center justify-between gap-2"
           >
-            <span className="mr-2">{languageNames[loc]}</span>
-            {loc === currentLocale && (
-              <Check className="ml-auto h-4 w-4" />
-            )}
+            <span>{languageNames[loc]}</span>
+            {loc === currentLocale && <Check className="h-4 w-4" />}
           </DropdownMenuItem>
         ))}
       </DropdownMenuContent>

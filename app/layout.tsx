@@ -1,7 +1,7 @@
 import type { Metadata } from 'next'
 import { Geist, Geist_Mono } from 'next/font/google'
 import { Analytics } from '@vercel/analytics/next'
-import { getLocale, getMessages } from 'next-intl/server'
+import { getLocale } from 'next-intl/server'
 import { ThemeProvider } from '@/components/theme-provider'
 import { AuthProvider } from '@/lib/auth-provider'
 import { I18nProvider } from '@/components/i18n-provider'
@@ -43,18 +43,13 @@ export default async function RootLayout({
   children: React.ReactNode
 }>) {
   const locale = await getLocale()
-  const messages = await getMessages()
   const isRtl = isRtlLocale(locale as Locale)
-  
-  console.log("[v0] Layout - locale:", locale)
-  console.log("[v0] Layout - messages keys:", Object.keys(messages || {}))
-  console.log("[v0] Layout - landing keys:", messages?.landing ? Object.keys(messages.landing as object) : "no landing")
 
   return (
     <html lang={locale} dir={isRtl ? 'rtl' : 'ltr'} suppressHydrationWarning>
       <body className="font-sans antialiased">
         <ThemeProvider attribute="class" defaultTheme="light" enableSystem disableTransitionOnChange>
-          <I18nProvider locale={locale} messages={messages}>
+          <I18nProvider>
             <AuthProvider>
               {children}
             </AuthProvider>
