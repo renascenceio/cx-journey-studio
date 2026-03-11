@@ -10,6 +10,10 @@ interface I18nProviderProps {
 }
 
 export function I18nProvider({ children, locale, messages }: I18nProviderProps) {
+  console.log("[v0] I18nProvider - locale:", locale)
+  console.log("[v0] I18nProvider - messages type:", typeof messages)
+  console.log("[v0] I18nProvider - messages keys:", messages ? Object.keys(messages) : "null")
+  
   return (
     <NextIntlClientProvider 
       locale={locale} 

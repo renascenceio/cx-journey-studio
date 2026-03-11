@@ -45,6 +45,10 @@ export default async function RootLayout({
   const locale = await getLocale()
   const messages = await getMessages()
   const isRtl = isRtlLocale(locale as Locale)
+  
+  console.log("[v0] Layout - locale:", locale)
+  console.log("[v0] Layout - messages keys:", Object.keys(messages || {}))
+  console.log("[v0] Layout - landing keys:", messages?.landing ? Object.keys(messages.landing as object) : "no landing")
 
   return (
     <html lang={locale} dir={isRtl ? 'rtl' : 'ltr'} suppressHydrationWarning>

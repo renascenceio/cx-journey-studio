@@ -9,6 +9,14 @@ import { useAuth } from "@/lib/auth-provider"
 export function LandingHero() {
   const { isAuthenticated, isLoading } = useAuth()
   const t = useTranslations("landing")
+  
+  console.log("[v0] LandingHero - trying to get hero.title")
+  try {
+    const title = t("hero.title")
+    console.log("[v0] LandingHero - got title:", title)
+  } catch (e) {
+    console.log("[v0] LandingHero - error getting title:", e)
+  }
 
   return (
     <section className="relative overflow-hidden">
