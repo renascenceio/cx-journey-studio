@@ -174,7 +174,7 @@ export default function SettingsProfilePage() {
               </Select>
             </div>
             <div className="flex flex-col gap-2">
-              <Label htmlFor="role">Role</Label>
+              <Label htmlFor="role">{t("settings.role")}</Label>
               <Input id="role" defaultValue={ROLE_LABELS[displayRole]} readOnly className="bg-muted/50" />
             </div>
           </div>
@@ -189,14 +189,14 @@ export default function SettingsProfilePage() {
         <CardHeader>
           <CardTitle className="text-base flex items-center gap-2">
             <Receipt className="h-4 w-4" />
-            Account & Billing Information
+            {t("settings.accountBilling")}
           </CardTitle>
-          <CardDescription>Your account type and billing details for invoices</CardDescription>
+          <CardDescription>{t("settings.accountBillingDesc")}</CardDescription>
         </CardHeader>
         <CardContent className="flex flex-col gap-6">
           {/* Account Type Selection */}
           <div className="space-y-3">
-            <Label>Account Type</Label>
+            <Label>{t("settings.accountType")}</Label>
             <RadioGroup
               value={accountType}
               onValueChange={(v) => setAccountType(v as "individual" | "corporate")}
@@ -212,8 +212,8 @@ export default function SettingsProfilePage() {
                 <RadioGroupItem value="individual" id="individual" />
                 <User className="h-5 w-5 text-muted-foreground" />
                 <div>
-                  <p className="font-medium text-sm">Individual</p>
-                  <p className="text-xs text-muted-foreground">Personal account</p>
+                  <p className="font-medium text-sm">{t("settings.individual")}</p>
+                  <p className="text-xs text-muted-foreground">{t("settings.individualDesc")}</p>
                 </div>
               </label>
               <label
@@ -226,8 +226,8 @@ export default function SettingsProfilePage() {
                 <RadioGroupItem value="corporate" id="corporate" />
                 <Building2 className="h-5 w-5 text-muted-foreground" />
                 <div>
-                  <p className="font-medium text-sm">Corporate</p>
-                  <p className="text-xs text-muted-foreground">Business account</p>
+                  <p className="font-medium text-sm">{t("settings.corporate")}</p>
+                  <p className="text-xs text-muted-foreground">{t("settings.corporateDesc")}</p>
                 </div>
               </label>
             </RadioGroup>
@@ -239,21 +239,19 @@ export default function SettingsProfilePage() {
           {accountType === "corporate" && (
             <div className="grid gap-4 sm:grid-cols-2">
               <div className="flex flex-col gap-2">
-                <Label htmlFor="company-name">Company Name</Label>
+                <Label htmlFor="company-name">{t("settings.companyName")}</Label>
                 <Input
                   id="company-name"
                   value={companyName}
                   onChange={(e) => setCompanyName(e.target.value)}
-                  placeholder="Acme Corporation"
                 />
               </div>
               <div className="flex flex-col gap-2">
-                <Label htmlFor="tax-id">Tax ID / TRN / VAT Number</Label>
+                <Label htmlFor="tax-id">{t("settings.taxId")}</Label>
                 <Input
                   id="tax-id"
                   value={taxId}
                   onChange={(e) => setTaxId(e.target.value)}
-                  placeholder="e.g. 123-45-6789"
                 />
               </div>
             </div>
@@ -262,50 +260,48 @@ export default function SettingsProfilePage() {
           {/* Billing contact */}
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="flex flex-col gap-2">
-              <Label htmlFor="billing-email">Billing Email</Label>
+              <Label htmlFor="billing-email">{t("settings.billingEmail")}</Label>
               <Input
                 id="billing-email"
                 type="email"
                 value={billingEmail}
                 onChange={(e) => setBillingEmail(e.target.value)}
-                placeholder="billing@company.com"
               />
             </div>
             <div className="flex flex-col gap-2">
-              <Label htmlFor="phone">Phone Number</Label>
+              <Label htmlFor="phone">{t("settings.phone")}</Label>
               <Input
                 id="phone"
                 type="tel"
                 value={phone}
                 onChange={(e) => setPhone(e.target.value)}
-                placeholder="+1 (555) 123-4567"
               />
             </div>
           </div>
 
           {/* Billing address */}
           <div className="space-y-4">
-            <Label>Billing Address</Label>
+            <Label>{t("settings.billingAddress")}</Label>
             <div className="flex flex-col gap-2">
               <Input
-                placeholder="Street Address"
+                placeholder={t("settings.streetAddress")}
                 value={billingAddress.street || ""}
                 onChange={(e) => setBillingAddress({ ...billingAddress, street: e.target.value })}
               />
             </div>
             <div className="grid gap-4 sm:grid-cols-3">
               <Input
-                placeholder="City"
+                placeholder={t("settings.city")}
                 value={billingAddress.city || ""}
                 onChange={(e) => setBillingAddress({ ...billingAddress, city: e.target.value })}
               />
               <Input
-                placeholder="State / Province"
+                placeholder={t("settings.stateProvince")}
                 value={billingAddress.state || ""}
                 onChange={(e) => setBillingAddress({ ...billingAddress, state: e.target.value })}
               />
               <Input
-                placeholder="Postal Code"
+                placeholder={t("settings.postalCode")}
                 value={billingAddress.postal_code || ""}
                 onChange={(e) => setBillingAddress({ ...billingAddress, postal_code: e.target.value })}
               />
@@ -315,7 +311,7 @@ export default function SettingsProfilePage() {
               onValueChange={(v) => setBillingAddress({ ...billingAddress, country: v })}
             >
               <SelectTrigger>
-                <SelectValue placeholder="Select Country" />
+                <SelectValue placeholder={t("settings.selectCountry")} />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="US">United States</SelectItem>
@@ -351,19 +347,19 @@ export default function SettingsProfilePage() {
                   }),
                 })
                 if (res.ok) {
-                  toast.success("Billing information saved")
+                  toast.success(t("success.saved"))
                 } else {
-                  toast.error("Failed to save billing information")
+                  toast.error(t("errors.saveFailed"))
                 }
               } catch {
-                toast.error("Failed to save billing information")
+                toast.error(t("errors.saveFailed"))
               } finally {
                 setSavingBilling(false)
               }
             }}
           >
             {savingBilling && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
-            {savingBilling ? "Saving..." : "Save Billing Information"}
+            {savingBilling ? t("common.saving") : t("settings.saveBillingInfo")}
           </Button>
         </CardContent>
       </Card>
@@ -412,15 +408,15 @@ export default function SettingsProfilePage() {
           <div className="flex items-center justify-between rounded-lg border border-border p-4">
             <div>
               <p className="text-sm font-medium text-foreground">
-                {twoFactor ? "2FA is enabled" : "2FA is disabled"}
+                {twoFactor ? t("settings.twoFactorEnabled") : t("settings.twoFactorDisabled")}
               </p>
               <p className="text-xs text-muted-foreground mt-0.5">
                 {twoFactor
-                  ? "Your account is protected with an authenticator app"
-                  : "Enable two-factor authentication via authenticator app"}
+                  ? t("settings.twoFactorProtected")
+                  : t("settings.twoFactorEnable")}
               </p>
             </div>
-            <Switch checked={twoFactor} onCheckedChange={(v) => { setTwoFactor(v); toast.success(v ? "2FA enabled" : "2FA disabled") }} />
+            <Switch checked={twoFactor} onCheckedChange={(v) => { setTwoFactor(v); toast.success(v ? t("settings.twoFactorEnabled") : t("settings.twoFactorDisabled")) }} />
           </div>
         </CardContent>
       </Card>
@@ -453,11 +449,11 @@ export default function SettingsProfilePage() {
       {/* Danger Zone */}
       <Card className="border-destructive/30">
         <CardHeader>
-          <CardTitle className="text-base text-destructive">Danger Zone</CardTitle>
-          <CardDescription>Irreversible actions for your account</CardDescription>
+          <CardTitle className="text-base text-destructive">{t("settings.dangerZone")}</CardTitle>
+          <CardDescription>{t("settings.dangerZoneDesc")}</CardDescription>
         </CardHeader>
         <CardContent>
-          <Button variant="destructive" size="sm">Delete Account</Button>
+          <Button variant="destructive" size="sm">{t("settings.deleteAccount")}</Button>
         </CardContent>
       </Card>
     </div>

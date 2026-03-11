@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback, useRef } from "react"
 import { useRouter } from "next/navigation"
+import { useTranslations } from "next-intl"
 import {
   LayoutDashboard,
   Route,
@@ -96,6 +97,7 @@ interface SpotlightSearchProps {
 }
 
 export function SpotlightSearch({ trigger }: SpotlightSearchProps) {
+  const t = useTranslations()
   const router = useRouter()
   const [open, setOpen] = useState(false)
   const [query, setQuery] = useState("")
@@ -292,7 +294,7 @@ export function SpotlightSearch({ trigger }: SpotlightSearchProps) {
           <div className="flex h-5 w-5 items-center justify-center rounded-md bg-gradient-to-br from-primary/20 to-primary/5">
             <Search className="h-3 w-3 text-primary" />
           </div>
-          <span className="flex-1 text-left font-normal">Search anything...</span>
+          <span className="flex-1 text-left font-normal">{t("spotlight.placeholder")}</span>
           <kbd className="pointer-events-none hidden h-5 select-none items-center gap-0.5 rounded-md border border-border/50 bg-background px-1.5 font-mono text-[10px] font-medium text-muted-foreground/70 shadow-sm sm:flex">
             <Command className="h-2.5 w-2.5" />K
           </kbd>
@@ -319,7 +321,7 @@ export function SpotlightSearch({ trigger }: SpotlightSearchProps) {
                   ref={inputRef}
                   value={query}
                   onChange={(e) => setQuery(e.target.value)}
-                  placeholder="Search journeys, solutions, archetypes, pain points..."
+                  placeholder={t("spotlight.searchPlaceholder")}
                   className="h-10 border-0 bg-transparent px-0 text-base shadow-none placeholder:text-muted-foreground/50 focus-visible:ring-0"
                 />
               </div>
@@ -331,7 +333,7 @@ export function SpotlightSearch({ trigger }: SpotlightSearchProps) {
               {query && !isLoading && (
                 <Badge variant="secondary" className="h-6 gap-1 rounded-md bg-muted/50 px-2 text-[10px] font-medium">
                   <Sparkles className="h-3 w-3" />
-                  AI-powered
+                  {t("spotlight.aiPowered")}
                 </Badge>
               )}
             </div>
@@ -339,12 +341,12 @@ export function SpotlightSearch({ trigger }: SpotlightSearchProps) {
             {/* Quick filter chips */}
             {!showSearchResults && (
               <div className="flex items-center gap-2 border-t border-border/30 bg-muted/20 px-4 py-2">
-                <span className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground/60">Quick filters:</span>
+                <span className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground/60">{t("spotlight.quickFilters")}:</span>
                 <div className="flex items-center gap-1.5">
                   {[
-                    { label: "Journeys", query: "type:journey" },
-                    { label: "Solutions", query: "type:solution" },
-                    { label: "Pain Points", query: "type:pain_point" },
+                    { label: t("spotlight.journeys"), query: "type:journey" },
+                    { label: t("spotlight.solutions"), query: "type:solution" },
+                    { label: t("spotlight.painPoints"), query: "type:pain_point" },
                   ].map((filter) => (
                     <button
                       key={filter.label}
@@ -368,7 +370,7 @@ export function SpotlightSearch({ trigger }: SpotlightSearchProps) {
                   <div className="h-12 w-12 rounded-full border-2 border-primary/20" />
                   <div className="absolute inset-0 h-12 w-12 animate-spin rounded-full border-2 border-primary border-t-transparent" />
                 </div>
-                <p className="text-sm font-medium text-muted-foreground">Searching across your workspace...</p>
+                <p className="text-sm font-medium text-muted-foreground">{t("spotlight.searching")}</p>
               </div>
             )}
 
@@ -379,8 +381,8 @@ export function SpotlightSearch({ trigger }: SpotlightSearchProps) {
                   <Search className="h-8 w-8 text-muted-foreground/40" />
                 </div>
                 <div className="text-center">
-                  <p className="text-sm font-medium text-foreground">No results found</p>
-                  <p className="mt-1 text-xs text-muted-foreground">Try a different search term or check your spelling</p>
+                  <p className="text-sm font-medium text-foreground">{t("spotlight.noResults")}</p>
+                  <p className="mt-1 text-xs text-muted-foreground">{t("spotlight.noResultsDesc")}</p>
                 </div>
               </div>
             )}
@@ -497,7 +499,7 @@ export function SpotlightSearch({ trigger }: SpotlightSearchProps) {
                     <div className="flex items-center gap-2 px-2 py-1.5">
                       <Zap className="h-3 w-3 text-primary" />
                       <span className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground/70">
-                        Quick Actions
+                        {t("spotlight.quickActions")}
                       </span>
                     </div>
                     
@@ -551,7 +553,7 @@ export function SpotlightSearch({ trigger }: SpotlightSearchProps) {
                     <div className="flex items-center gap-2 px-2 py-1.5">
                       <Clock className="h-3 w-3 text-muted-foreground" />
                       <span className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground/70">
-                        Navigate to
+                        {t("spotlight.pages")}
                       </span>
                     </div>
                     

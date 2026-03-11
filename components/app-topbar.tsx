@@ -201,14 +201,14 @@ export function AppTopbar() {
             </button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="start" className="w-64">
-            <DropdownMenuLabel className="text-xs text-muted-foreground font-normal">Workspaces</DropdownMenuLabel>
+            <DropdownMenuLabel className="text-xs text-muted-foreground font-normal">{t("workspace.workspaces")}</DropdownMenuLabel>
             {displayWorkspaces.length === 0 && isLoading ? (
               <div className="px-2 py-3 text-center text-sm text-muted-foreground">
-                Loading...
+                {t("workspace.loading")}
               </div>
             ) : displayWorkspaces.length === 0 ? (
               <div className="px-2 py-3 text-center text-sm text-muted-foreground">
-                No workspaces yet
+                {t("common.noData")}
               </div>
             ) : (
               displayWorkspaces.map((w) => (
@@ -242,12 +242,12 @@ export function AppTopbar() {
             <DropdownMenuSeparator />
             <DropdownMenuItem className="gap-2 text-muted-foreground" onClick={() => setCreateWsOpen(true)}>
               <Plus className="h-3.5 w-3.5" />
-              Create Workspace
+              {t("workspace.createWorkspace")}
             </DropdownMenuItem>
             <DropdownMenuItem asChild className="gap-2 text-muted-foreground">
               <Link href="/settings/workspace">
                 <Building2 className="h-3.5 w-3.5" />
-                Workspace Settings
+                {t("settings.workspaceSettings")}
               </Link>
             </DropdownMenuItem>
           </DropdownMenuContent>
