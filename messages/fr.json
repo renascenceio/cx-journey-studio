@@ -565,5 +565,60 @@
     "contactSales": "Contacter les ventes",
     "features": "Fonctionnalités",
     "includedFeatures": "Ce qui est inclus"
+  },
+  "publicNav": {
+    "features": "Fonctionnalités",
+    "pricing": "Tarifs",
+    "howItWorks": "Comment ça marche",
+    "dashboard": "Tableau de bord",
+    "myJourneys": "Mes Parcours",
+    "settings": "Paramètres",
+    "logOut": "Déconnexion",
+    "logIn": "Connexion",
+    "getStarted": "Commencer",
+    "language": "Langue",
+    "appearance": "Apparence",
+    "light": "Clair",
+    "dark": "Sombre"
+  },
+  "createWorkspace": {
+    "title": "Créer un Espace de Travail",
+    "subtitle": "Configurez un nouvel espace pour votre équipe",
+    "workspaceName": "Nom de l'Espace",
+    "workspaceNamePlaceholder": "ex. Acme Corporation",
+    "uploadLogo": "Téléverser un logo (optionnel)",
+    "clickToChangeLogo": "Cliquez pour changer le logo",
+    "cancel": "Annuler",
+    "create": "Créer l'Espace",
+    "creating": "Création de {name}",
+    "settingUp": "Configuration de l'espace",
+    "configuringPermissions": "Configuration des permissions",
+    "creatingTeam": "Création de l'équipe",
+    "finalizing": "Finalisation",
+    "congratulations": "Félicitations !",
+    "workspaceReady": "{name} est prêt",
+    "startCreating": "Commencez à créer des cartes de parcours et collaborez avec votre équipe.",
+    "goToWorkspace": "Aller à l'Espace",
+    "imageMustBeLess": "L'image doit faire moins de 2 Mo",
+    "pleaseSelectImage": "Veuillez sélectionner une image"
+  },
+  "journeyTabs": {
+    "current": "Actuel",
+    "currentDesc": "Cartes de parcours actives reflétant l'expérience réelle aujourd'hui",
+    "future": "Futur",
+    "futureDesc": "Améliorations planifiées et reconceptions basées sur les opportunités",
+    "deployed": "Déployé",
+    "deployedDesc": "Parcours publiés avec surveillance de la santé en direct",
+    "deployJourney": "Déployer un Parcours",
+    "deployJourneyDesc": "Sélectionnez un parcours Actuel ou Futur à déployer. Les parcours déployés sont ceux que votre équipe s'est engagée à implémenter.",
+    "noJourneysToDeployDesc": "Aucun parcours actuel ou futur disponible pour le déploiement. Créez d'abord un parcours.",
+    "stages": "étapes",
+    "loadingJourneys": "Chargement des parcours..."
+  },
+  "impactMetrics": {
+    "fasterMapping": "cartographie plus rapide",
+    "npsImprovement": "amélioration du NPS",
+    "crossTeamAlignment": "plus d'alignement inter-équipes",
+    "churnReduction": "réduction de l'attrition"
   }
 }

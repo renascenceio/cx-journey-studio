@@ -360,5 +360,60 @@
     "contact": "İletişime Geç",
     "features": "Özellikler",
     "mostPopular": "En Popüler"
+  },
+  "publicNav": {
+    "features": "Özellikler",
+    "pricing": "Fiyatlandırma",
+    "howItWorks": "Nasıl Çalışır",
+    "dashboard": "Panel",
+    "myJourneys": "Yolculuklarım",
+    "settings": "Ayarlar",
+    "logOut": "Çıkış Yap",
+    "logIn": "Giriş Yap",
+    "getStarted": "Başla",
+    "language": "Dil",
+    "appearance": "Görünüm",
+    "light": "Açık",
+    "dark": "Koyu"
+  },
+  "createWorkspace": {
+    "title": "Çalışma Alanı Oluştur",
+    "subtitle": "Ekibiniz için yeni bir alan oluşturun",
+    "workspaceName": "Alan Adı",
+    "workspaceNamePlaceholder": "örn. Acme Şirketi",
+    "uploadLogo": "Logo yükle (isteğe bağlı)",
+    "clickToChangeLogo": "Logo değiştirmek için tıklayın",
+    "cancel": "İptal",
+    "create": "Alan Oluştur",
+    "creating": "{name} oluşturuluyor",
+    "settingUp": "Alan hazırlanıyor",
+    "configuringPermissions": "İzinler yapılandırılıyor",
+    "creatingTeam": "Ekip oluşturuluyor",
+    "finalizing": "Tamamlanıyor",
+    "congratulations": "Tebrikler!",
+    "workspaceReady": "{name} hazır",
+    "startCreating": "Müşteri yolculuk haritaları oluşturmaya başlayın ve ekibinizle işbirliği yapın.",
+    "goToWorkspace": "Alana Git",
+    "imageMustBeLess": "Görsel 2MB'den küçük olmalı",
+    "pleaseSelectImage": "Lütfen bir görsel seçin"
+  },
+  "journeyTabs": {
+    "current": "Mevcut",
+    "currentDesc": "Bugünkü gerçek deneyimi yansıtan aktif yolculuk haritaları",
+    "future": "Gelecek",
+    "futureDesc": "Planlanan iyileştirmeler ve fırsat odaklı yeniden tasarımlar",
+    "deployed": "Yayınlandı",
+    "deployedDesc": "Canlı sağlık izleme ile yayınlanan yolculuklar",
+    "deployJourney": "Yolculuk Yayınla",
+    "deployJourneyDesc": "Yayınlamak için Mevcut veya Gelecek yolculuk seçin. Yayınlanan yolculuklar ekibinizin uygulamaya söz verdiği yolculuklardır.",
+    "noJourneysToDeployDesc": "Yayınlanacak mevcut veya gelecek yolculuk yok. Önce bir yolculuk oluşturun.",
+    "stages": "aşama",
+    "loadingJourneys": "Yolculuklar yükleniyor..."
+  },
+  "impactMetrics": {
+    "fasterMapping": "daha hızlı yolculuk haritalama",
+    "npsImprovement": "NPS iyileştirmesi",
+    "crossTeamAlignment": "daha fazla ekipler arası uyum",
+    "churnReduction": "müşteri kaybında azalma"
   }
 }

@@ -360,5 +360,60 @@
     "contact": "Liên hệ",
     "features": "Tính năng",
     "mostPopular": "Phổ biến nhất"
+  },
+  "publicNav": {
+    "features": "Tính năng",
+    "pricing": "Giá cả",
+    "howItWorks": "Cách hoạt động",
+    "dashboard": "Bảng điều khiển",
+    "myJourneys": "Hành trình của tôi",
+    "settings": "Cài đặt",
+    "logOut": "Đăng xuất",
+    "logIn": "Đăng nhập",
+    "getStarted": "Bắt đầu",
+    "language": "Ngôn ngữ",
+    "appearance": "Giao diện",
+    "light": "Sáng",
+    "dark": "Tối"
+  },
+  "createWorkspace": {
+    "title": "Tạo Không gian làm việc",
+    "subtitle": "Thiết lập không gian mới cho đội của bạn",
+    "workspaceName": "Tên Không gian",
+    "workspaceNamePlaceholder": "vd. Công ty Acme",
+    "uploadLogo": "Tải lên logo (tùy chọn)",
+    "clickToChangeLogo": "Nhấn để đổi logo",
+    "cancel": "Hủy",
+    "create": "Tạo Không gian",
+    "creating": "Đang tạo {name}",
+    "settingUp": "Đang thiết lập không gian",
+    "configuringPermissions": "Đang cấu hình quyền",
+    "creatingTeam": "Đang tạo đội",
+    "finalizing": "Đang hoàn tất",
+    "congratulations": "Chúc mừng!",
+    "workspaceReady": "{name} đã sẵn sàng",
+    "startCreating": "Bắt đầu tạo bản đồ hành trình khách hàng và cộng tác với đội của bạn.",
+    "goToWorkspace": "Đi đến Không gian",
+    "imageMustBeLess": "Hình ảnh phải nhỏ hơn 2MB",
+    "pleaseSelectImage": "Vui lòng chọn tệp hình ảnh"
+  },
+  "journeyTabs": {
+    "current": "Hiện tại",
+    "currentDesc": "Bản đồ hành trình đang hoạt động phản ánh trải nghiệm thực tế hôm nay",
+    "future": "Tương lai",
+    "futureDesc": "Cải tiến theo kế hoạch và thiết kế lại dựa trên cơ hội",
+    "deployed": "Đã triển khai",
+    "deployedDesc": "Hành trình đã xuất bản với giám sát sức khỏe trực tiếp",
+    "deployJourney": "Triển khai Hành trình",
+    "deployJourneyDesc": "Chọn hành trình Hiện tại hoặc Tương lai để triển khai. Hành trình đã triển khai là những gì đội của bạn cam kết thực hiện.",
+    "noJourneysToDeployDesc": "Không có hành trình hiện tại hoặc tương lai để triển khai. Tạo hành trình trước.",
+    "stages": "giai đoạn",
+    "loadingJourneys": "Đang tải hành trình..."
+  },
+  "impactMetrics": {
+    "fasterMapping": "lập bản đồ hành trình nhanh hơn",
+    "npsImprovement": "cải thiện NPS",
+    "crossTeamAlignment": "sự phối hợp giữa các đội tốt hơn",
+    "churnReduction": "giảm tỷ lệ rời bỏ"
   }
 }

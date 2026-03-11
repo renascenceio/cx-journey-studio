@@ -4,6 +4,7 @@ import Link from "next/link"
 import Image from "next/image"
 import { useState } from "react"
 import { useTheme } from "next-themes"
+import { useTranslations } from "next-intl"
 import { Button } from "@/components/ui/button"
 import { LanguageSwitcher } from "@/components/language-switcher"
 import { Menu, X, Sun, Moon, LayoutDashboard, Settings, LogOut, User } from "lucide-react"
@@ -19,17 +20,18 @@ import {
 import { useSiteConfig } from "@/hooks/use-site-config"
 import { useAuth } from "@/lib/auth-provider"
 
-const navLinks = [
-  { href: "/home#features", label: "Features" },
-  { href: "/pricing", label: "Pricing" },
-  { href: "/home#how-it-works", label: "How It Works" },
-]
-
 export function PublicNavbar() {
+  const t = useTranslations()
   const [mobileOpen, setMobileOpen] = useState(false)
   const { resolvedTheme, setTheme } = useTheme()
   const { getLogo, config } = useSiteConfig()
   const { isAuthenticated, isLoading, user } = useAuth()
+  
+  const navLinks = [
+    { href: "/home#features", label: t("publicNav.features") },
+    { href: "/pricing", label: t("publicNav.pricing") },
+    { href: "/home#how-it-works", label: t("publicNav.howItWorks") },
+  ]
   
   // Always use light as default if theme not resolved yet
   const theme = resolvedTheme === "dark" ? "dark" : "light"
@@ -89,7 +91,7 @@ export function PublicNavbar() {
               <Button variant="ghost" size="sm" asChild>
                 <Link href="/dashboard">
                   <LayoutDashboard className="h-4 w-4 mr-1.5" />
-                  Dashboard
+                  {t("publicNav.dashboard")}
                 </Link>
               </Button>
               <DropdownMenu>
@@ -114,19 +116,19 @@ export function PublicNavbar() {
                   <DropdownMenuItem asChild>
                     <Link href="/dashboard">
                       <LayoutDashboard className="mr-2 h-4 w-4" />
-                      Dashboard
+                      {t("publicNav.dashboard")}
                     </Link>
                   </DropdownMenuItem>
                   <DropdownMenuItem asChild>
                     <Link href="/journeys">
                       <User className="mr-2 h-4 w-4" />
-                      My Journeys
+                      {t("publicNav.myJourneys")}
                     </Link>
                   </DropdownMenuItem>
                   <DropdownMenuItem asChild>
                     <Link href="/settings">
                       <Settings className="mr-2 h-4 w-4" />
-                      Settings
+                      {t("publicNav.settings")}
                     </Link>
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
@@ -141,7 +143,7 @@ export function PublicNavbar() {
                     }}
                   >
                     <LogOut className="mr-2 h-4 w-4" />
-                    Log out
+                    {t("publicNav.logOut")}
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
@@ -149,10 +151,10 @@ export function PublicNavbar() {
           ) : (
             <>
               <Button variant="ghost" size="sm" asChild>
-                <Link href="/login">Log in</Link>
+                <Link href="/login">{t("publicNav.logIn")}</Link>
               </Button>
               <Button size="sm" asChild>
-                <Link href="/signup">Get Started</Link>
+                <Link href="/signup">{t("publicNav.getStarted")}</Link>
               </Button>
             </>
           )}
@@ -186,11 +188,11 @@ export function PublicNavbar() {
             ))}
           </nav>
           <div className="mt-4 flex items-center justify-between border-t border-border pt-4">
-            <span className="text-xs text-muted-foreground">Language</span>
+            <span className="text-xs text-muted-foreground">{t("publicNav.language")}</span>
             <LanguageSwitcher variant="outline" size="sm" showLabel />
           </div>
           <div className="mt-4 flex items-center justify-between">
-            <span className="text-xs text-muted-foreground">Appearance</span>
+            <span className="text-xs text-muted-foreground">{t("publicNav.appearance")}</span>
             <Button
               variant="outline"
               size="sm"
@@ -198,9 +200,9 @@ export function PublicNavbar() {
               className="gap-2"
             >
               {theme === "dark" ? (
-                <><Sun className="h-3.5 w-3.5" /> Light</>
+                <><Sun className="h-3.5 w-3.5" /> {t("publicNav.light")}</>
               ) : (
-                <><Moon className="h-3.5 w-3.5" /> Dark</>
+                <><Moon className="h-3.5 w-3.5" /> {t("publicNav.dark")}</>
               )}
             </Button>
           </div>
@@ -223,20 +225,20 @@ export function PublicNavbar() {
                 <Button variant="outline" size="sm" asChild>
                   <Link href="/dashboard">
                     <LayoutDashboard className="h-4 w-4 mr-1.5" />
-                    Dashboard
+                    {t("publicNav.dashboard")}
                   </Link>
                 </Button>
                 <Button size="sm" asChild>
-                  <Link href="/journeys">My Journeys</Link>
+                  <Link href="/journeys">{t("publicNav.myJourneys")}</Link>
                 </Button>
               </>
             ) : !isLoading ? (
               <>
                 <Button variant="outline" size="sm" asChild>
-                  <Link href="/login">Log in</Link>
+                  <Link href="/login">{t("publicNav.logIn")}</Link>
                 </Button>
                 <Button size="sm" asChild>
-                  <Link href="/signup">Get Started</Link>
+                  <Link href="/signup">{t("publicNav.getStarted")}</Link>
                 </Button>
               </>
             ) : null}

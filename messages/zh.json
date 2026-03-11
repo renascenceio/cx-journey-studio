@@ -565,5 +565,60 @@
     "contactSales": "联系销售",
     "features": "功能",
     "includedFeatures": "包含功能"
+  },
+  "publicNav": {
+    "features": "功能特性",
+    "pricing": "价格",
+    "howItWorks": "工作原理",
+    "dashboard": "仪表盘",
+    "myJourneys": "我的旅程",
+    "settings": "设置",
+    "logOut": "退出登录",
+    "logIn": "登录",
+    "getStarted": "开始使用",
+    "language": "语言",
+    "appearance": "外观",
+    "light": "浅色",
+    "dark": "深色"
+  },
+  "createWorkspace": {
+    "title": "创建工作区",
+    "subtitle": "为您的团队设置新工作区",
+    "workspaceName": "工作区名称",
+    "workspaceNamePlaceholder": "例如：某某公司",
+    "uploadLogo": "上传工作区标志（可选）",
+    "clickToChangeLogo": "点击更换标志",
+    "cancel": "取消",
+    "create": "创建工作区",
+    "creating": "正在创建 {name}",
+    "settingUp": "正在设置工作区",
+    "configuringPermissions": "正在配置权限",
+    "creatingTeam": "正在创建默认团队",
+    "finalizing": "正在完成设置",
+    "congratulations": "恭喜！",
+    "workspaceReady": "{name} 已准备就绪",
+    "startCreating": "开始创建客户旅程地图并与团队协作。",
+    "goToWorkspace": "进入工作区",
+    "imageMustBeLess": "图片必须小于2MB",
+    "pleaseSelectImage": "请选择图片文件"
+  },
+  "journeyTabs": {
+    "current": "当前",
+    "currentDesc": "反映当前真实体验的活跃旅程地图",
+    "future": "未来",
+    "futureDesc": "计划中的改进和机会驱动的重新设计",
+    "deployed": "已部署",
+    "deployedDesc": "已发布并具有实时健康监控的旅程",
+    "deployJourney": "部署旅程",
+    "deployJourneyDesc": "选择一个当前或未来旅程进行部署。已部署的旅程是您的团队承诺实施的旅程。",
+    "noJourneysToDeployDesc": "没有可部署的当前或未来旅程。请先创建一个旅程。",
+    "stages": "阶段",
+    "loadingJourneys": "正在加载旅程..."
+  },
+  "impactMetrics": {
+    "fasterMapping": "更快的旅程映射",
+    "npsImprovement": "NPS 提升",
+    "crossTeamAlignment": "更多跨团队协调",
+    "churnReduction": "流失率降低"
   }
 }

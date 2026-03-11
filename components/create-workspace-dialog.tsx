@@ -1,6 +1,7 @@
 "use client"
 
-import { useState, useRef, useEffect } from "react"
+import { useState, useRef } from "react"
+import { useTranslations } from "next-intl"
 import { Building2, Upload, X, Check, Sparkles, Users, FolderKanban, Rocket } from "lucide-react"
 import {
   Dialog,
@@ -21,16 +22,17 @@ interface CreateWorkspaceDialogProps {
 
 type CreationStep = "input" | "creating" | "success"
 
-const PROGRESS_STEPS = [
-  { label: "Setting up workspace", icon: Building2 },
-  { label: "Configuring permissions", icon: Users },
-  { label: "Creating default team", icon: FolderKanban },
-  { label: "Finalizing setup", icon: Sparkles },
-]
-
 const MIN_ANIMATION_TIME = 2500 // Minimum time to show the full animation
 
 export function CreateWorkspaceDialog({ open, onOpenChange, redirectTo = "/dashboard" }: CreateWorkspaceDialogProps) {
+  const t = useTranslations()
+  
+  const PROGRESS_STEPS = [
+    { label: t("createWorkspace.settingUp"), icon: Building2 },
+    { label: t("createWorkspace.configuringPermissions"), icon: Users },
+    { label: t("createWorkspace.creatingTeam"), icon: FolderKanban },
+    { label: t("createWorkspace.finalizing"), icon: Sparkles },
+  ]
   const [name, setName] = useState("")
   const [logo, setLogo] = useState<string | null>(null)
   const [logoFile, setLogoFile] = useState<File | null>(null)
@@ -56,12 +58,12 @@ export function CreateWorkspaceDialog({ open, onOpenChange, redirectTo = "/dashb
     if (!file) return
     
     if (!file.type.startsWith("image/")) {
-      toast.error("Please select an image file")
+      toast.error(t("createWorkspace.pleaseSelectImage"))
       return
     }
     
     if (file.size > 2 * 1024 * 1024) {
-      toast.error("Image must be less than 2MB")
+      toast.error(t("createWorkspace.imageMustBeLess"))
       return
     }
     
@@ -184,8 +186,8 @@ export function CreateWorkspaceDialog({ open, onOpenChange, redirectTo = "/dashb
                 <Building2 className="h-5 w-5 text-primary" />
               </div>
               <div>
-                <h2 className="text-lg font-semibold">Create Workspace</h2>
-                <p className="text-sm text-muted-foreground">Set up a new workspace for your team</p>
+                <h2 className="text-lg font-semibold">{t("createWorkspace.title")}</h2>
+                <p className="text-sm text-muted-foreground">{t("createWorkspace.subtitle")}</p>
               </div>
             </div>
 
@@ -223,16 +225,16 @@ export function CreateWorkspaceDialog({ open, onOpenChange, redirectTo = "/dashb
                   className="hidden"
                 />
                 <p className="text-xs text-muted-foreground">
-                  {logo ? "Click to change logo" : "Upload workspace logo (optional)"}
+                  {logo ? t("createWorkspace.clickToChangeLogo") : t("createWorkspace.uploadLogo")}
                 </p>
               </div>
 
               {/* Name input */}
               <div className="space-y-2">
-                <Label htmlFor="ws-name" className="text-sm font-medium">Workspace Name</Label>
+                <Label htmlFor="ws-name" className="text-sm font-medium">{t("createWorkspace.workspaceName")}</Label>
                 <Input
                   id="ws-name"
-                  placeholder="e.g. Acme Corporation"
+                  placeholder={t("createWorkspace.workspaceNamePlaceholder")}
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   onKeyDown={(e) => e.key === "Enter" && name.trim() && handleCreate()}
@@ -244,11 +246,11 @@ export function CreateWorkspaceDialog({ open, onOpenChange, redirectTo = "/dashb
 
             <div className="mt-6 flex gap-3">
               <Button variant="outline" onClick={() => onOpenChange(false)} className="flex-1">
-                Cancel
+                {t("common.cancel")}
               </Button>
               <Button disabled={!name.trim()} onClick={handleCreate} className="flex-1 gap-2">
                 <Rocket className="h-4 w-4" />
-                Create Workspace
+                {t("createWorkspace.create")}
               </Button>
             </div>
           </div>
@@ -263,9 +265,9 @@ export function CreateWorkspaceDialog({ open, onOpenChange, redirectTo = "/dashb
               })()}
             </div>
             
-            <h2 className="text-xl font-semibold mb-2">Creating {createdWorkspaceName}</h2>
+            <h2 className="text-xl font-semibold mb-2">{t("createWorkspace.creating", { name: createdWorkspaceName })}</h2>
             <p className="text-sm text-muted-foreground mb-8">
-              {PROGRESS_STEPS[progressIndex]?.label || "Setting up..."}
+              {PROGRESS_STEPS[progressIndex]?.label || t("createWorkspace.settingUp")}
             </p>
 
             {/* Progress bar */}
@@ -300,17 +302,17 @@ export function CreateWorkspaceDialog({ open, onOpenChange, redirectTo = "/dashb
               <Check className="h-10 w-10 text-emerald-600 dark:text-emerald-400" />
             </div>
             
-            <h2 className="text-2xl font-semibold mb-2">Congratulations!</h2>
+            <h2 className="text-2xl font-semibold mb-2">{t("createWorkspace.congratulations")}</h2>
             <p className="text-muted-foreground mb-2">
-              <span className="font-medium text-foreground">{createdWorkspaceName}</span> is now ready to go
+              {t("createWorkspace.workspaceReady", { name: createdWorkspaceName })}
             </p>
             <p className="text-sm text-muted-foreground mb-8">
-              Start creating customer journey maps and collaborate with your team.
+              {t("createWorkspace.startCreating")}
             </p>
 
             <Button onClick={handleGoToWorkspace} size="lg" className="gap-2 px-8">
               <Rocket className="h-4 w-4" />
-              Go to Workspace
+              {t("createWorkspace.goToWorkspace")}
             </Button>
           </div>
         )}
