@@ -66,8 +66,14 @@
     "verifyEmailSent": "Chúng tôi đã gửi liên kết xác minh đến email của bạn"
   },
   "landing": {
-    "heroTitle": "Thiết kế Hành trình Khách hàng Mang lại Kết quả",
-    "heroSubtitle": "Tạo, trực quan hóa và tối ưu hóa trải nghiệm khách hàng với nền tảng lập bản đồ hành trình trực quan của chúng tôi.",
+    "hero": {
+      "title": "Nền tảng hoàn chỉnh để lập bản đồ hành trình khách hàng.",
+      "subtitle": "Bộ công cụ của đội CX để ngừng đoán và bắt đầu cải thiện. Lập bản đồ cung cảm xúc, xác định nguyên mẫu, theo dõi sức khỏe với NPS, CSAT và CES — tất cả trong một studio cộng tác.",
+      "startFree": "Bắt đầu Miễn phí",
+      "signIn": "Đăng nhập",
+      "goToDashboard": "Đi tới Bảng điều khiển",
+      "viewJourneys": "Xem Hành trình"
+    },
     "getStarted": "Bắt đầu",
     "learnMore": "Tìm hiểu thêm",
     "watchDemo": "Xem Demo",

@@ -1,12 +1,14 @@
 "use client"
 
 import Link from "next/link"
+import { useTranslations } from "next-intl"
 import { Button } from "@/components/ui/button"
 import { ArrowRight, LayoutDashboard } from "lucide-react"
 import { useAuth } from "@/lib/auth-provider"
 
 export function LandingHero() {
   const { isAuthenticated, isLoading } = useAuth()
+  const t = useTranslations("landing")
 
   return (
     <section className="relative overflow-hidden">
@@ -19,20 +21,14 @@ export function LandingHero() {
           {/* Left: Headline */}
           <div className="flex flex-col justify-center">
             <h1 className="text-balance text-4xl font-bold leading-[1.08] tracking-tight text-foreground sm:text-5xl lg:text-6xl">
-              The complete
-              <br />
-              platform to map
-              <br />
-              customer journeys.
+              {t("hero.title")}
             </h1>
           </div>
 
           {/* Right: Description + CTA */}
           <div className="flex flex-col justify-center gap-6">
             <p className="max-w-lg text-pretty text-lg leading-relaxed text-muted-foreground">
-              Your CX team&apos;s toolkit to stop guessing and start improving.
-              Map emotional arcs, define archetypes, monitor health with NPS,
-              CSAT, and CES -- all in one collaborative studio.
+              {t("hero.subtitle")}
             </p>
             <div className="flex flex-wrap items-center gap-4">
               {!isLoading && isAuthenticated ? (
@@ -40,7 +36,7 @@ export function LandingHero() {
                   <Button size="lg" className="h-12 px-8 text-base" asChild>
                     <Link href="/dashboard">
                       <LayoutDashboard className="mr-2 h-4 w-4" />
-                      Go to Dashboard
+                      {t("hero.goToDashboard")}
                     </Link>
                   </Button>
                   <Button
@@ -49,14 +45,14 @@ export function LandingHero() {
                     className="h-12 px-8 text-base"
                     asChild
                   >
-                    <Link href="/journeys">View Journeys</Link>
+                    <Link href="/journeys">{t("hero.viewJourneys")}</Link>
                   </Button>
                 </>
               ) : (
                 <>
                   <Button size="lg" className="h-12 px-8 text-base" asChild>
                     <Link href="/signup">
-                      Start Free
+                      {t("hero.startFree")}
                       <ArrowRight className="ml-2 h-4 w-4" />
                     </Link>
                   </Button>
@@ -66,7 +62,7 @@ export function LandingHero() {
                     className="h-12 px-8 text-base"
                     asChild
                   >
-                    <Link href="/login">Sign In</Link>
+                    <Link href="/login">{t("hero.signIn")}</Link>
                   </Button>
                 </>
               )}

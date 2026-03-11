@@ -1,3 +1,4 @@
+// v2 - Force rebuild
 import { getRequestConfig } from 'next-intl/server'
 import { cookies, headers } from 'next/headers'
 import { locales, defaultLocale, type Locale, LOCALE_COOKIE } from '@/lib/i18n/config'

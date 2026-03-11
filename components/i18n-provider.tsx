@@ -1,7 +1,8 @@
 "use client"
 
-import { NextIntlClientProvider, AbstractIntlMessages } from "next-intl"
+import { NextIntlClientProvider } from "next-intl"
 import { type ReactNode } from "react"
+import { type AbstractIntlMessages } from "next-intl"
 
 interface I18nProviderProps {
   children: ReactNode
@@ -11,7 +12,11 @@ interface I18nProviderProps {
 
 export function I18nProvider({ children, locale, messages }: I18nProviderProps) {
   return (
-    <NextIntlClientProvider locale={locale} messages={messages}>
+    <NextIntlClientProvider 
+      locale={locale} 
+      messages={messages}
+      timeZone="UTC"
+    >
       {children}
     </NextIntlClientProvider>
   )

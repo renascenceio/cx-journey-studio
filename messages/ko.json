@@ -66,8 +66,14 @@
     "verifyEmailSent": "이메일로 확인 링크를 보냈습니다"
   },
   "landing": {
-    "heroTitle": "결과를 이끄는 고객 여정을 설계하세요",
-    "heroSubtitle": "직관적인 여정 매핑 플랫폼으로 고객 경험을 생성, 시각화, 최적화하세요.",
+    "hero": {
+      "title": "고객 여정을 매핑하는 완벽한 플랫폼.",
+      "subtitle": "추측을 멈추고 개선을 시작하는 CX 팀의 도구 키트. 감정 아크를 매핑하고, 아키타입을 정의하고, NPS, CSAT, CES로 건강을 모니터링하세요 — 모두 하나의 협업 스튜디오에서.",
+      "startFree": "무료로 시작",
+      "signIn": "로그인",
+      "goToDashboard": "대시보드로 이동",
+      "viewJourneys": "여정 보기"
+    },
     "getStarted": "시작하기",
     "learnMore": "자세히 알아보기",
     "watchDemo": "데모 보기",

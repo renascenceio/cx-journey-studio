@@ -1,4 +1,5 @@
 {
+  "_version": "2.0",
   "common": {
     "loading": "Loading...",
     "save": "Save",
@@ -66,8 +67,14 @@
     "verifyEmailSent": "We've sent a verification link to your email"
   },
   "landing": {
-    "heroTitle": "Design Customer Journeys That Drive Results",
-    "heroSubtitle": "Create, visualize, and optimize customer experiences with our intuitive journey mapping platform.",
+    "hero": {
+      "title": "The complete platform to map customer journeys.",
+      "subtitle": "Your CX team's toolkit to stop guessing and start improving. Map emotional arcs, define archetypes, monitor health with NPS, CSAT, and CES — all in one collaborative studio.",
+      "startFree": "Start Free",
+      "signIn": "Sign In",
+      "goToDashboard": "Go to Dashboard",
+      "viewJourneys": "View Journeys"
+    },
     "getStarted": "Get Started",
     "learnMore": "Learn More",
     "watchDemo": "Watch Demo",

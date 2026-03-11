@@ -1,10 +1,9 @@
 "use client"
 
-// v2 - Fixed: removed useTranslations, added debug logging
-import { useLocale } from "next-intl"
-import { useTransition } from "react"
+// v5 - Recreated to override cached version - NO useTranslations
+import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
-import { Globe, Loader2 } from "lucide-react"
+import { Globe, Loader2, Check } from "lucide-react"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -12,8 +11,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { Button } from "@/components/ui/button"
-import { locales, languageNames, type Locale } from "@/lib/i18n/config"
-import { setLocale } from "@/lib/i18n/actions"
+import { locales, languageNames, type Locale, LOCALE_COOKIE } from "@/lib/i18n/config"
 import { cn } from "@/lib/utils"
 
 interface LanguageSwitcherProps {
@@ -29,19 +27,33 @@ export function LanguageSwitcher({
   showLabel = false,
   className,
 }: LanguageSwitcherProps) {
-  const locale = useLocale() as Locale
   const router = useRouter()
-  const [isPending, startTransition] = useTransition()
+  const [isPending, setIsPending] = useState(false)
+  const [currentLocale, setCurrentLocale] = useState<Locale>("en")
+  
+  // Read locale from cookie on mount
+  useEffect(() => {
+    const cookies = document.cookie.split(";")
+    for (const cookie of cookies) {
+      const [key, value] = cookie.trim().split("=")
+      if (key === LOCALE_COOKIE && locales.includes(value as Locale)) {
+        setCurrentLocale(value as Locale)
+        break
+      }
+    }
+  }, [])
 
-  function handleLocaleChange(newLocale: Locale) {
-    console.log("[v0] Language change requested:", newLocale)
-    startTransition(async () => {
-      console.log("[v0] Setting locale to:", newLocale)
-      const result = await setLocale(newLocale)
-      console.log("[v0] setLocale result:", result)
-      router.refresh()
-      console.log("[v0] Router refresh called")
-    })
+  async function handleLocaleChange(newLocale: Locale) {
+    if (newLocale === currentLocale) return
+    
+    setIsPending(true)
+    
+    // Set cookie directly
+    document.cookie = `${LOCALE_COOKIE}=${newLocale}; path=/; max-age=${60 * 60 * 24 * 365}; samesite=lax`
+    setCurrentLocale(newLocale)
+    
+    // Full page reload to get new translations from server
+    window.location.reload()
   }
 
   return (
@@ -58,25 +70,18 @@ export function LanguageSwitcher({
           ) : (
             <Globe className="h-4 w-4" />
           )}
-          {showLabel && <span>{languageNames[locale]}</span>}
+          {showLabel && <span>{languageNames[currentLocale]}</span>}
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="max-h-[300px] overflow-y-auto">
+      <DropdownMenuContent align="end" className="max-h-80 overflow-y-auto">
         {locales.map((loc) => (
           <DropdownMenuItem
             key={loc}
             onClick={() => handleLocaleChange(loc)}
-            className={cn(
-              "cursor-pointer",
-              loc === locale && "bg-accent font-medium"
-            )}
+            className="flex items-center justify-between gap-2"
           >
-            <span className="mr-2">{languageNames[loc]}</span>
-            {loc === locale && (
-              <span className="ml-auto text-xs text-muted-foreground">
-                ✓
-              </span>
-            )}
+            <span>{languageNames[loc]}</span>
+            {loc === currentLocale && <Check className="h-4 w-4" />}
           </DropdownMenuItem>
         ))}
       </DropdownMenuContent>

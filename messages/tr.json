@@ -66,8 +66,14 @@
     "verifyEmailSent": "E-postanıza bir doğrulama bağlantısı gönderdik"
   },
   "landing": {
-    "heroTitle": "Sonuç Getiren Müşteri Yolculukları Tasarlayın",
-    "heroSubtitle": "Sezgisel yolculuk haritalama platformumuz ile müşteri deneyimlerini oluşturun, görselleştirin ve optimize edin.",
+    "hero": {
+      "title": "Müşteri yolculuklarını haritalamak için eksiksiz platform.",
+      "subtitle": "CX ekibinizin tahmin etmeyi bırakıp iyileştirmeye başlaması için araç seti. Duygusal yayları haritalayın, arketipleri tanımlayın, NPS, CSAT ve CES ile sağlığı izleyin — hepsi tek bir işbirlikçi stüdyoda.",
+      "startFree": "Ücretsiz Başla",
+      "signIn": "Giriş Yap",
+      "goToDashboard": "Panele Git",
+      "viewJourneys": "Yolculukları Gör"
+    },
     "getStarted": "Başlayın",
     "learnMore": "Daha Fazla Bilgi",
     "watchDemo": "Demoyu İzle",
