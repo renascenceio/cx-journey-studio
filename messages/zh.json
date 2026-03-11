@@ -263,6 +263,45 @@
     "published": "已发布",
     "archived": "已归档"
   },
+  "touchpoint": {
+    "emotionalScore": "情感分数",
+    "painPoints": "痛点",
+    "highlights": "亮点",
+    "addPainPoint": "添加痛点",
+    "addPainPointDesc": "描述客户在此接触点遇到的痛点或摩擦。",
+    "addHighlight": "添加亮点",
+    "addHighlightDesc": "描述客户在此接触点体验到的积极时刻或愉悦感。",
+    "description": "描述",
+    "severity": "严重程度",
+    "impact": "影响",
+    "painPointPlaceholder": "此时什么让客户感到沮丧？",
+    "highlightPlaceholder": "此时什么让客户感到愉悦？",
+    "critical": "严重",
+    "high": "高",
+    "medium": "中等",
+    "low": "低",
+    "aiSolutions": "AI 解决方案",
+    "appliedSolutions": "已应用的解决方案",
+    "evidence": "证据",
+    "attachments": "附件",
+    "comments": "评论",
+    "noComments": "暂无评论",
+    "addComment": "添加评论",
+    "generateSolutions": "生成 AI 解决方案",
+    "applyToRoadmap": "应用到路线图",
+    "deleted": "接触点已删除",
+    "undo": "撤销"
+  },
+  "comments": {
+    "commentAdded": "评论已添加",
+    "replyAdded": "回复已添加",
+    "commentDeleted": "评论已删除",
+    "noComments": "暂无评论",
+    "addComment": "添加评论...",
+    "reply": "回复",
+    "resolve": "标记已解决",
+    "unresolve": "取消已解决"
+  },
   "archetypes": {
     "title": "用户原型",
     "subtitle": "定义和管理在您的旅程中使用的客户原型。",
@@ -285,7 +324,7 @@
     "public": "公开",
     "publicDesc": "其他用户共享的社区原型。",
     "studioTab": "精选",
-    "studioDesc": "Journey Studio 团队精选的高级原型。"
+    "studioDesc": "Journey Studio 团队精选的高���原型。"
   },
   "templates": {
     "title": "模板库",
@@ -735,6 +774,33 @@
     "workspaceDesc": "组织设置",
     "helpCenter": "帮助中心",
     "helpCenterDesc": "支持和文档"
+  },
+  "roadmap": {
+    "title": "路线图",
+    "subtitle": "来自已应用解决方案的实施计划，包含 RASCI 分配",
+    "addInitiative": "添加计划",
+    "exportCsv": "导出 CSV",
+    "downloadedAsCsv": "路线图已下载为 CSV",
+    "totalInitiatives": "总计划数",
+    "planned": "已规划",
+    "inProgress": "进行中",
+    "completed": "已完成",
+    "noInitiatives": "暂无计划",
+    "noInitiativesDesc": "从解决方案页面将解决方案应用到未来旅程以创建路线图计划。",
+    "initiativeCreated": "计划已创建",
+    "initiativeUpdated": "计划已更新",
+    "initiativeDeleted": "计划已删除",
+    "failedToSave": "保存失败",
+    "failedToDelete": "删除失败",
+    "statusChanged": "状态已更改",
+    "failedToUpdateStatus": "更新状态失败",
+    "status": {
+      "planned": "已规划",
+      "in_progress": "进行中",
+      "pending_approval": "待审批",
+      "completed": "已完成",
+      "on_hold": "暂停"
+    }
   },
   "_version": "1.0.2"
 }

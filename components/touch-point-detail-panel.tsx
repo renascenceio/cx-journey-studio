@@ -1,5 +1,6 @@
 "use client"
 
+import { useTranslations } from "next-intl"
 import {
   Sheet,
   SheetContent,
@@ -148,6 +149,7 @@ export function TouchPointDetailPanel({
   journeyId,
   onOpenComments,
 }: TouchPointDetailPanelProps) {
+  const t = useTranslations()
   const [localComments, setLocalComments] = useState<Comment[]>([])
   const [uploading, setUploading] = useState(false)
   const evidenceFileRef = useRef<HTMLInputElement>(null)
@@ -331,7 +333,7 @@ export function TouchPointDetailPanel({
     try {
       await addComment({ journeyId, content, mentions, touchpointId: touchPoint?.id })
       mutate((key: string) => typeof key === "string" && key.includes("/api/journeys"))
-      toast.success("Comment added")
+      toast.success(t("comments.commentAdded"))
     } catch {
       const newComment: Comment = {
         id: `cmt-tp-${Date.now()}`, journeyId: journeyId || "", content,
@@ -346,7 +348,7 @@ export function TouchPointDetailPanel({
     try {
       await addComment({ journeyId, content, parentId, touchpointId: touchPoint?.id })
       mutate((key: string) => typeof key === "string" && key.includes("/api/journeys"))
-      toast.success("Reply added")
+      toast.success(t("comments.replyAdded"))
     } catch {
       const newReply: Comment = {
         id: `cmt-tp-reply-${Date.now()}`, journeyId: journeyId || "", content,
@@ -444,7 +446,7 @@ export function TouchPointDetailPanel({
               </Badge>
             </div>
             <div className="flex items-center gap-2">
-              <span className="text-[11px] text-muted-foreground">Emotional Score</span>
+              <span className="text-[11px] text-muted-foreground">{t("touchpoint.emotionalScore")}</span>
 <span className={cn("text-lg font-bold font-mono tabular-nums", scoreColor(calculatedScore))}>
 {calculatedScore > 0 ? "+" : ""}
 {calculatedScore}
@@ -482,7 +484,7 @@ export function TouchPointDetailPanel({
               <div className="flex items-center gap-1.5 mb-3">
                 <AlertTriangle className="h-3.5 w-3.5 text-red-500" />
                 <h4 className="text-xs font-semibold text-foreground">
-                  Pain Points
+                  {t("touchpoint.painPoints")}
                 </h4>
                 <Badge variant="secondary" className="h-4 px-1.5 text-[10px]">
                   {effectivePainPoints.length}
@@ -491,26 +493,26 @@ export function TouchPointDetailPanel({
                   <DialogTrigger asChild>
                     <Button variant="ghost" size="sm" className="ml-auto h-6 px-2 text-[10px] gap-1 text-red-600 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-900/20">
                       <Plus className="h-3 w-3" />
-                      Add
+                      {t("common.add")}
                     </Button>
                   </DialogTrigger>
                   <DialogContent className="sm:max-w-md">
                     <DialogHeader>
-                      <DialogTitle>Add Pain Point</DialogTitle>
-                      <DialogDescription>Describe a pain point or friction the customer experiences at this touchpoint.</DialogDescription>
+                      <DialogTitle>{t("touchpoint.addPainPoint")}</DialogTitle>
+                      <DialogDescription>{t("touchpoint.addPainPointDesc")}</DialogDescription>
                     </DialogHeader>
                     <div className="flex flex-col gap-4 py-2">
                       <div className="flex flex-col gap-2">
-                        <Label>Description</Label>
+                        <Label>{t("touchpoint.description")}</Label>
                         <Textarea
-                          placeholder="What frustrates the customer at this moment?"
+                          placeholder={t("touchpoint.painPointPlaceholder")}
                           value={newPainDesc}
                           onChange={(e) => setNewPainDesc(e.target.value)}
                           rows={3}
                         />
                       </div>
                       <div className="flex flex-col gap-2">
-                        <Label>Severity</Label>
+                        <Label>{t("touchpoint.severity")}</Label>
                         <Select value={newPainSeverity} onValueChange={setNewPainSeverity}>
                           <SelectTrigger>
                             <SelectValue />
