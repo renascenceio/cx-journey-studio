@@ -1,0 +1,241 @@
+@import 'tailwindcss';
+@import 'tw-animate-css';
+
+@custom-variant dark (&:is(.dark *));
+
+:root {
+  --background: oklch(0.985 0.002 270);
+  --foreground: oklch(0.17 0.017 270);
+  --card: oklch(0.995 0.001 270);
+  --card-foreground: oklch(0.17 0.017 270);
+  --popover: oklch(0.995 0.001 270);
+  --popover-foreground: oklch(0.17 0.017 270);
+  --primary: oklch(0.45 0.18 265);
+  --primary-foreground: oklch(0.98 0.005 270);
+  --secondary: oklch(0.955 0.015 265);
+  --secondary-foreground: oklch(0.30 0.05 265);
+  --muted: oklch(0.955 0.008 270);
+  --muted-foreground: oklch(0.50 0.015 270);
+  --accent: oklch(0.94 0.02 265);
+  --accent-foreground: oklch(0.30 0.05 265);
+  --destructive: oklch(0.55 0.22 27);
+  --destructive-foreground: oklch(0.98 0.005 27);
+  --border: oklch(0.91 0.008 270);
+  --input: oklch(0.91 0.008 270);
+  --ring: oklch(0.45 0.18 265);
+  --chart-1: oklch(0.55 0.19 155);
+  --chart-2: oklch(0.55 0.22 27);
+  --chart-3: oklch(0.70 0.15 80);
+  --chart-4: oklch(0.52 0.18 255);
+  --chart-5: oklch(0.58 0.17 310);
+  --radius: 0.625rem;
+  --sidebar: oklch(0.97 0.006 270);
+  --sidebar-foreground: oklch(0.17 0.017 270);
+  --sidebar-primary: oklch(0.45 0.18 265);
+  --sidebar-primary-foreground: oklch(0.98 0.005 270);
+  --sidebar-accent: oklch(0.94 0.02 265);
+  --sidebar-accent-foreground: oklch(0.30 0.05 265);
+  --sidebar-border: oklch(0.91 0.008 270);
+  --sidebar-ring: oklch(0.45 0.18 265);
+}
+
+.dark {
+  --background: oklch(0.15 0.015 270);
+  --foreground: oklch(0.96 0.005 270);
+  --card: oklch(0.18 0.015 270);
+  --card-foreground: oklch(0.96 0.005 270);
+  --popover: oklch(0.18 0.015 270);
+  --popover-foreground: oklch(0.96 0.005 270);
+  --primary: oklch(0.62 0.19 265);
+  --primary-foreground: oklch(0.15 0.015 270);
+  --secondary: oklch(0.25 0.02 270);
+  --secondary-foreground: oklch(0.92 0.01 270);
+  --muted: oklch(0.25 0.015 270);
+  --muted-foreground: oklch(0.65 0.015 270);
+  --accent: oklch(0.25 0.025 265);
+  --accent-foreground: oklch(0.92 0.01 270);
+  --destructive: oklch(0.45 0.18 27);
+  --destructive-foreground: oklch(0.96 0.005 27);
+  --border: oklch(0.28 0.015 270);
+  --input: oklch(0.28 0.015 270);
+  --ring: oklch(0.62 0.19 265);
+  --chart-1: oklch(0.65 0.19 155);
+  --chart-2: oklch(0.60 0.22 27);
+  --chart-3: oklch(0.75 0.15 80);
+  --chart-4: oklch(0.62 0.19 255);
+  --chart-5: oklch(0.65 0.17 310);
+  --sidebar: oklch(0.13 0.015 270);
+  --sidebar-foreground: oklch(0.96 0.005 270);
+  --sidebar-primary: oklch(0.62 0.19 265);
+  --sidebar-primary-foreground: oklch(0.96 0.005 270);
+  --sidebar-accent: oklch(0.22 0.02 265);
+  --sidebar-accent-foreground: oklch(0.92 0.01 270);
+  --sidebar-border: oklch(0.28 0.015 270);
+  --sidebar-ring: oklch(0.62 0.19 265);
+}
+
+@theme inline {
+  --font-sans: 'Geist', 'Geist Fallback';
+  --font-mono: 'Geist Mono', 'Geist Mono Fallback';
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+
+/* Mobile scrollbar hiding utility */
+.scrollbar-none {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.scrollbar-none::-webkit-scrollbar {
+  display: none;
+}
+
+/* ============================================
+   Print / PDF Export Styles
+   ============================================ */
+@media print {
+  /* Force color printing */
+  * {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+    color-adjust: exact !important;
+  }
+
+  /* Reset background for print */
+  html, body {
+    background: white !important;
+    color: black !important;
+  }
+
+  /* Hide navigation, header, footer, and other non-content elements */
+  .no-print,
+  header,
+  nav,
+  footer,
+  aside,
+  [data-sidebar],
+  .sidebar,
+  [role="navigation"],
+  [role="banner"] {
+    display: none !important;
+  }
+
+  /* Reset main container padding */
+  main {
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+
+  /* Ensure content takes full width */
+  .print-full-width {
+    max-width: 100% !important;
+    width: 100% !important;
+  }
+
+  /* Page break controls */
+  .print-break {
+    page-break-before: always;
+    break-before: page;
+  }
+
+  .print-break-after {
+    page-break-after: always;
+    break-after: page;
+  }
+
+  .print-avoid-break {
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+
+  /* Table improvements for print */
+  table {
+    page-break-inside: auto;
+  }
+  tr {
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+  thead {
+    display: table-header-group;
+  }
+
+  /* Card and section styling for print */
+  .print-section {
+    border: 1px solid #e5e7eb !important;
+    border-radius: 8px !important;
+    padding: 16px !important;
+    margin-bottom: 16px !important;
+    page-break-inside: avoid;
+  }
+
+  /* Links styling for print */
+  a[href]:after {
+    content: none !important;
+  }
+
+  /* Ensure proper heading hierarchy */
+  h1, h2, h3, h4, h5, h6 {
+    page-break-after: avoid;
+    break-after: avoid;
+  }
+
+  /* Images and charts */
+  img, svg, canvas {
+    max-width: 100% !important;
+    page-break-inside: avoid;
+  }
+
+  /* Badge/chip styling for print */
+  .badge, [class*="badge"] {
+    border: 1px solid currentColor !important;
+  }
+
+  /* Ensure good contrast */
+  .text-muted-foreground {
+    color: #6b7280 !important;
+  }
+}
