@@ -1,5 +1,6 @@
 "use client"
 
+import { useTranslations } from "next-intl"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -30,6 +31,7 @@ interface BillingAddress {
 }
 
 export default function SettingsProfilePage() {
+  const t = useTranslations()
   const { user, supabaseUser } = useAuth()
   const [twoFactor, setTwoFactor] = useState(false)
   const [saving, setSaving] = useState(false)
@@ -112,8 +114,8 @@ export default function SettingsProfilePage() {
       {/* Avatar & Name */}
       <Card className="border-border/60">
         <CardHeader>
-          <CardTitle className="text-base">Profile</CardTitle>
-          <CardDescription>Your personal information and avatar</CardDescription>
+          <CardTitle className="text-base">{t("settings.profile")}</CardTitle>
+          <CardDescription>{t("settings.profileDesc")}</CardDescription>
         </CardHeader>
         <CardContent className="flex flex-col gap-6">
           {/* Avatar */}
@@ -146,17 +148,17 @@ export default function SettingsProfilePage() {
           {/* Fields */}
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="flex flex-col gap-2">
-              <Label htmlFor="name">Full Name</Label>
+              <Label htmlFor="name">{t("settings.name")}</Label>
               <Input id="name" ref={nameRef} defaultValue={displayName} />
             </div>
             <div className="flex flex-col gap-2">
-              <Label htmlFor="email">Email</Label>
+              <Label htmlFor="email">{t("settings.email")}</Label>
               <Input id="email" ref={emailRef} type="email" defaultValue={displayEmail} />
             </div>
           </div>
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="flex flex-col gap-2">
-              <Label htmlFor="timezone">Timezone</Label>
+              <Label htmlFor="timezone">{t("settings.timezone")}</Label>
               <Select defaultValue="america-new-york">
                 <SelectTrigger id="timezone" className="h-9 text-sm">
                   <SelectValue />
@@ -177,7 +179,7 @@ export default function SettingsProfilePage() {
             </div>
           </div>
           <Button className="self-start" onClick={handleSaveProfile} disabled={saving}>
-            {saving ? "Saving..." : "Save Changes"}
+            {saving ? t("common.saving") : t("settings.saveChanges")}
           </Button>
         </CardContent>
       </Card>
@@ -371,28 +373,28 @@ export default function SettingsProfilePage() {
         <CardHeader>
           <CardTitle className="text-base flex items-center gap-2">
             <Key className="h-4 w-4" />
-            Password
+            {t("settings.changePassword")}
           </CardTitle>
-          <CardDescription>Change your password</CardDescription>
+          <CardDescription>{t("settings.securityDesc")}</CardDescription>
         </CardHeader>
         <CardContent className="flex flex-col gap-4">
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="flex flex-col gap-2">
-              <Label htmlFor="current-password">Current Password</Label>
-              <Input id="current-password" type="password" placeholder="Enter current password" />
+              <Label htmlFor="current-password">{t("settings.currentPassword")}</Label>
+              <Input id="current-password" type="password" />
             </div>
             <div />
             <div className="flex flex-col gap-2">
-              <Label htmlFor="new-password">New Password</Label>
-              <Input id="new-password" type="password" placeholder="Min 8 characters" />
+              <Label htmlFor="new-password">{t("settings.newPassword")}</Label>
+              <Input id="new-password" type="password" />
             </div>
             <div className="flex flex-col gap-2">
-              <Label htmlFor="confirm-new-password">Confirm New Password</Label>
-              <Input id="confirm-new-password" type="password" placeholder="Confirm new password" />
+              <Label htmlFor="confirm-new-password">{t("settings.confirmNewPassword")}</Label>
+              <Input id="confirm-new-password" type="password" />
             </div>
           </div>
-          <Button variant="outline" className="self-start" onClick={() => toast.success("Password updated")}>
-            Update Password
+          <Button variant="outline" className="self-start" onClick={() => toast.success(t("success.updated"))}>
+            {t("settings.changePassword")}
           </Button>
         </CardContent>
       </Card>
@@ -402,9 +404,9 @@ export default function SettingsProfilePage() {
         <CardHeader>
           <CardTitle className="text-base flex items-center gap-2">
             <Shield className="h-4 w-4" />
-            Two-Factor Authentication
+            {t("settings.twoFactor")}
           </CardTitle>
-          <CardDescription>Add an extra layer of security to your account</CardDescription>
+          <CardDescription>{t("settings.twoFactorDesc")}</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="flex items-center justify-between rounded-lg border border-border p-4">
@@ -428,16 +430,16 @@ export default function SettingsProfilePage() {
         <CardHeader>
           <CardTitle className="text-base flex items-center gap-2">
             <Globe className="h-4 w-4" />
-            Language
+            {t("settings.language")}
           </CardTitle>
-          <CardDescription>Choose your preferred display language</CardDescription>
+          <CardDescription>{t("settings.languageDesc")}</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="flex items-center justify-between rounded-lg border border-border p-4">
             <div>
-              <p className="text-sm font-medium text-foreground">Display Language</p>
+              <p className="text-sm font-medium text-foreground">{t("settings.displayLanguage")}</p>
               <p className="text-xs text-muted-foreground mt-0.5">
-                Select your preferred language for the interface
+                {t("settings.selectLanguage")}
               </p>
             </div>
             <LanguageSwitcher variant="outline" size="sm" showLabel />

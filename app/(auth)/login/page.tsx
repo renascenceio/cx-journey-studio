@@ -2,6 +2,7 @@
 
 import { useState } from "react"
 import { useRouter } from "next/navigation"
+import { useTranslations } from "next-intl"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardFooter, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
@@ -13,6 +14,7 @@ import { getSupabaseClient } from "@/lib/supabase/client"
 import { AlertCircle } from "lucide-react"
 
 export default function LoginPage() {
+  const t = useTranslations()
   const router = useRouter()
   const [isLoading, setIsLoading] = useState(false)
   const [email, setEmail] = useState("")
@@ -50,10 +52,10 @@ export default function LoginPage() {
     <Card className="w-full max-w-sm border-border/60">
       <CardHeader className="text-center">
         <CardTitle className="text-xl font-semibold text-foreground">
-          Welcome back
+          {t("auth.loginTitle")}
         </CardTitle>
         <CardDescription className="text-muted-foreground">
-          Sign in to your account to continue
+          {t("auth.loginSubtitle")}
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -65,11 +67,11 @@ export default function LoginPage() {
         )}
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
           <div className="flex flex-col gap-2">
-            <Label htmlFor="email">Email</Label>
+            <Label htmlFor="email">{t("auth.email")}</Label>
             <Input
               id="email"
               type="email"
-              placeholder="you@company.com"
+              placeholder={t("auth.emailPlaceholder")}
               required
               autoComplete="email"
               value={email}
@@ -78,18 +80,18 @@ export default function LoginPage() {
           </div>
           <div className="flex flex-col gap-2">
             <div className="flex items-center justify-between">
-              <Label htmlFor="password">Password</Label>
+              <Label htmlFor="password">{t("auth.password")}</Label>
               <Link
                 href="#"
                 className="text-xs text-muted-foreground hover:text-foreground"
               >
-                Forgot password?
+                {t("auth.forgotPassword")}
               </Link>
             </div>
             <Input
               id="password"
               type="password"
-              placeholder="Enter your password"
+              placeholder={t("auth.passwordPlaceholder")}
               required
               autoComplete="current-password"
               value={password}
@@ -99,16 +101,16 @@ export default function LoginPage() {
           <div className="flex items-center gap-2">
             <Checkbox id="remember" />
             <Label htmlFor="remember" className="text-sm font-normal text-muted-foreground cursor-pointer">
-              Remember me for 30 days
+              {t("auth.rememberMe")}
             </Label>
           </div>
           <Button type="submit" className="mt-1 w-full" disabled={isLoading}>
-            {isLoading ? "Signing in..." : "Sign in"}
+            {isLoading ? t("auth.signingIn") : t("auth.signIn")}
           </Button>
         </form>
         <div className="my-6 flex items-center gap-3">
           <Separator className="flex-1" />
-          <span className="text-xs text-muted-foreground">or continue with</span>
+          <span className="text-xs text-muted-foreground">{t("auth.orContinueWith")}</span>
           <Separator className="flex-1" />
         </div>
         <div className="flex gap-3">
@@ -124,12 +126,12 @@ export default function LoginPage() {
       </CardContent>
       <CardFooter className="justify-center">
         <p className="text-sm text-muted-foreground">
-          {"Don't have an account? "}
+          {t("auth.noAccount")}{" "}
           <Link
             href="/signup"
             className="font-medium text-primary hover:underline"
           >
-            Sign up
+            {t("auth.signUp")}
           </Link>
         </p>
       </CardFooter>
