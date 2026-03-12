@@ -156,7 +156,19 @@
     "signingIn": "Signing in...",
     "signingUp": "Signing up...",
     "continueWithGoogle": "Continue with Google",
-    "continueWithGithub": "Continue with GitHub"
+    "continueWithGithub": "Continue with GitHub",
+    "linkedAccounts": "Linked Accounts",
+    "linkedAccountsDesc": "Manage sign-in methods connected to your account",
+    "connected": "Connected",
+    "disconnect": "Disconnect",
+    "connectMore": "Connect additional sign-in methods",
+    "connectWith": "Connect with {provider}",
+    "unlinkConfirmTitle": "Disconnect Account?",
+    "unlinkConfirmDesc": "Are you sure you want to disconnect your {provider} account? You can reconnect it later.",
+    "cannotUnlinkLast": "You must have at least one sign-in method",
+    "providerUnlinked": "Account disconnected successfully",
+    "unlinkFailed": "Failed to disconnect account",
+    "cancel": "Cancel"
   },
   "landing": {
     "hero": {
@@ -687,7 +699,17 @@
     "subscriptionsDesc": "Users and revenue by subscription plan",
     "recentTransactions": "Recent Transactions",
     "recentTransactionsDesc": "Latest credit purchases and transactions",
-    "noTransactions": "No transactions in this period"
+    "noTransactions": "No transactions in this period",
+    "systemStatus": "System Status",
+    "systemStatusDesc": "Monitor platform health and service availability",
+    "overallStatus": "System Status",
+    "coreInfrastructure": "Core Infrastructure",
+    "coreInfrastructureDesc": "Database, authentication, and external services",
+    "applicationModules": "Application Modules",
+    "applicationModulesDesc": "Journey, archetype, solution, and roadmap engines",
+    "serviceDetails": "Service Details",
+    "serviceDetailsDesc": "Detailed status of all monitored services",
+    "refresh": "Refresh"
   },
   "support": {
   "title": "Support",

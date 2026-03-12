@@ -23,7 +23,8 @@ import { TimezonePicker, detectTimezone } from "@/components/timezone-picker"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { cn, getInitials } from "@/lib/utils"
 import { ReferralDashboard } from "@/components/referral-dashboard"
-import { Gift } from "lucide-react"
+import { LinkedAccounts } from "@/components/linked-accounts"
+import { Gift, Link2 } from "lucide-react"
 
 interface BillingAddress {
   street?: string
@@ -457,6 +458,9 @@ export default function SettingsProfilePage() {
 
       {/* Sound Settings */}
       <SoundSettings />
+
+      {/* Linked Accounts (OAuth) */}
+      <LinkedAccounts />
 
       {/* Referral Program */}
       <Card className="border-border/60">
