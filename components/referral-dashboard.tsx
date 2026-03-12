@@ -13,7 +13,7 @@ import {
 } from "lucide-react"
 import { toast } from "sonner"
 import { cn } from "@/lib/utils"
-import { PREMIUM_REFERRAL_CAP, STANDARD_REFERRAL_CREDITS, PREMIUM_REFERRAL_CREDITS } from "@/lib/referrals"
+import { PREMIUM_REFERRAL_CAP, STANDARD_REFERRAL_CREDITS, PREMIUM_REFERRAL_CREDITS } from "@/lib/referral-constants"
 
 interface ReferralStats {
   totalReferrals: number

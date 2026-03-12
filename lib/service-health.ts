@@ -1,5 +1,3 @@
-"use server"
-
 import { createClient } from "@/lib/supabase/server"
 
 // Service definitions for modular architecture
@@ -31,7 +29,7 @@ const circuitStates = new Map<string, CircuitState>()
 const CIRCUIT_BREAKER_THRESHOLD = 5 // failures before opening
 const CIRCUIT_BREAKER_TIMEOUT = 30000 // 30 seconds before retry
 
-export function getCircuitState(serviceName: string): CircuitState {
+function getCircuitState(serviceName: string): CircuitState {
   if (!circuitStates.has(serviceName)) {
     circuitStates.set(serviceName, {
       failures: 0,
@@ -42,7 +40,7 @@ export function getCircuitState(serviceName: string): CircuitState {
   return circuitStates.get(serviceName)!
 }
 
-export function recordFailure(serviceName: string): void {
+function recordFailure(serviceName: string): void {
   const state = getCircuitState(serviceName)
   state.failures++
   state.lastFailure = Date.now()
@@ -53,14 +51,14 @@ export function recordFailure(serviceName: string): void {
   }
 }
 
-export function recordSuccess(serviceName: string): void {
+function recordSuccess(serviceName: string): void {
   const state = getCircuitState(serviceName)
   state.failures = 0
   state.isOpen = false
   state.openedAt = undefined
 }
 
-export function isCircuitOpen(serviceName: string): boolean {
+function isCircuitOpen(serviceName: string): boolean {
   const state = getCircuitState(serviceName)
   
   if (!state.isOpen) return false
