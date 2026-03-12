@@ -378,11 +378,11 @@ export default function AdminAnalyticsPage() {
                         }}
                       />
                       <Line 
-                        type="monotone" 
+                        type="linear" 
                         dataKey="count" 
                         stroke={CHART_COLORS.primary} 
                         strokeWidth={2}
-                        dot={false}
+                        dot={{ r: 3, fill: CHART_COLORS.primary }}
                       />
                     </LineChart>
                   </ResponsiveContainer>
@@ -424,11 +424,11 @@ export default function AdminAnalyticsPage() {
                         }}
                       />
                       <Line 
-                        type="monotone" 
+                        type="linear" 
                         dataKey="count" 
                         stroke={CHART_COLORS.secondary} 
                         strokeWidth={2}
-                        dot={false}
+                        dot={{ r: 3, fill: CHART_COLORS.secondary }}
                       />
                     </LineChart>
                   </ResponsiveContainer>

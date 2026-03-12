@@ -2,7 +2,6 @@
 
 import { useState, useMemo, Suspense } from "react"
 import { useSearchParams } from "next/navigation"
-import { useTranslations } from "next-intl"
 import { Plus, Search, LayoutGrid, List, Upload, Rocket, Map, Compass, CheckCircle2, Archive, RotateCcw, Trash2, AlertTriangle } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { JourneyImportDialog } from "@/components/journey-import-dialog"
@@ -46,7 +45,6 @@ import { mutate } from "swr"
 import { useRouter } from "next/navigation"
 
 function DeployJourneyDialog({ journeys, children }: { journeys: Journey[]; children: React.ReactNode }) {
-  const t = useTranslations()
   const [open, setOpen] = useState(false)
   const [deploying, setDeploying] = useState<string | null>(null)
   const router = useRouter()
@@ -71,15 +69,15 @@ function DeployJourneyDialog({ journeys, children }: { journeys: Journey[]; chil
       <DialogTrigger asChild>{children}</DialogTrigger>
       <DialogContent className="sm:max-w-lg">
         <DialogHeader>
-          <DialogTitle>{t("journeyTabs.deployJourney")}</DialogTitle>
+          <DialogTitle>Deploy Journey</DialogTitle>
           <DialogDescription>
-            {t("journeyTabs.deployJourneyDesc")}
+            Select a journey to deploy. Deployed journeys are live and visible to your team.
           </DialogDescription>
         </DialogHeader>
         <div className="mt-2 flex flex-col gap-2 max-h-80 overflow-y-auto">
           {journeys.length === 0 ? (
             <p className="py-6 text-center text-sm text-muted-foreground">
-              {t("journeyTabs.noJourneysToDeployDesc")}
+              No journeys available to deploy. Create a current or future journey first.
             </p>
           ) : (
             journeys.map((j) => (
@@ -93,7 +91,7 @@ function DeployJourneyDialog({ journeys, children }: { journeys: Journey[]; chil
                   <p className="text-sm font-medium text-foreground truncate">{j.title}</p>
                   <div className="flex items-center gap-2 mt-0.5">
                     <span className="text-[10px] text-muted-foreground capitalize">{j.type}</span>
-                    <span className="text-[10px] text-muted-foreground">{j.stages.length} {t("journeyTabs.stages")}</span>
+                    <span className="text-[10px] text-muted-foreground">{j.stages.length} stages</span>
                   </div>
                 </div>
                 <Rocket className={`h-4 w-4 shrink-0 ${deploying === j.id ? "animate-pulse text-primary" : "text-muted-foreground"}`} />
@@ -119,15 +117,14 @@ export function JourneysClient({ journeys }: { journeys: Journey[] }) {
 }
 
 function JourneysContent({ journeys }: { journeys: Journey[] }) {
-  const t = useTranslations()
   const searchParams = useSearchParams()
   const initialTab = (searchParams.get("tab") as TabType) || "current"
   
   const tabs: { value: TabType; label: string; description: string; icon: typeof Map }[] = [
-    { value: "current", label: t("journeyTabs.current"), description: t("journeyTabs.currentDesc"), icon: Map },
-    { value: "future", label: t("journeyTabs.future"), description: t("journeyTabs.futureDesc"), icon: Compass },
-    { value: "deployed", label: t("journeyTabs.deployed"), description: t("journeyTabs.deployedDesc"), icon: CheckCircle2 },
-    { value: "archived", label: t("journeyTabs.archived"), description: t("journeyTabs.archivedDesc"), icon: Archive },
+    { value: "current", label: "Current", description: "Active journeys representing your current customer experience", icon: Map },
+    { value: "future", label: "Future", description: "Planned journeys for upcoming experiences and improvements", icon: Compass },
+    { value: "deployed", label: "Deployed", description: "Live journeys that are active and being used", icon: CheckCircle2 },
+    { value: "archived", label: "Archived", description: "Archived journeys preserved for reference", icon: Archive },
   ]
   const [activeTab, setActiveTab] = useState<TabType>(initialTab)
   const [searchQuery, setSearchQuery] = useState("")
@@ -147,7 +144,7 @@ function JourneysContent({ journeys }: { journeys: Journey[] }) {
     try {
       await archiveJourney(journey.id)
       mutate((key: string) => typeof key === "string" && key.includes("/api/journeys"))
-      toast.success(t("journeyTabs.journeyArchived"))
+      toast.success("Journey archived")
       setArchiveDialogJourney(null)
     } catch {
       toast.error("Failed to archive journey")
@@ -161,7 +158,7 @@ function JourneysContent({ journeys }: { journeys: Journey[] }) {
     try {
       await restoreArchivedJourney(journey.id)
       mutate((key: string) => typeof key === "string" && key.includes("/api/journeys"))
-      toast.success(t("journeyTabs.journeyRestored"))
+      toast.success("Journey restored")
       setRestoreDialogJourney(null)
     } catch {
       toast.error("Failed to restore journey")
@@ -175,7 +172,7 @@ function JourneysContent({ journeys }: { journeys: Journey[] }) {
     try {
       await permanentlyDeleteJourney(journey.id)
       mutate((key: string) => typeof key === "string" && key.includes("/api/journeys"))
-      toast.success(t("journeyTabs.journeyDeleted"))
+      toast.success("Journey permanently deleted")
       setDeleteDialogJourney(null)
     } catch {
       toast.error("Failed to delete journey")
@@ -246,33 +243,33 @@ function JourneysContent({ journeys }: { journeys: Journey[] }) {
       <div className="flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between">
         <div>
           <h1 className="text-2xl font-bold tracking-tight text-foreground">
-            {t("journey.journeys")}
+            Journeys
           </h1>
           <p className="text-sm text-muted-foreground">
-            {t("journey.noJourneysDesc")}
+            Create and manage customer journey maps
           </p>
         </div>
         <div className="flex items-center gap-2">
           <Button variant="outline" size="sm" onClick={() => setImportOpen(true)} className="gap-1.5">
             <Upload className="h-3.5 w-3.5" />
-            {t("common.import")}
+            Import
           </Button>
           {activeTab === "archived" ? (
             <span className="text-xs text-muted-foreground">
-              {countByType.archived} {t("journeyTabs.archived").toLowerCase()}
+              {countByType.archived} archived
             </span>
           ) : activeTab === "deployed" ? (
-            <DeployJourneyDialog journeys={journeys.filter((j) => j.type === "current" || j.type === "future")} t={t}>
+            <DeployJourneyDialog journeys={journeys.filter((j) => j.type === "current" || j.type === "future")}>
               <Button size="sm" className="gap-1.5">
                 <Rocket className="h-3.5 w-3.5" />
-                {t("journeyTabs.deployJourney")}
+                Deploy Journey
               </Button>
             </DeployJourneyDialog>
           ) : (
             <CreateJourneyDialog defaultType={activeTab as "current" | "future"}>
               <Button size="sm" className="gap-1.5">
                 <Plus className="h-3.5 w-3.5" />
-                {t("dashboard.newJourney")}
+                New Journey
               </Button>
             </CreateJourneyDialog>
           )}
@@ -301,7 +298,7 @@ function JourneysContent({ journeys }: { journeys: Journey[] }) {
               <Search className="absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground" />
               <Input
                 type="search"
-                placeholder={t("common.searchPlaceholder")}
+                placeholder="Search journeys..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="h-8 w-40 pl-8 text-sm sm:w-48 lg:w-56"
@@ -312,9 +309,9 @@ function JourneysContent({ journeys }: { journeys: Journey[] }) {
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="updated">{t("journey.lastUpdated")}</SelectItem>
-                <SelectItem value="created">{t("journey.dateCreated")}</SelectItem>
-                <SelectItem value="name">{t("journey.alphabetical")}</SelectItem>
+                <SelectItem value="updated">Last Updated</SelectItem>
+                <SelectItem value="created">Date Created</SelectItem>
+                <SelectItem value="name">Alphabetical</SelectItem>
               </SelectContent>
             </Select>
             {/* View toggle */}
@@ -343,10 +340,10 @@ function JourneysContent({ journeys }: { journeys: Journey[] }) {
                   <>
                     <Archive className="h-10 w-10 text-muted-foreground/50 mb-3" />
                     <p className="text-sm font-medium text-foreground">
-                      {t("journeyTabs.noArchivedJourneys")}
+                      No archived journeys
                     </p>
                     <p className="mt-1 text-xs text-muted-foreground max-w-xs text-center">
-                      {t("journeyTabs.noArchivedJourneysDesc")}
+                      Archived journeys will appear here. You can archive journeys you no longer need.
                     </p>
                   </>
                 ) : (
@@ -405,18 +402,18 @@ function JourneysContent({ journeys }: { journeys: Journey[] }) {
       <AlertDialog open={!!archiveDialogJourney} onOpenChange={(open) => !open && setArchiveDialogJourney(null)}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>{t("journeyTabs.archiveJourney")}</AlertDialogTitle>
+            <AlertDialogTitle>Archive Journey</AlertDialogTitle>
             <AlertDialogDescription>
-              {t("journeyTabs.archiveJourneyConfirm", { title: archiveDialogJourney?.title || "" })}
+              Are you sure you want to archive &quot;{archiveDialogJourney?.title}&quot;? You can restore it later from the Archived tab.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel disabled={actionPending}>{t("common.cancel")}</AlertDialogCancel>
+            <AlertDialogCancel disabled={actionPending}>Cancel</AlertDialogCancel>
             <AlertDialogAction 
               onClick={() => archiveDialogJourney && handleArchive(archiveDialogJourney)}
               disabled={actionPending}
             >
-              {actionPending ? t("common.loading") : t("journeyTabs.archiveJourney")}
+              {actionPending ? "Archiving..." : "Archive Journey"}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
@@ -426,18 +423,18 @@ function JourneysContent({ journeys }: { journeys: Journey[] }) {
       <AlertDialog open={!!restoreDialogJourney} onOpenChange={(open) => !open && setRestoreDialogJourney(null)}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>{t("journeyTabs.restoreJourney")}</AlertDialogTitle>
+            <AlertDialogTitle>Restore Journey</AlertDialogTitle>
             <AlertDialogDescription>
-              {t("journeyTabs.restoreJourneyConfirm", { title: restoreDialogJourney?.title || "" })}
+              Are you sure you want to restore &quot;{restoreDialogJourney?.title}&quot;? It will be moved back to its original tab.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel disabled={actionPending}>{t("common.cancel")}</AlertDialogCancel>
+            <AlertDialogCancel disabled={actionPending}>Cancel</AlertDialogCancel>
             <AlertDialogAction 
               onClick={() => restoreDialogJourney && handleRestore(restoreDialogJourney)}
               disabled={actionPending}
             >
-              {actionPending ? t("common.loading") : t("journeyTabs.restoreJourney")}
+              {actionPending ? "Restoring..." : "Restore Journey"}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
@@ -449,20 +446,20 @@ function JourneysContent({ journeys }: { journeys: Journey[] }) {
           <AlertDialogHeader>
             <AlertDialogTitle className="flex items-center gap-2 text-destructive">
               <AlertTriangle className="h-5 w-5" />
-              {t("journeyTabs.permanentDelete")}
+              Permanently Delete
             </AlertDialogTitle>
             <AlertDialogDescription>
-              {t("journeyTabs.permanentDeleteConfirm", { title: deleteDialogJourney?.title || "" })}
+              Are you sure you want to permanently delete &quot;{deleteDialogJourney?.title}&quot;? This action cannot be undone.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel disabled={actionPending}>{t("common.cancel")}</AlertDialogCancel>
+            <AlertDialogCancel disabled={actionPending}>Cancel</AlertDialogCancel>
             <AlertDialogAction 
               onClick={() => deleteDialogJourney && handlePermanentDelete(deleteDialogJourney)}
               disabled={actionPending}
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
             >
-              {actionPending ? t("common.loading") : t("journeyTabs.permanentDelete")}
+              {actionPending ? "Deleting..." : "Delete Permanently"}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
