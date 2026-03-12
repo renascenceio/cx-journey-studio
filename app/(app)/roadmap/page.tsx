@@ -24,7 +24,10 @@ import {
   Download, Target, Clock, CheckCircle2, PauseCircle,
   Hash, ChevronDown, ChevronRight, Lightbulb, Map as MapIcon,
   Plus, Pencil, Trash2, MoreHorizontal, ShieldCheck, AlertCircle,
+  List, LayoutGrid, GanttChartSquare, RefreshCw,
 } from "lucide-react"
+import { KanbanBoard } from "@/components/roadmap/kanban-board"
+import { TimelineView } from "@/components/roadmap/timeline-view"
 import { cn } from "@/lib/utils"
 import { useProfile } from "@/hooks/use-profile"
 import { getPermissions } from "@/lib/permissions"
@@ -73,12 +76,14 @@ export default function RoadmapPage() {
   const [isLoading, setIsLoading] = useState(true)
   const [expandedId, setExpandedId] = useState<string | null>(null)
   const [filter, setFilter] = useState<string>("all")
+  const [viewMode, setViewMode] = useState<"list" | "kanban" | "timeline">("list")
 
   // Add / Edit dialog
   const [dialogOpen, setDialogOpen] = useState(false)
   const [editingId, setEditingId] = useState<string | null>(null)
   const [form, setForm] = useState(emptyForm)
   const [saving, setSaving] = useState(false)
+  const [syncing, setSyncing] = useState(false)
 
   // Inline editing state
   const [editingField, setEditingField] = useState<{ id: string; field: string } | null>(null)
@@ -202,6 +207,29 @@ export default function RoadmapPage() {
     setDialogOpen(true)
   }
 
+  // B5: Sync solutions from all journeys
+  async function handleSyncFromJourneys() {
+    setSyncing(true)
+    try {
+      const res = await fetch("/api/roadmap/sync", { method: "POST" })
+      const data = await res.json()
+      if (res.ok) {
+        if (data.synced > 0) {
+          toast.success(t("roadmap.syncSuccess", { count: data.synced }))
+          reload()
+        } else {
+          toast.info(t("roadmap.alreadySynced"))
+        }
+      } else {
+        toast.error(data.error || t("roadmap.syncFailed"))
+      }
+    } catch {
+      toast.error(t("roadmap.syncFailed"))
+    } finally {
+      setSyncing(false)
+    }
+  }
+
   const filtered = filter === "all" ? initiatives : initiatives.filter((i) => i.status === filter)
   const stats = {
     total: initiatives.length,
@@ -244,11 +272,53 @@ export default function RoadmapPage() {
           </p>
         </div>
         <div className="flex items-center gap-2">
-          {canManageRoadmap && (
-            <Button size="sm" className="gap-1.5" onClick={() => { setEditingId(null); setForm(emptyForm); setDialogOpen(true) }}>
-              <Plus className="h-3.5 w-3.5" />
-              {t("roadmap.addInitiative")}
+          {/* View mode toggle */}
+          <div className="flex items-center border rounded-md">
+            <Button
+              variant={viewMode === "list" ? "default" : "ghost"}
+              size="sm"
+              className="h-8 px-2.5 rounded-r-none"
+              onClick={() => setViewMode("list")}
+            >
+              <List className="h-3.5 w-3.5" />
+              <span className="sr-only">{t("roadmap.views.list")}</span>
             </Button>
+            <Button
+              variant={viewMode === "kanban" ? "default" : "ghost"}
+              size="sm"
+              className="h-8 px-2.5 rounded-none border-x"
+              onClick={() => setViewMode("kanban")}
+            >
+              <LayoutGrid className="h-3.5 w-3.5" />
+              <span className="sr-only">{t("roadmap.views.kanban")}</span>
+            </Button>
+            <Button
+              variant={viewMode === "timeline" ? "default" : "ghost"}
+              size="sm"
+              className="h-8 px-2.5 rounded-l-none"
+              onClick={() => setViewMode("timeline")}
+            >
+              <GanttChartSquare className="h-3.5 w-3.5" />
+              <span className="sr-only">{t("roadmap.views.timeline")}</span>
+            </Button>
+          </div>
+          {canManageRoadmap && (
+            <>
+              <Button 
+                variant="outline" 
+                size="sm" 
+                className="gap-1.5" 
+                onClick={handleSyncFromJourneys}
+                disabled={syncing}
+              >
+                <RefreshCw className={cn("h-3.5 w-3.5", syncing && "animate-spin")} />
+                {t("roadmap.syncFromJourneys")}
+              </Button>
+              <Button size="sm" className="gap-1.5" onClick={() => { setEditingId(null); setForm(emptyForm); setDialogOpen(true) }}>
+                <Plus className="h-3.5 w-3.5" />
+                {t("roadmap.addInitiative")}
+              </Button>
+            </>
           )}
           <Button variant="outline" size="sm" className="gap-1.5" onClick={handleDownload} disabled={initiatives.length === 0}>
             <Download className="h-3.5 w-3.5" />
@@ -309,6 +379,19 @@ export default function RoadmapPage() {
             </Button>
           </CardContent>
         </Card>
+      ) : viewMode === "kanban" ? (
+        <KanbanBoard
+          initiatives={filtered}
+          onStatusChange={handleStatusChange}
+          onEdit={openEdit}
+          onDelete={handleDelete}
+          canEdit={canManageRoadmap}
+        />
+      ) : viewMode === "timeline" ? (
+        <TimelineView
+          initiatives={filtered}
+          onEdit={openEdit}
+        />
       ) : (
         <div className="flex flex-col gap-2">
           {filtered.map((initiative) => {

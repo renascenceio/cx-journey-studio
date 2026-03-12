@@ -125,6 +125,9 @@ export default function JourneyDetailLayout({
     ...(journey.type === "deployed"
       ? [{ label: "Health", href: `${basePath}/health`, segment: "health" }]
       : []),
+    { label: "Rituals", href: `${basePath}/rituals`, segment: "rituals", comingSoon: true },
+    { label: "Voice", href: `${basePath}/voice`, segment: "voice", comingSoon: true },
+    { label: "Lingo", href: `${basePath}/lingo`, segment: "lingo", comingSoon: true },
     { label: "Collaborators", href: `${basePath}/collaborators`, segment: "collaborators" },
     { label: "Activity", href: `${basePath}/activity`, segment: "activity" },
     { label: `Versions (${versions.length})`, href: `${basePath}/versions`, segment: "versions" },
@@ -419,13 +422,18 @@ export default function JourneyDetailLayout({
                 role="tab"
                 aria-selected={isTabActive(tab)}
                 className={cn(
-                  "shrink-0 border-b-2 px-3 pb-2.5 pt-1 text-sm font-medium transition-colors whitespace-nowrap",
+                  "shrink-0 border-b-2 px-3 pb-2.5 pt-1 text-sm font-medium transition-colors whitespace-nowrap flex items-center gap-1.5",
                   isTabActive(tab)
                     ? "border-primary text-foreground"
                     : "border-transparent text-muted-foreground hover:border-border hover:text-foreground"
                 )}
               >
                 {tab.label}
+                {"comingSoon" in tab && tab.comingSoon && (
+                  <span className="rounded-full bg-amber-100 dark:bg-amber-900/30 px-1.5 py-0.5 text-[9px] font-medium text-amber-700 dark:text-amber-300">
+                    Soon
+                  </span>
+                )}
               </Link>
             ))}
           </nav>

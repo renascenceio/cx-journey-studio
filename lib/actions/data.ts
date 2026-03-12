@@ -1466,3 +1466,170 @@ export async function addHighlight(touchPointId: string, journeyId: string, desc
   revalidatePath(`/journeys/${journeyId}`)
   return data
 }
+
+// B6: Archive journey - soft delete by setting status to archived
+export async function archiveJourney(journeyId: string) {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) throw new Error("Not authenticated")
+  
+  // Store the original type before archiving for potential restore
+  const { data: journey } = await supabase
+    .from("journeys")
+    .select("type, title")
+    .eq("id", journeyId)
+    .single()
+  
+  if (!journey) throw new Error("Journey not found")
+  
+  const { error } = await supabase
+    .from("journeys")
+    .update({ 
+      status: "archived",
+      // Store original type in a metadata field for restore
+      archived_original_type: journey.type,
+      archived_at: new Date().toISOString()
+    })
+    .eq("id", journeyId)
+  
+  if (error) throw new Error(error.message)
+  
+  await supabase.from("activity_log").insert({
+    action: "status_change",
+    actor_id: user.id,
+    journey_id: journeyId,
+    details: `Archived journey "${journey.title}"`,
+  })
+  
+  revalidatePath("/journeys")
+  revalidatePath(`/journeys/${journeyId}`)
+  return { success: true }
+}
+
+// B6: Restore archived journey
+export async function restoreArchivedJourney(journeyId: string) {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) throw new Error("Not authenticated")
+  
+  const { data: journey } = await supabase
+    .from("journeys")
+    .select("archived_original_type, title, status")
+    .eq("id", journeyId)
+    .single()
+  
+  if (!journey) throw new Error("Journey not found")
+  if (journey.status !== "archived") throw new Error("Journey is not archived")
+  
+  // Restore to original type, defaulting to "current" if not stored
+  const originalType = journey.archived_original_type || "current"
+  
+  const { error } = await supabase
+    .from("journeys")
+    .update({ 
+      status: "draft",
+      type: originalType,
+      archived_original_type: null,
+      archived_at: null
+    })
+    .eq("id", journeyId)
+  
+  if (error) throw new Error(error.message)
+  
+  await supabase.from("activity_log").insert({
+    action: "status_change",
+    actor_id: user.id,
+    journey_id: journeyId,
+    details: `Restored journey "${journey.title}" from archive`,
+  })
+  
+  revalidatePath("/journeys")
+  revalidatePath(`/journeys/${journeyId}`)
+  return { success: true }
+}
+
+// B6: Permanently delete a journey and all its data
+export async function permanentlyDeleteJourney(journeyId: string) {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) throw new Error("Not authenticated")
+  
+  const { data: journey } = await supabase
+    .from("journeys")
+    .select("status, title")
+    .eq("id", journeyId)
+    .single()
+  
+  if (!journey) throw new Error("Journey not found")
+  if (journey.status !== "archived") throw new Error("Only archived journeys can be permanently deleted")
+  
+  // Delete all related data (cascades should handle most, but being explicit)
+  // Get all stages
+  const { data: stages } = await supabase
+    .from("stages")
+    .select("id")
+    .eq("journey_id", journeyId)
+  
+  const stageIds = stages?.map(s => s.id) || []
+  
+  if (stageIds.length > 0) {
+    // Get all steps
+    const { data: steps } = await supabase
+      .from("steps")
+      .select("id")
+      .in("stage_id", stageIds)
+    
+    const stepIds = steps?.map(s => s.id) || []
+    
+    if (stepIds.length > 0) {
+      // Get all touchpoints
+      const { data: touchpoints } = await supabase
+        .from("touch_points")
+        .select("id")
+        .in("step_id", stepIds)
+      
+      const tpIds = touchpoints?.map(tp => tp.id) || []
+      
+      if (tpIds.length > 0) {
+        // Delete evidence, pain_points, highlights
+        await supabase.from("evidence").delete().in("touch_point_id", tpIds)
+        await supabase.from("pain_points").delete().in("touch_point_id", tpIds)
+        await supabase.from("highlights").delete().in("touch_point_id", tpIds)
+        // Delete touchpoints
+        await supabase.from("touch_points").delete().in("step_id", stepIds)
+      }
+      
+      // Delete steps
+      await supabase.from("steps").delete().in("stage_id", stageIds)
+    }
+    
+    // Delete stages
+    await supabase.from("stages").delete().eq("journey_id", journeyId)
+  }
+  
+  // Delete archetypes
+  await supabase.from("archetypes").delete().eq("journey_id", journeyId)
+  
+  // Delete versions
+  await supabase.from("journey_versions").delete().eq("journey_id", journeyId)
+  
+  // Delete collaborators
+  await supabase.from("collaborators").delete().eq("journey_id", journeyId)
+  
+  // Delete upvotes
+  await supabase.from("journey_upvotes").delete().eq("journey_id", journeyId)
+  
+  // Delete comments
+  await supabase.from("comments").delete().eq("journey_id", journeyId)
+  
+  // Finally delete the journey
+  const { error } = await supabase
+    .from("journeys")
+    .delete()
+    .eq("id", journeyId)
+  
+  if (error) throw new Error(error.message)
+  
+  revalidatePath("/journeys")
+  return { success: true }
+}

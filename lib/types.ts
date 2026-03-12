@@ -66,6 +66,7 @@ export interface PainPoint {
   severity: Severity
   emotionalScore?: number
   isAiGenerated?: boolean
+  hideAiBadge?: boolean // PRO feature (B8)
 }
 
 export interface Highlight {
@@ -74,6 +75,7 @@ export interface Highlight {
   impact: Impact
   emotionalScore?: number
   isAiGenerated?: boolean
+  hideAiBadge?: boolean // PRO feature (B8)
 }
 
 export interface Evidence {
@@ -167,6 +169,8 @@ export interface Archetype {
   category: ArchetypeCategory
   visibility?: ArchetypeVisibility
   avatar?: string
+  isAiGenerated?: boolean
+  hideAiBadge?: boolean // PRO feature (B8)
   // Narrative paragraphs
   description: string // "I am"
   goalsNarrative: string // "I want" - paragraph form
