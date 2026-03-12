@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+import { useTranslations } from "next-intl"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Switch } from "@/components/ui/switch"
 import { Label } from "@/components/ui/label"
@@ -72,6 +73,7 @@ const defaultPrefs: NotificationPref[] = [
 ]
 
 export default function NotificationsSettingsPage() {
+  const t = useTranslations("notificationSettings")
   const [prefs, setPrefs] = useState<NotificationPref[]>(defaultPrefs)
   const [digestDay, setDigestDay] = useState("monday")
   const [quietHoursEnabled, setQuietHoursEnabled] = useState(false)
@@ -88,24 +90,24 @@ export default function NotificationsSettingsPage() {
     <div className="space-y-6">
       <Toaster />
       <div>
-        <h2 className="text-lg font-semibold text-foreground">Notifications</h2>
+        <h2 className="text-lg font-semibold text-foreground">{t("title")}</h2>
         <p className="text-sm text-muted-foreground">
-          Choose how and when you want to be notified about workspace activity.
+          {t("subtitle")}
         </p>
       </div>
 
       {/* Notification preferences table */}
       <Card className="border-border/60">
         <CardHeader className="pb-3">
-          <CardTitle className="text-sm font-medium">Notification Channels</CardTitle>
-          <CardDescription>Toggle email and in-app notifications per event type.</CardDescription>
+          <CardTitle className="text-sm font-medium">{t("notificationChannels")}</CardTitle>
+          <CardDescription>{t("notificationChannelsDesc")}</CardDescription>
         </CardHeader>
         <CardContent className="space-y-0 p-0">
           {/* Table header */}
           <div className="grid grid-cols-[1fr_80px_80px] items-center gap-4 border-b border-border/40 px-6 py-2 text-xs font-medium text-muted-foreground uppercase tracking-wider">
-            <span>Event</span>
-            <span className="text-center">Email</span>
-            <span className="text-center">In-App</span>
+            <span>{t("event")}</span>
+            <span className="text-center">{t("email")}</span>
+            <span className="text-center">{t("inApp")}</span>
           </div>
 
           {prefs.map((pref, i) => (
@@ -144,12 +146,12 @@ export default function NotificationsSettingsPage() {
       {/* Digest schedule */}
       <Card className="border-border/60">
         <CardHeader className="pb-3">
-          <CardTitle className="text-sm font-medium">Weekly Digest Schedule</CardTitle>
-          <CardDescription>Choose which day to receive your weekly activity summary.</CardDescription>
+          <CardTitle className="text-sm font-medium">{t("weeklyDigestSchedule")}</CardTitle>
+          <CardDescription>{t("weeklyDigestScheduleDesc")}</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="flex items-center gap-4">
-            <Label className="text-sm text-muted-foreground min-w-[80px]">Send on</Label>
+            <Label className="text-sm text-muted-foreground min-w-[80px]">{t("sendOn")}</Label>
             <Select value={digestDay} onValueChange={setDigestDay}>
               <SelectTrigger className="w-[180px]">
                 <SelectValue />
@@ -169,8 +171,8 @@ export default function NotificationsSettingsPage() {
         <CardHeader className="pb-3">
           <div className="flex items-center justify-between">
             <div>
-              <CardTitle className="text-sm font-medium">Quiet Hours</CardTitle>
-              <CardDescription>Mute in-app notifications during specific hours.</CardDescription>
+              <CardTitle className="text-sm font-medium">{t("quietHours")}</CardTitle>
+              <CardDescription>{t("quietHoursDesc")}</CardDescription>
             </div>
             <Switch
               checked={quietHoursEnabled}
@@ -182,14 +184,14 @@ export default function NotificationsSettingsPage() {
         {quietHoursEnabled && (
           <CardContent>
             <div className="flex items-center gap-4">
-              <Label className="text-sm text-muted-foreground min-w-[50px]">From</Label>
+              <Label className="text-sm text-muted-foreground min-w-[50px]">{t("from")}</Label>
               <input
                 type="time"
                 value={quietFrom}
                 onChange={(e) => setQuietFrom(e.target.value)}
                 className="rounded-md border border-border bg-background px-3 py-1.5 text-sm text-foreground"
               />
-              <Label className="text-sm text-muted-foreground min-w-[20px] text-center">to</Label>
+              <Label className="text-sm text-muted-foreground min-w-[20px] text-center">{t("to")}</Label>
               <input
                 type="time"
                 value={quietTo}
@@ -204,12 +206,12 @@ export default function NotificationsSettingsPage() {
       <Separator />
 
       <div className="flex justify-end gap-3">
-        <Button variant="outline" size="sm">Reset to Defaults</Button>
+        <Button variant="outline" size="sm">{t("resetToDefaults")}</Button>
         <Button
           size="sm"
-          onClick={() => toast.success("Notification preferences saved")}
+          onClick={() => toast.success(t("preferencesSaved"))}
         >
-          Save Preferences
+          {t("savePreferences")}
         </Button>
       </div>
     </div>
