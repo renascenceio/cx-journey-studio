@@ -1,16 +1,12 @@
 "use client"
 
-import { useTranslations } from "next-intl"
 import { Languages, Bell } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { toast } from "sonner"
 
 export default function LingoPage() {
-  const t = useTranslations("journey")
-
   const handleNotifyMe = () => {
-    // In a real implementation, this would subscribe the user to updates
     toast.success("We'll notify you when Lingo is available!")
   }
 
@@ -23,13 +19,13 @@ export default function LingoPage() {
           </div>
           
           <span className="inline-block rounded-full bg-amber-100 dark:bg-amber-900/30 px-3 py-1 text-xs font-medium text-amber-700 dark:text-amber-300 mb-4">
-            {t("comingSoon")}
+            Coming Soon
           </span>
           
-          <h2 className="text-xl font-semibold mb-3">{t("lingo")}</h2>
+          <h2 className="text-xl font-semibold mb-3">Lingo</h2>
           
           <p className="text-sm text-muted-foreground leading-relaxed mb-6">
-            {t("lingoDescription")}
+            Create a shared vocabulary for this journey. Define terms, acronyms, and phrases that matter to your customers.
           </p>
           
           <Button 
@@ -39,7 +35,7 @@ export default function LingoPage() {
             onClick={handleNotifyMe}
           >
             <Bell className="h-3.5 w-3.5" />
-            {t("notifyMe")}
+            Notify Me
           </Button>
         </CardContent>
       </Card>

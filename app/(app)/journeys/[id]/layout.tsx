@@ -52,7 +52,6 @@ const typeLabels: Record<string, string> = {
 }
 
 import { getInitials } from "@/lib/utils"
-import { getIndustryLabelKey } from "@/lib/industries"
 
 export default function JourneyDetailLayout({
   children,
@@ -385,8 +384,8 @@ export default function JourneyDetailLayout({
                   {typeLabels[journey.type]}
                 </Badge>
 {journey.category && (
-                <Badge variant="secondary" className="text-[10px] font-medium">
-                  {t(getIndustryLabelKey(journey.category))}
+                <Badge variant="secondary" className="text-[10px] font-medium capitalize">
+                  {journey.category.replace(/_/g, " ")}
                 </Badge>
               )}
                 <Badge variant="outline" className={`text-[10px] ${statusColors[journey.status]}`}>

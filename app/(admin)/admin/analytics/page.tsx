@@ -350,22 +350,25 @@ export default function AdminAnalyticsPage() {
                 <CardTitle className="text-base">User Signups</CardTitle>
                 <CardDescription>New user registrations over time</CardDescription>
               </CardHeader>
-              <CardContent>
-                <ChartContainer
-                  config={{
-                    count: { label: "Signups", color: CHART_COLORS.primary },
-                  }}
-                  className="h-[300px] overflow-hidden"
-                >
+              <CardContent className="p-4">
+                <div className="h-[280px] w-full">
                   <ResponsiveContainer width="100%" height="100%">
-                    <LineChart data={data.trends.signups}>
-                      <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
+                    <LineChart data={data.trends.signups} margin={{ top: 5, right: 20, bottom: 5, left: 0 }}>
+                      <CartesianGrid strokeDasharray="3 3" className="stroke-muted" vertical={false} />
                       <XAxis 
                         dataKey="date" 
                         tickFormatter={(v) => new Date(v).toLocaleDateString(undefined, { month: "short", day: "numeric" })}
                         className="text-xs"
+                        axisLine={false}
+                        tickLine={false}
                       />
-                      <YAxis className="text-xs" />
+                      <YAxis 
+                        className="text-xs" 
+                        domain={[0, 'auto']}
+                        allowDecimals={false}
+                        axisLine={false}
+                        tickLine={false}
+                      />
                       <Tooltip 
                         content={({ active, payload }) => {
                           if (!active || !payload?.length) return null
@@ -378,15 +381,16 @@ export default function AdminAnalyticsPage() {
                         }}
                       />
                       <Line 
-                        type="linear" 
+                        type="monotone" 
                         dataKey="count" 
                         stroke={CHART_COLORS.primary} 
                         strokeWidth={2}
-                        dot={{ r: 3, fill: CHART_COLORS.primary }}
+                        dot={{ r: 4, fill: CHART_COLORS.primary, strokeWidth: 0 }}
+                        activeDot={{ r: 6, strokeWidth: 0 }}
                       />
                     </LineChart>
                   </ResponsiveContainer>
-                </ChartContainer>
+                </div>
               </CardContent>
             </Card>
 
@@ -396,22 +400,25 @@ export default function AdminAnalyticsPage() {
                 <CardTitle className="text-base">Journeys Created</CardTitle>
                 <CardDescription>New journey creations over time</CardDescription>
               </CardHeader>
-              <CardContent>
-                <ChartContainer
-                  config={{
-                    count: { label: "Journeys", color: CHART_COLORS.secondary },
-                  }}
-                  className="h-[300px] overflow-hidden"
-                >
+              <CardContent className="p-4">
+                <div className="h-[280px] w-full">
                   <ResponsiveContainer width="100%" height="100%">
-                    <LineChart data={data.trends.journeys}>
-                      <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
+                    <LineChart data={data.trends.journeys} margin={{ top: 5, right: 20, bottom: 5, left: 0 }}>
+                      <CartesianGrid strokeDasharray="3 3" className="stroke-muted" vertical={false} />
                       <XAxis 
                         dataKey="date" 
                         tickFormatter={(v) => new Date(v).toLocaleDateString(undefined, { month: "short", day: "numeric" })}
                         className="text-xs"
+                        axisLine={false}
+                        tickLine={false}
                       />
-                      <YAxis className="text-xs" />
+                      <YAxis 
+                        className="text-xs" 
+                        domain={[0, 'auto']}
+                        allowDecimals={false}
+                        axisLine={false}
+                        tickLine={false}
+                      />
                       <Tooltip 
                         content={({ active, payload }) => {
                           if (!active || !payload?.length) return null
@@ -424,15 +431,16 @@ export default function AdminAnalyticsPage() {
                         }}
                       />
                       <Line 
-                        type="linear" 
+                        type="monotone" 
                         dataKey="count" 
                         stroke={CHART_COLORS.secondary} 
                         strokeWidth={2}
-                        dot={{ r: 3, fill: CHART_COLORS.secondary }}
+                        dot={{ r: 4, fill: CHART_COLORS.secondary, strokeWidth: 0 }}
+                        activeDot={{ r: 6, strokeWidth: 0 }}
                       />
                     </LineChart>
                   </ResponsiveContainer>
-                </ChartContainer>
+                </div>
               </CardContent>
             </Card>
           </div>
@@ -446,24 +454,20 @@ export default function AdminAnalyticsPage() {
                 <CardTitle className="text-base">Users by Plan</CardTitle>
                 <CardDescription>Distribution of users across subscription tiers</CardDescription>
               </CardHeader>
-              <CardContent>
-                <ChartContainer
-                  config={{
-                    value: { label: "Users" },
-                  }}
-                  className="h-[300px] overflow-hidden"
-                >
+              <CardContent className="p-4">
+                <div className="h-[280px] w-full">
                   <ResponsiveContainer width="100%" height="100%">
                     <PieChart>
                       <Pie
                         data={planData}
                         cx="50%"
                         cy="50%"
-                        innerRadius={60}
-                        outerRadius={100}
+                        innerRadius={50}
+                        outerRadius={80}
                         paddingAngle={2}
                         dataKey="value"
                         label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+                        labelLine={{ stroke: 'var(--muted-foreground)', strokeWidth: 1 }}
                       >
                         {planData.map((entry, index) => (
                           <Cell key={`cell-${index}`} fill={entry.fill} />
@@ -472,7 +476,7 @@ export default function AdminAnalyticsPage() {
                       <Tooltip />
                     </PieChart>
                   </ResponsiveContainer>
-                </ChartContainer>
+                </div>
               </CardContent>
             </Card>
 
@@ -512,14 +516,9 @@ export default function AdminAnalyticsPage() {
                 <CardTitle className="text-base">Users by Type</CardTitle>
                 <CardDescription>Distribution by user profession/role</CardDescription>
               </CardHeader>
-              <CardContent>
+              <CardContent className="p-4">
                 {data.users.byType && Object.keys(data.users.byType).length > 0 ? (
-                  <ChartContainer
-                    config={{
-                      value: { label: "Users" },
-                    }}
-                    className="h-[250px] overflow-hidden"
-                  >
+                  <div className="h-[240px] w-full">
                     <ResponsiveContainer width="100%" height="100%">
                       <BarChart 
                         data={Object.entries(data.users.byType).map(([name, value]) => ({
@@ -528,11 +527,12 @@ export default function AdminAnalyticsPage() {
                           fill: USER_TYPE_COLORS[name] || CHART_COLORS.muted
                         }))}
                         layout="vertical"
+                        margin={{ top: 5, right: 20, bottom: 5, left: 0 }}
                       >
                         <CartesianGrid strokeDasharray="3 3" horizontal={false} />
-                        <XAxis type="number" />
-                        <YAxis type="category" dataKey="name" width={120} tick={{ fontSize: 11 }} />
-                        <ChartTooltip content={<ChartTooltipContent />} />
+                        <XAxis type="number" allowDecimals={false} />
+                        <YAxis type="category" dataKey="name" width={100} tick={{ fontSize: 10 }} />
+                        <Tooltip />
                         <Bar dataKey="value" radius={[0, 4, 4, 0]}>
                           {Object.entries(data.users.byType).map(([name], index) => (
                             <Cell key={index} fill={USER_TYPE_COLORS[name] || CHART_COLORS.muted} />
@@ -540,7 +540,7 @@ export default function AdminAnalyticsPage() {
                         </Bar>
                       </BarChart>
                     </ResponsiveContainer>
-                  </ChartContainer>
+                  </div>
                 ) : (
                   <div className="h-[250px] flex items-center justify-center text-muted-foreground text-sm">
                     No user type data available
@@ -571,12 +571,7 @@ export default function AdminAnalyticsPage() {
                     </div>
                     
                     {/* Size distribution */}
-                    <ChartContainer
-                      config={{
-                        value: { label: "Teams" },
-                      }}
-                      className="h-[150px] overflow-hidden"
-                    >
+                    <div className="h-[140px] w-full">
                       <ResponsiveContainer width="100%" height="100%">
                         <BarChart 
                           data={[
@@ -585,11 +580,12 @@ export default function AdminAnalyticsPage() {
                             { name: "Medium (6-15)", value: data.teams.teamSizeDistribution.medium, fill: TEAM_SIZE_COLORS.medium },
                             { name: "Large (15+)", value: data.teams.teamSizeDistribution.large, fill: TEAM_SIZE_COLORS.large },
                           ]}
+                          margin={{ top: 5, right: 10, bottom: 5, left: 0 }}
                         >
                           <CartesianGrid strokeDasharray="3 3" vertical={false} />
-                          <XAxis dataKey="name" tick={{ fontSize: 10 }} />
-                          <YAxis tick={{ fontSize: 10 }} />
-                          <ChartTooltip content={<ChartTooltipContent />} />
+                          <XAxis dataKey="name" tick={{ fontSize: 9 }} axisLine={false} tickLine={false} />
+                          <YAxis tick={{ fontSize: 9 }} allowDecimals={false} axisLine={false} tickLine={false} />
+                          <Tooltip />
                           <Bar dataKey="value" radius={[4, 4, 0, 0]}>
                             {[TEAM_SIZE_COLORS.solo, TEAM_SIZE_COLORS.small, TEAM_SIZE_COLORS.medium, TEAM_SIZE_COLORS.large].map((color, index) => (
                               <Cell key={index} fill={color} />
@@ -597,7 +593,7 @@ export default function AdminAnalyticsPage() {
                           </Bar>
                         </BarChart>
                       </ResponsiveContainer>
-                    </ChartContainer>
+                    </div>
                   </div>
                 ) : (
                   <div className="h-[250px] flex items-center justify-center text-muted-foreground text-sm">
@@ -616,23 +612,18 @@ export default function AdminAnalyticsPage() {
               <CardHeader>
                 <CardTitle className="text-base">Journeys by Type</CardTitle>
               </CardHeader>
-              <CardContent>
-                <ChartContainer
-                  config={{
-                    count: { label: "Count", color: CHART_COLORS.primary },
-                  }}
-                  className="h-[300px] overflow-hidden"
-                >
+              <CardContent className="p-4">
+                <div className="h-[280px] w-full">
                   <ResponsiveContainer width="100%" height="100%">
-                    <BarChart data={journeyTypeData} layout="vertical">
+                    <BarChart data={journeyTypeData} layout="vertical" margin={{ top: 5, right: 20, bottom: 5, left: 0 }}>
                       <CartesianGrid strokeDasharray="3 3" horizontal={false} />
-                      <XAxis type="number" />
-                      <YAxis dataKey="name" type="category" width={80} />
+                      <XAxis type="number" allowDecimals={false} axisLine={false} tickLine={false} />
+                      <YAxis dataKey="name" type="category" width={70} tick={{ fontSize: 11 }} axisLine={false} tickLine={false} />
                       <Tooltip />
-                      <Bar dataKey="count" fill={CHART_COLORS.primary} radius={4} />
+                      <Bar dataKey="count" fill={CHART_COLORS.primary} radius={[0, 4, 4, 0]} />
                     </BarChart>
                   </ResponsiveContainer>
-                </ChartContainer>
+                </div>
               </CardContent>
             </Card>
 
