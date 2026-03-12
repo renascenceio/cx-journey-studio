@@ -80,6 +80,41 @@ export async function GET(request: Request) {
       return acc
     }, {} as Record<string, number>)
     
+    // Users by user_type
+    const { data: userTypeDistribution } = await supabase
+      .from("profiles")
+      .select("user_type")
+    
+    const userTypeCounts = (userTypeDistribution || []).reduce((acc, p) => {
+      const userType = p.user_type || "unknown"
+      acc[userType] = (acc[userType] || 0) + 1
+      return acc
+    }, {} as Record<string, number>)
+    
+    // Workspace stats - members per workspace for team sizes
+    const { data: workspaceMembers } = await supabase
+      .from("workspace_members")
+      .select("workspace_id")
+    
+    // Count members per workspace
+    const membersByWorkspace = (workspaceMembers || []).reduce((acc, m) => {
+      acc[m.workspace_id] = (acc[m.workspace_id] || 0) + 1
+      return acc
+    }, {} as Record<string, number>)
+    
+    const workspaceSizes = Object.values(membersByWorkspace)
+    const avgTeamSize = workspaceSizes.length > 0 
+      ? Math.round(workspaceSizes.reduce((a, b) => a + b, 0) / workspaceSizes.length * 10) / 10
+      : 0
+    
+    // Team size distribution
+    const teamSizeDistribution = {
+      solo: workspaceSizes.filter(s => s === 1).length,
+      small: workspaceSizes.filter(s => s >= 2 && s <= 5).length,
+      medium: workspaceSizes.filter(s => s >= 6 && s <= 15).length,
+      large: workspaceSizes.filter(s => s > 15).length,
+    }
+    
     // ========== CONTENT METRICS ==========
     
     // Total journeys
@@ -195,7 +230,13 @@ export async function GET(request: Request) {
         newInPeriod: newSignups || 0,
         activeInPeriod: activeUsers || 0,
         byPlan: planCounts,
+        byType: userTypeCounts,
         growthRate: totalUsers ? Math.round(((newSignups || 0) / totalUsers) * 100 * 10) / 10 : 0
+      },
+      teams: {
+        totalWorkspaces: Object.keys(membersByWorkspace).length,
+        avgTeamSize,
+        teamSizeDistribution
       },
       content: {
         journeys: {
