@@ -1,8 +1,7 @@
 "use client"
 
-// v5 - Recreated to override cached version - NO useTranslations
+// v6 - Fixed hydration mismatch by only rendering dropdown on client
 import { useState, useEffect } from "react"
-import { useRouter } from "next/navigation"
 import { Globe, Loader2, Check } from "lucide-react"
 import {
   DropdownMenu,
@@ -27,11 +26,11 @@ export function LanguageSwitcher({
   showLabel = false,
   className,
 }: LanguageSwitcherProps) {
-  const router = useRouter()
   const [isPending, setIsPending] = useState(false)
   const [currentLocale, setCurrentLocale] = useState<Locale>("en")
+  const [mounted, setMounted] = useState(false)
   
-  // Read locale from cookie on mount
+  // Read locale from cookie on mount and mark as mounted
   useEffect(() => {
     const cookies = document.cookie.split(";")
     for (const cookie of cookies) {
@@ -41,6 +40,7 @@ export function LanguageSwitcher({
         break
       }
     }
+    setMounted(true)
   }, [])
 
   async function handleLocaleChange(newLocale: Locale) {
@@ -54,6 +54,21 @@ export function LanguageSwitcher({
     
     // Full page reload to get new translations from server
     window.location.reload()
+  }
+
+  // Render a placeholder during SSR to avoid hydration mismatch
+  if (!mounted) {
+    return (
+      <Button
+        variant={variant}
+        size={size}
+        className={cn("gap-2", className)}
+        disabled
+      >
+        <Globe className="h-4 w-4" />
+        {showLabel && <span>{languageNames.en}</span>}
+      </Button>
+    )
   }
 
   return (
