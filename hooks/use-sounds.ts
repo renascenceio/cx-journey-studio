@@ -1,7 +1,7 @@
 "use client"
 
 import { useCallback, useEffect, useState } from "react"
-import { SOUND_LIBRARY, getSoundUrl, EVENT_CATEGORY_MAP } from "@/lib/sound-library"
+import { SOUND_LIBRARY, playSound as playSoundFromLibrary, EVENT_CATEGORY_MAP } from "@/lib/sound-library"
 
 // Sound event types for the application
 export type SoundEvent =
@@ -220,28 +220,31 @@ export function useSounds() {
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return
     
     try {
-      // Get sound URL from admin config if available, otherwise use default
-      let soundUrl: string
+      // Get sound config from admin config if available
       let categoryVolume = DEFAULT_VOLUMES[category] || 0.5
+      let soundId = category + "-1" // Default sound ID pattern
       
       if (adminConfig?.categories[category]) {
         const adminCat = adminConfig.categories[category]
-        const soundId = adminCat.soundId
+        soundId = adminCat.soundId
         if (soundId === "none") return // Sound disabled for this category
         
-        soundUrl = getSoundUrl(category, soundId)
         categoryVolume = adminCat.volume * (adminConfig.globalVolume || 1)
+        
+        // Use the generated sound system
+        const finalVolume = preferences.volume * categoryVolume
+        playSoundFromLibrary(category, soundId, finalVolume)
       } else {
-        soundUrl = SOUND_URLS[event]
+        // Fallback to the old URL-based sounds
+        const soundUrl = SOUND_URLS[event]
+        if (!soundUrl) return
+        
+        const audio = new Audio(soundUrl)
+        audio.volume = preferences.volume * categoryVolume
+        audio.play().catch(() => {
+          // Ignore autoplay restrictions
+        })
       }
-      
-      if (!soundUrl) return
-      
-      const audio = new Audio(soundUrl)
-      audio.volume = preferences.volume * categoryVolume
-      audio.play().catch(() => {
-        // Ignore autoplay restrictions
-      })
     } catch {
       // Ignore errors
     }

@@ -21,6 +21,7 @@ import {
   Banknote,
   Activity,
   Fingerprint,
+  Bell,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Toaster } from "@/components/ui/sonner"
@@ -34,6 +35,7 @@ const adminNav = [
   { label: "Users", href: "/admin/users", icon: Users, segment: "users" },
   { label: "Solutions", href: "/admin/solutions", icon: Lightbulb, segment: "solutions" },
   { label: "AI Prompts", href: "/admin/ai-prompts", icon: Sparkles, segment: "ai-prompts" },
+  { label: "Notifications", href: "/admin/notifications", icon: Bell, segment: "notifications" },
   { label: "Billing & Plans", href: "/admin/billing", icon: CreditCard, segment: "billing" },
   { label: "Credits FAQ", href: "/admin/credits-faq", icon: Calculator, segment: "credits-faq" },
   { label: "Site Config", href: "/admin/config", icon: Settings, segment: "config" },
