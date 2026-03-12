@@ -1,6 +1,7 @@
 "use client"
 
 import { use, useRef } from "react"
+import { useTranslations } from "next-intl"
 import Link from "next/link"
 import { useArchetype } from "@/hooks/use-archetypes"
 import { useJourneys } from "@/hooks/use-journeys"
@@ -8,17 +9,7 @@ import { Button } from "@/components/ui/button"
 import { Printer, ArrowLeft, Download } from "lucide-react"
 import type { ArchetypeCategory } from "@/lib/types"
 import { ExportDialog } from "@/components/export-dialog"
-
-const categoryLabels: Record<ArchetypeCategory, string> = {
-  "e-commerce": "E-Commerce",
-  banking: "Banking & Finance",
-  healthcare: "Healthcare",
-  saas: "SaaS",
-  real_estate: "Real Estate",
-  insurance: "Insurance",
-  hospitality: "Hospitality",
-  telecommunications: "Telecommunications",
-}
+import { getIndustryLabelKey } from "@/lib/industries"
 
 function DotScale({ score, max = 10 }: { score: number; max?: number }) {
   return (
@@ -39,6 +30,7 @@ export default function ArchetypeReportPage({
 }: {
   params: Promise<{ id: string }>
 }) {
+  const t = useTranslations()
   const params = use(paramsPromise)
   const { archetype, isLoading } = useArchetype(params.id)
   const { journeys: allJourneys } = useJourneys()
@@ -106,7 +98,7 @@ export default function ArchetypeReportPage({
               )}
               <div className="flex items-center gap-3 mt-2 text-sm text-muted-foreground">
                 <span className="rounded-full bg-muted px-2.5 py-0.5 text-xs font-medium">
-                  {categoryLabels[archetype.category]}
+                  {t(getIndustryLabelKey(archetype.category))}
                 </span>
                 {archetype.valueMetric && (
                   <span>Value: <strong className="text-foreground">{archetype.valueMetric}</strong></span>

@@ -1,5 +1,6 @@
 "use client"
 
+import { useTranslations } from "next-intl"
 import { useParams } from "next/navigation"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
@@ -59,6 +60,7 @@ import { getInitials } from "@/lib/utils"
 import { getIndustryLabelKey } from "@/lib/industries"
 
 export default function JourneyOverviewPage() {
+  const t = useTranslations()
   const params = useParams()
   const journeyId = params.id as string
   const { journey, isLoading, mutate } = useJourney(journeyId)
@@ -118,7 +120,7 @@ export default function JourneyOverviewPage() {
         />
         <Badge variant="outline" className="capitalize text-[10px]">{journey.type}</Badge>
         <Badge variant="secondary" className="text-[10px]">
-          {journey.category ? (categoryLabels[journey.category] || journey.category) : "No Category"}
+          {journey.category ? t(getIndustryLabelKey(journey.category)) : "No Category"}
         </Badge>
         <Badge variant="outline" className="capitalize text-[10px] text-muted-foreground">{journey.status}</Badge>
         {/* JDS-042: Visibility toggle */}

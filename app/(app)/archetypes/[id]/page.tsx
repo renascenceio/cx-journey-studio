@@ -1,6 +1,7 @@
 "use client"
 
 import { use } from "react"
+import { useTranslations } from "next-intl"
 import { notFound } from "next/navigation"
 import Link from "next/link"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -55,17 +56,7 @@ import { useTheme } from "next-themes"
 import { useEffect, useState, useMemo, useRef } from "react"
 import { ExportDialog } from "@/components/export-dialog"
 import { Download } from "lucide-react"
-
-const categoryLabels: Record<ArchetypeCategory, string> = {
-  "e-commerce": "E-Commerce",
-  banking: "Banking",
-  healthcare: "Healthcare",
-  saas: "SaaS",
-  real_estate: "Real Estate",
-  insurance: "Insurance",
-  hospitality: "Hospitality",
-  telecommunications: "Telecom",
-}
+import { getIndustryLabelKey } from "@/lib/industries"
 
 const categoryColors: Record<ArchetypeCategory, string> = {
   "e-commerce": "bg-blue-100 text-blue-700 border-blue-200 dark:bg-blue-900/30 dark:text-blue-300 dark:border-blue-800",
@@ -157,6 +148,7 @@ function useChartColors() {
 }
 
 export default function ArchetypeDetailPage({ params }: { params: Promise<{ id: string }> }) {
+  const t = useTranslations()
   const { id } = use(params)
   const { archetype, isLoading, mutate } = useArchetype(id)
   const { journeys: allJourneys } = useJourneys()
@@ -389,9 +381,9 @@ export default function ArchetypeDetailPage({ params }: { params: Promise<{ id: 
                   )}
                 </>
               )}
-              <Badge variant="outline" className={cn("mt-2 text-[10px]", categoryColors[archetype.category])}>
-                {categoryLabels[archetype.category]}
-              </Badge>
+<Badge variant="outline" className={cn("mt-2 text-[10px]", categoryColors[archetype.category])}>
+              {t(getIndustryLabelKey(archetype.category))}
+            </Badge>
             </div>
             {editing ? (
               <div className="flex items-center gap-4 mt-2">
