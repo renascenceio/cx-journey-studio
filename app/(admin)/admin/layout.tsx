@@ -17,12 +17,14 @@ import {
   Sparkles,
   Calculator,
   Languages,
+  BarChart3,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Toaster } from "@/components/ui/sonner"
 
 const adminNav = [
   { label: "Overview", href: "/admin", icon: LayoutDashboard, segment: null },
+  { label: "Analytics", href: "/admin/analytics", icon: BarChart3, segment: "analytics" },
   { label: "Templates", href: "/admin/templates", icon: BookTemplate, segment: "templates" },
   { label: "Users", href: "/admin/users", icon: Users, segment: "users" },
   { label: "Solutions", href: "/admin/solutions", icon: Lightbulb, segment: "solutions" },

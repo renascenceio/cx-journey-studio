@@ -22,6 +22,8 @@ import { Textarea } from "@/components/ui/textarea"
 import { TimezonePicker, detectTimezone } from "@/components/timezone-picker"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { cn, getInitials } from "@/lib/utils"
+import { ReferralDashboard } from "@/components/referral-dashboard"
+import { Gift } from "lucide-react"
 
 interface BillingAddress {
   street?: string
@@ -455,6 +457,20 @@ export default function SettingsProfilePage() {
 
       {/* Sound Settings */}
       <SoundSettings />
+
+      {/* Referral Program */}
+      <Card className="border-border/60">
+        <CardHeader>
+          <CardTitle className="text-base flex items-center gap-2">
+            <Gift className="h-4 w-4 text-primary" />
+            {t("referral.title")}
+          </CardTitle>
+          <CardDescription>{t("referral.description")}</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <ReferralDashboard />
+        </CardContent>
+      </Card>
 
       {/* Danger Zone */}
       <Card className="border-destructive/30">
