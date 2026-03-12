@@ -1,7 +1,6 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { useTranslations } from "next-intl"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -67,7 +66,6 @@ const statusConfig = {
 }
 
 export default function SystemStatusPage() {
-  const t = useTranslations("admin")
   const [health, setHealth] = useState<SystemHealth | null>(null)
   const [loading, setLoading] = useState(true)
   const [refreshing, setRefreshing] = useState(false)
@@ -119,8 +117,8 @@ export default function SystemStatusPage() {
     <div className="flex flex-col gap-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-semibold tracking-tight">{t("systemStatus")}</h1>
-          <p className="text-sm text-muted-foreground">{t("systemStatusDesc")}</p>
+          <h1 className="text-2xl font-semibold tracking-tight">System Status</h1>
+          <p className="text-sm text-muted-foreground">Monitor platform health and service availability</p>
         </div>
         <div className="flex items-center gap-3">
           {lastRefresh && (
@@ -135,7 +133,7 @@ export default function SystemStatusPage() {
             disabled={refreshing}
           >
             <RefreshCw className={cn("h-4 w-4 mr-2", refreshing && "animate-spin")} />
-            {t("refresh")}
+            Refresh
           </Button>
         </div>
       </div>
@@ -159,7 +157,7 @@ export default function SystemStatusPage() {
             ) : (
               <>
                 <h2 className="text-xl font-semibold">
-                  {t("overallStatus")}: <span className={overallConfig.color}>{overallConfig.label}</span>
+                  Overall Status: <span className={overallConfig.color}>{overallConfig.label}</span>
                 </h2>
                 <p className="text-sm text-muted-foreground">
                   {health?.services.filter(s => s.status === "healthy").length || 0} of {health?.services.length || 0} services healthy
@@ -180,9 +178,9 @@ export default function SystemStatusPage() {
         <CardHeader>
           <div className="flex items-center gap-2">
             <Activity className="h-5 w-5 text-primary" />
-            <CardTitle className="text-base">{t("coreInfrastructure")}</CardTitle>
+            <CardTitle className="text-base">Core Infrastructure</CardTitle>
           </div>
-          <CardDescription>{t("coreInfrastructureDesc")}</CardDescription>
+          <CardDescription>External services and database connections</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
@@ -234,9 +232,9 @@ export default function SystemStatusPage() {
         <CardHeader>
           <div className="flex items-center gap-2">
             <Route className="h-5 w-5 text-primary" />
-            <CardTitle className="text-base">{t("applicationModules")}</CardTitle>
+            <CardTitle className="text-base">Application Modules</CardTitle>
           </div>
-          <CardDescription>{t("applicationModulesDesc")}</CardDescription>
+          <CardDescription>Internal application engines and services</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
@@ -281,8 +279,8 @@ export default function SystemStatusPage() {
       {/* Service Details Table */}
       <Card>
         <CardHeader>
-          <CardTitle className="text-base">{t("serviceDetails")}</CardTitle>
-          <CardDescription>{t("serviceDetailsDesc")}</CardDescription>
+          <CardTitle className="text-base">Service Details</CardTitle>
+          <CardDescription>Detailed status and latency information for all services</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="rounded-md border">

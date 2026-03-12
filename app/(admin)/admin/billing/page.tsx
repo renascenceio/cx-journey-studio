@@ -281,14 +281,14 @@ async function handleSaveRegCost() {
         <CardHeader>
           <div className="flex items-center gap-2">
             <Percent className="h-5 w-5 text-green-500" />
-            <CardTitle className="text-base">{t("admin.aiCreditFee")}</CardTitle>
+            <CardTitle className="text-base">AI Credit Fee Markup</CardTitle>
           </div>
-          <CardDescription>{t("admin.aiCreditFeeDesc")}</CardDescription>
+          <CardDescription>Set the markup percentage applied to AI credit costs. This margin covers platform operations.</CardDescription>
         </CardHeader>
         <CardContent className="flex flex-col gap-4">
           <div className="flex items-center gap-4 max-w-md">
             <div className="flex-1">
-              <Label htmlFor="fee-percent">{t("admin.markupPercent")}</Label>
+              <Label htmlFor="fee-percent">Markup Percentage</Label>
               <div className="flex items-center gap-2 mt-1">
                 <Input 
                   id="fee-percent" 
@@ -308,9 +308,9 @@ async function handleSaveRegCost() {
             </Button>
           </div>
           <div className="rounded-lg bg-muted/50 p-3 text-sm">
-            <p className="font-medium text-foreground">{t("admin.priceExample")}</p>
+            <p className="font-medium text-foreground">Price Example</p>
             <p className="text-muted-foreground mt-1">
-              {t("admin.baseCost")}: $10.00 + {aiCreditFeePercent}% = <strong>${getDisplayPrice(10).toFixed(2)}</strong> {t("admin.displayPrice")}
+              Base cost: $10.00 + {aiCreditFeePercent}% = <strong>${getDisplayPrice(10).toFixed(2)}</strong> display price
             </p>
           </div>
         </CardContent>

@@ -1,7 +1,6 @@
 "use client"
 
 import { useState, useEffect, useCallback } from "react"
-import { useTranslations } from "next-intl"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -28,7 +27,9 @@ import {
 } from "lucide-react"
 import { KanbanBoard } from "@/components/roadmap/kanban-board"
 import { TimelineView } from "@/components/roadmap/timeline-view"
+import { ImpactEffortMatrix } from "@/components/roadmap/impact-effort-matrix"
 import { cn } from "@/lib/utils"
+import { Grid3x3 } from "lucide-react"
 import { useProfile } from "@/hooks/use-profile"
 import { getPermissions } from "@/lib/permissions"
 import useSWR from "swr"
@@ -68,7 +69,6 @@ const emptyForm = {
 }
 
 export default function RoadmapPage() {
-  const t = useTranslations()
   const { profile } = useProfile()
   const perms = getPermissions(profile?.role || "viewer")
 
@@ -76,7 +76,7 @@ export default function RoadmapPage() {
   const [isLoading, setIsLoading] = useState(true)
   const [expandedId, setExpandedId] = useState<string | null>(null)
   const [filter, setFilter] = useState<string>("all")
-  const [viewMode, setViewMode] = useState<"list" | "kanban" | "timeline">("list")
+  const [viewMode, setViewMode] = useState<"list" | "kanban" | "timeline" | "matrix">("list")
 
   // Add / Edit dialog
   const [dialogOpen, setDialogOpen] = useState(false)
@@ -140,20 +140,20 @@ export default function RoadmapPage() {
           body: JSON.stringify(form),
         })
         if (!res.ok) throw new Error("Create failed")
-        toast.success(t("roadmap.initiativeCreated"))
+        toast.success("Initiative created")
       }
       setDialogOpen(false)
       setEditingId(null)
       setForm(emptyForm)
       reload()
-    } catch { toast.error(t("roadmap.failedToSave")) }
+    } catch { toast.error("Failed to save initiative") }
     finally { setSaving(false) }
   }
 
   async function handleDelete(id: string) {
     const res = await fetch(`/api/roadmap?id=${id}`, { method: "DELETE" })
-    if (res.ok) { toast.success(t("roadmap.initiativeDeleted")); reload() }
-    else toast.error(t("roadmap.failedToDelete"))
+    if (res.ok) { toast.success("Initiative deleted"); reload() }
+    else toast.error("Failed to delete initiative")
   }
 
   async function handleStatusChange(id: string, newStatus: string) {
@@ -162,8 +162,8 @@ export default function RoadmapPage() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ id, status: newStatus }),
     })
-    if (res.ok) { toast.success(t("roadmap.statusChanged")); reload() }
-    else toast.error(t("roadmap.failedToUpdateStatus"))
+    if (res.ok) { toast.success("Status updated"); reload() }
+    else toast.error("Failed to update status")
   }
 
   async function handleApprove(id: string) {
@@ -215,16 +215,16 @@ export default function RoadmapPage() {
       const data = await res.json()
       if (res.ok) {
         if (data.synced > 0) {
-          toast.success(t("roadmap.syncSuccess", { count: data.synced }))
+          toast.success(`Synced ${data.synced} initiatives from journeys`)
           reload()
         } else {
-          toast.info(t("roadmap.alreadySynced"))
+          toast.info("Already in sync")
         }
       } else {
-        toast.error(data.error || t("roadmap.syncFailed"))
+        toast.error(data.error || "Sync failed")
       }
     } catch {
-      toast.error(t("roadmap.syncFailed"))
+      toast.error("Sync failed")
     } finally {
       setSyncing(false)
     }
@@ -256,7 +256,7 @@ export default function RoadmapPage() {
     a.download = "roadmap.csv"
     a.click()
     URL.revokeObjectURL(url)
-    toast.success(t("roadmap.downloadedAsCsv"))
+    toast.success("Downloaded as CSV")
   }
 
   return (
@@ -266,9 +266,9 @@ export default function RoadmapPage() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight text-foreground">{t("roadmap.title")}</h1>
+          <h1 className="text-2xl font-bold tracking-tight text-foreground">Product Roadmap</h1>
           <p className="text-sm text-muted-foreground">
-            {t("roadmap.subtitle")}
+            Plan, track and manage CX initiatives across your journeys
           </p>
         </div>
         <div className="flex items-center gap-2">
@@ -281,7 +281,7 @@ export default function RoadmapPage() {
               onClick={() => setViewMode("list")}
             >
               <List className="h-3.5 w-3.5" />
-              <span className="sr-only">{t("roadmap.views.list")}</span>
+              <span className="sr-only">List view</span>
             </Button>
             <Button
               variant={viewMode === "kanban" ? "default" : "ghost"}
@@ -290,16 +290,25 @@ export default function RoadmapPage() {
               onClick={() => setViewMode("kanban")}
             >
               <LayoutGrid className="h-3.5 w-3.5" />
-              <span className="sr-only">{t("roadmap.views.kanban")}</span>
+              <span className="sr-only">Kanban view</span>
             </Button>
             <Button
               variant={viewMode === "timeline" ? "default" : "ghost"}
               size="sm"
-              className="h-8 px-2.5 rounded-l-none"
+              className="h-8 px-2.5 rounded-none border-r"
               onClick={() => setViewMode("timeline")}
             >
               <GanttChartSquare className="h-3.5 w-3.5" />
-              <span className="sr-only">{t("roadmap.views.timeline")}</span>
+              <span className="sr-only">Timeline view</span>
+            </Button>
+            <Button
+              variant={viewMode === "matrix" ? "default" : "ghost"}
+              size="sm"
+              className="h-8 px-2.5 rounded-l-none"
+              onClick={() => setViewMode("matrix")}
+            >
+              <Grid3x3 className="h-3.5 w-3.5" />
+              <span className="sr-only">Impact/Effort Matrix</span>
             </Button>
           </div>
           {canManageRoadmap && (
@@ -312,17 +321,17 @@ export default function RoadmapPage() {
                 disabled={syncing}
               >
                 <RefreshCw className={cn("h-3.5 w-3.5", syncing && "animate-spin")} />
-                {t("roadmap.syncFromJourneys")}
+                Sync from Journeys
               </Button>
               <Button size="sm" className="gap-1.5" onClick={() => { setEditingId(null); setForm(emptyForm); setDialogOpen(true) }}>
                 <Plus className="h-3.5 w-3.5" />
-                {t("roadmap.addInitiative")}
+                Add Initiative
               </Button>
             </>
           )}
           <Button variant="outline" size="sm" className="gap-1.5" onClick={handleDownload} disabled={initiatives.length === 0}>
             <Download className="h-3.5 w-3.5" />
-            {t("roadmap.exportCsv")}
+            Export CSV
           </Button>
         </div>
       </div>
@@ -330,10 +339,10 @@ export default function RoadmapPage() {
       {/* Stats */}
       <div className="grid gap-3 sm:grid-cols-4">
         {([
-          { label: t("roadmap.totalInitiatives"), value: stats.total, icon: Hash },
-          { label: t("roadmap.planned"), value: stats.planned, icon: Target },
-          { label: t("roadmap.inProgress"), value: stats.in_progress, icon: Clock },
-          { label: t("roadmap.completed"), value: stats.completed, icon: CheckCircle2 },
+          { label: "Total Initiatives", value: stats.total, icon: Hash },
+          { label: "Planned", value: stats.planned, icon: Target },
+          { label: "In Progress", value: stats.in_progress, icon: Clock },
+          { label: "Completed", value: stats.completed, icon: CheckCircle2 },
         ] as const).map((stat) => (
           <Card key={stat.label} className="border-border/60">
             <CardContent className="flex items-center gap-3 py-3 px-4">
@@ -353,7 +362,7 @@ export default function RoadmapPage() {
       <div className="flex items-center gap-1.5 flex-wrap">
         {["all", "planned", "in_progress", "pending_approval", "completed", "on_hold"].map((s) => (
           <Button key={s} variant={filter === s ? "default" : "outline"} size="sm" className="h-7 text-xs capitalize" onClick={() => setFilter(s)}>
-            {s === "all" ? t("common.all") : t(`roadmap.status.${s}`)}
+            {s === "all" ? "All" : statusConfig[s]?.label || s.replace("_", " ")}
             {s === "pending_approval" && stats.pending_approval > 0 && (
               <Badge className="ml-1.5 h-4 px-1 text-[9px] bg-violet-500 text-white">{stats.pending_approval}</Badge>
             )}
@@ -370,12 +379,12 @@ export default function RoadmapPage() {
         <Card className="border-dashed border-border/60">
           <CardContent className="flex flex-col items-center gap-3 py-16 text-center">
             <MapIcon className="h-8 w-8 text-muted-foreground/50" />
-            <p className="text-sm font-medium text-foreground">{t("roadmap.noInitiatives")}</p>
+            <p className="text-sm font-medium text-foreground">No initiatives yet</p>
             <p className="text-xs text-muted-foreground max-w-sm">
-              {t("roadmap.noInitiativesDesc")}
+              Add initiatives from your solutions or create new ones to track your CX roadmap.
             </p>
             <Button variant="outline" size="sm" className="mt-2" asChild>
-              <Link href="/solutions">{t("solutions.browse")}</Link>
+              <Link href="/solutions">Browse Solutions</Link>
             </Button>
           </CardContent>
         </Card>
@@ -389,6 +398,11 @@ export default function RoadmapPage() {
         />
       ) : viewMode === "timeline" ? (
         <TimelineView
+          initiatives={filtered}
+          onEdit={openEdit}
+        />
+      ) : viewMode === "matrix" ? (
+        <ImpactEffortMatrix
           initiatives={filtered}
           onEdit={openEdit}
         />

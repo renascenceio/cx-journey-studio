@@ -32,7 +32,6 @@ interface SolutionRecord {
 }
 
 export default function AdminSolutionsPage() {
-  const t = useTranslations()
   const { data, isLoading } = useSWR<{ solutions: SolutionRecord[] }>("/api/admin/solutions", fetcher)
   const solutions = data?.solutions || []
   const [search, setSearch] = useState("")
@@ -210,8 +209,8 @@ export default function AdminSolutionsPage() {
             </div>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setDialogOpen(false)}>{t("common.cancel")}</Button>
-            <Button onClick={handleSave} disabled={!form.title.trim() || saving}>{saving ? t("common.saving") : editingId ? t("common.update") : t("common.create")}</Button>
+            <Button variant="outline" onClick={() => setDialogOpen(false)}>Cancel</Button>
+            <Button onClick={handleSave} disabled={!form.title.trim() || saving}>{saving ? "Saving..." : editingId ? "Update" : "Create"}</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
