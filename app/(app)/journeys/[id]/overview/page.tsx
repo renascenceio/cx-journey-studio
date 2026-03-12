@@ -1,5 +1,6 @@
 "use client"
 
+import { useTranslations } from "next-intl"
 import { useParams } from "next/navigation"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
@@ -56,35 +57,10 @@ import { Label } from "@/components/ui/label"
 import { toast } from "sonner"
 
 import { getInitials } from "@/lib/utils"
-
-const categoryLabels: Record<string, string> = {
-  airlines: "Airlines",
-  automotive: "Automotive",
-  banking: "Banking",
-  "e-commerce": "E-Commerce",
-  education: "Education",
-  fintech: "Fintech",
-  fitness: "Fitness & Wellness",
-  government: "Government",
-  grocery: "Grocery",
-  healthcare: "Healthcare",
-  hospitality: "Hospitality",
-  insurance: "Insurance",
-  logistics: "Logistics",
-  luxury: "Luxury Goods",
-  media: "Media & Entertainment",
-  pharma: "Pharmaceuticals",
-  property_management: "Property Management",
-  real_estate: "Real Estate",
-  retail: "Retail",
-  saas: "SaaS",
-  telecommunications: "Telecom",
-  travel: "Travel & Tourism",
-  utilities: "Utilities",
-  wealth_management: "Wealth Management",
-}
+import { getIndustryLabelKey } from "@/lib/industries"
 
 export default function JourneyOverviewPage() {
+  const t = useTranslations()
   const params = useParams()
   const journeyId = params.id as string
   const { journey, isLoading, mutate } = useJourney(journeyId)
@@ -144,7 +120,7 @@ export default function JourneyOverviewPage() {
         />
         <Badge variant="outline" className="capitalize text-[10px]">{journey.type}</Badge>
         <Badge variant="secondary" className="text-[10px]">
-          {journey.category ? (categoryLabels[journey.category] || journey.category) : "No Category"}
+          {journey.category ? t(getIndustryLabelKey(journey.category)) : "No Category"}
         </Badge>
         <Badge variant="outline" className="capitalize text-[10px] text-muted-foreground">{journey.status}</Badge>
         {/* JDS-042: Visibility toggle */}

@@ -51,34 +51,8 @@ const typeLabels: Record<string, string> = {
   deployed: "Deployed",
 }
 
-const categoryLabels: Record<string, string> = {
-  airlines: "Airlines",
-  automotive: "Automotive",
-  banking: "Banking",
-  "e-commerce": "E-Commerce",
-  education: "Education",
-  fintech: "Fintech",
-  fitness: "Fitness & Wellness",
-  government: "Government",
-  grocery: "Grocery",
-  healthcare: "Healthcare",
-  hospitality: "Hospitality",
-  insurance: "Insurance",
-  logistics: "Logistics",
-  luxury: "Luxury Goods",
-  media: "Media & Entertainment",
-  pharma: "Pharmaceuticals",
-  property_management: "Property Management",
-  real_estate: "Real Estate",
-  retail: "Retail",
-  saas: "SaaS",
-  telecommunications: "Telecom",
-  travel: "Travel & Tourism",
-  utilities: "Utilities",
-  wealth_management: "Wealth Management",
-}
-
 import { getInitials } from "@/lib/utils"
+import { getIndustryLabelKey } from "@/lib/industries"
 
 export default function JourneyDetailLayout({
   children,
@@ -407,11 +381,11 @@ export default function JourneyDetailLayout({
                 <Badge variant="outline" className="text-[10px] font-medium">
                   {typeLabels[journey.type]}
                 </Badge>
-                {journey.category && (
-                  <Badge variant="secondary" className="text-[10px] font-medium">
-                    {categoryLabels[journey.category] || journey.category}
-                  </Badge>
-                )}
+{journey.category && (
+                <Badge variant="secondary" className="text-[10px] font-medium">
+                  {t(getIndustryLabelKey(journey.category))}
+                </Badge>
+              )}
                 <Badge variant="outline" className={`text-[10px] ${statusColors[journey.status]}`}>
                   {journey.status.replace("_", " ").replace(/\b\w/g, (l) => l.toUpperCase())}
                 </Badge>

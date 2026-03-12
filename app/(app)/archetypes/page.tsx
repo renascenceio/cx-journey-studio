@@ -70,7 +70,7 @@ import {
   GlobeIcon,
   type LucideIcon,
 } from "lucide-react"
-import { INDUSTRIES, industryLabels } from "@/lib/industries"
+import { INDUSTRIES } from "@/lib/industries"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import {
   Radar,
@@ -90,8 +90,6 @@ import { cn } from "@/lib/utils"
 
 // Use shared INDUSTRIES from lib/industries.ts
 const CATEGORIES = INDUSTRIES
-
-const categoryLabels = industryLabels
 
 const categoryColors: Record<string, string> = {
   "e-commerce": "bg-blue-100 text-blue-700 border-blue-200 dark:bg-blue-900/30 dark:text-blue-300 dark:border-blue-800",
@@ -374,7 +372,10 @@ export default function ArchetypesPage() {
                       }
                       return null
                     })()}
-                    {selectedCategory === "all" ? `${t("archetypes.allCategories")} (${allArchetypes.length})` : (categoryLabels[selectedCategory] || selectedCategory)}
+                    {selectedCategory === "all" ? `${t("archetypes.allCategories")} (${allArchetypes.length})` : ((() => {
+                  const cat = CATEGORIES.find(c => c.value === selectedCategory)
+                  return cat ? t(cat.labelKey) : selectedCategory
+                })())}
                   </span>
                   <ChevronDown className="h-3.5 w-3.5 opacity-50" />
                 </Button>
@@ -383,13 +384,13 @@ export default function ArchetypesPage() {
                 <div className="flex gap-4">
                   {(() => {
                     const allItems = [
-                      { value: "all", label: "All", icon: null as LucideIcon | null, count: allArchetypes.length },
+                      { value: "all", labelKey: "common.all", icon: null as LucideIcon | null, count: allArchetypes.length },
                       ...CATEGORIES.map(cat => ({
-                        value: cat.value,
-                        label: cat.label,
-                        icon: cat.icon as LucideIcon | null,
-                        count: allArchetypes.filter(a => a.category === cat.value).length
-                      }))
+                  value: cat.value,
+                  labelKey: cat.labelKey,
+                  icon: cat.icon as LucideIcon | null,
+                  count: allArchetypes.filter(a => a.category === cat.value).length
+                }))
                     ]
                     const columns: typeof allItems[] = []
                     for (let i = 0; i < allItems.length; i += 8) {
@@ -410,8 +411,8 @@ export default function ArchetypesPage() {
                                   : "hover:bg-muted"
                               )}
                             >
-                              {Icon && <Icon className="h-3.5 w-3.5 shrink-0" />}
-                              {item.label}{item.count > 0 ? ` (${item.count})` : ""}
+{Icon && <Icon className="h-3.5 w-3.5 shrink-0" />}
+                          {t(item.labelKey)}{item.count > 0 ? ` (${item.count})` : ""}
                             </button>
                           )
                         })}
@@ -498,9 +499,12 @@ export default function ArchetypesPage() {
                         </Tooltip>
                       </TooltipProvider>
                     )}
-                    <Badge variant="outline" className={cn("text-[9px] font-medium", categoryColors[archetype.category] || "bg-gray-100 text-gray-700")}>
-                      {categoryLabels[archetype.category] || archetype.category}
-                    </Badge>
+<Badge variant="outline" className={cn("text-[9px] font-medium", categoryColors[archetype.category] || "bg-gray-100 text-gray-700")}>
+                          {(() => {
+                            const cat = CATEGORIES.find(c => c.value === archetype.category)
+                            return cat ? t(cat.labelKey) : archetype.category
+                          })()}
+                        </Badge>
                   </div>
                 </div>
 
@@ -665,7 +669,10 @@ export default function ArchetypesPage() {
                 <div className="flex flex-col gap-4 border-b border-border px-5 pb-4 pt-6">
                   <SheetHeader className="space-y-0 text-left">
                     <Badge variant="outline" className={cn("w-fit text-[10px] font-medium mb-2", categoryColors[peekArchetype.category])}>
-                      {categoryLabels[peekArchetype.category]}
+                      {(() => {
+                        const cat = CATEGORIES.find(c => c.value === peekArchetype.category)
+                        return cat ? t(cat.labelKey) : peekArchetype.category
+                      })()}
                     </Badge>
                     <div className="flex items-center gap-3">
                       <Avatar className="h-11 w-11 shrink-0">

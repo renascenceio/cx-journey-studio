@@ -6,41 +6,42 @@ import {
 
 export interface Industry {
   value: string
-  label: string
+  labelKey: string // i18n key: industries.{value}
   icon: LucideIcon
 }
 
 // All industries sorted alphabetically with icons
+// Labels are now i18n keys: industries.{value}
 export const INDUSTRIES: Industry[] = [
-  { value: "airlines", label: "Airlines", icon: Plane },
-  { value: "automotive", label: "Automotive", icon: Car },
-  { value: "banking", label: "Banking", icon: Landmark },
-  { value: "e-commerce", label: "E-Commerce", icon: ShoppingCart },
-  { value: "education", label: "Education", icon: GraduationCap },
-  { value: "fintech", label: "Fintech", icon: Wallet },
-  { value: "fitness", label: "Fitness & Wellness", icon: Dumbbell },
-  { value: "government", label: "Government", icon: Building2 },
-  { value: "grocery", label: "Grocery", icon: Apple },
-  { value: "healthcare", label: "Healthcare", icon: Heart },
-  { value: "hospitality", label: "Hospitality", icon: Hotel },
-  { value: "insurance", label: "Insurance", icon: Shield },
-  { value: "logistics", label: "Logistics", icon: Truck },
-  { value: "luxury", label: "Luxury Goods", icon: Gem },
-  { value: "media", label: "Media & Entertainment", icon: Tv },
-  { value: "pharma", label: "Pharmaceuticals", icon: Pill },
-  { value: "property_management", label: "Property Management", icon: Building },
-  { value: "real_estate", label: "Real Estate", icon: Home },
-  { value: "retail", label: "Retail", icon: Store },
-  { value: "saas", label: "SaaS", icon: Cloud },
-  { value: "telecommunications", label: "Telecom", icon: Radio },
-  { value: "travel", label: "Travel & Tourism", icon: Globe },
-  { value: "utilities", label: "Utilities", icon: Zap },
-  { value: "wealth_management", label: "Wealth Management", icon: Briefcase },
+  { value: "airlines", labelKey: "industries.airlines", icon: Plane },
+  { value: "automotive", labelKey: "industries.automotive", icon: Car },
+  { value: "banking", labelKey: "industries.banking", icon: Landmark },
+  { value: "e-commerce", labelKey: "industries.ecommerce", icon: ShoppingCart },
+  { value: "education", labelKey: "industries.education", icon: GraduationCap },
+  { value: "fintech", labelKey: "industries.fintech", icon: Wallet },
+  { value: "fitness", labelKey: "industries.fitness", icon: Dumbbell },
+  { value: "government", labelKey: "industries.government", icon: Building2 },
+  { value: "grocery", labelKey: "industries.grocery", icon: Apple },
+  { value: "healthcare", labelKey: "industries.healthcare", icon: Heart },
+  { value: "hospitality", labelKey: "industries.hospitality", icon: Hotel },
+  { value: "insurance", labelKey: "industries.insurance", icon: Shield },
+  { value: "logistics", labelKey: "industries.logistics", icon: Truck },
+  { value: "luxury", labelKey: "industries.luxury", icon: Gem },
+  { value: "media", labelKey: "industries.media", icon: Tv },
+  { value: "pharma", labelKey: "industries.pharma", icon: Pill },
+  { value: "property_management", labelKey: "industries.propertyManagement", icon: Building },
+  { value: "real_estate", labelKey: "industries.realEstate", icon: Home },
+  { value: "retail", labelKey: "industries.retail", icon: Store },
+  { value: "saas", labelKey: "industries.saas", icon: Cloud },
+  { value: "telecommunications", labelKey: "industries.telecom", icon: Radio },
+  { value: "travel", labelKey: "industries.travel", icon: Globe },
+  { value: "utilities", labelKey: "industries.utilities", icon: Zap },
+  { value: "wealth_management", labelKey: "industries.wealthManagement", icon: Briefcase },
 ]
 
-// Quick lookup for label by value
-export const industryLabels: Record<string, string> = Object.fromEntries(
-  INDUSTRIES.map(i => [i.value, i.label])
+// Quick lookup for labelKey by value
+export const industryLabelKeys: Record<string, string> = Object.fromEntries(
+  INDUSTRIES.map(i => [i.value, i.labelKey])
 )
 
 // Quick lookup for icon by value
@@ -48,15 +49,13 @@ export const industryIcons: Record<string, LucideIcon> = Object.fromEntries(
   INDUSTRIES.map(i => [i.value, i.icon])
 )
 
-// Helper function to format an industry value to display label
-export function formatIndustry(value: string | undefined | null): string {
+// Helper function to get i18n key for an industry value
+export function getIndustryLabelKey(value: string | undefined | null): string {
   if (!value) return ""
   // Check if it's a known industry value
-  if (industryLabels[value]) return industryLabels[value]
-  // Otherwise, convert snake_case/kebab-case to Title Case
-  return value
-    .replace(/[-_]/g, " ")
-    .replace(/\b\w/g, c => c.toUpperCase())
+  if (industryLabelKeys[value]) return industryLabelKeys[value]
+  // Otherwise, return a dynamic key
+  return `industries.${value.replace(/[-_]/g, "")}`
 }
 
 // Get icon component for an industry

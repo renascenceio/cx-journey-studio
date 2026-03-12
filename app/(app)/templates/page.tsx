@@ -27,7 +27,7 @@ import { useAuth } from "@/lib/auth-provider"
 import { createJourney, addStage, addStep } from "@/lib/actions/data"
 import { useRouter } from "next/navigation"
 import { cn } from "@/lib/utils"
-import { INDUSTRIES, industryLabels } from "@/lib/industries"
+import { INDUSTRIES } from "@/lib/industries"
 
 interface JourneyTemplate {
   id: string
@@ -40,7 +40,6 @@ interface JourneyTemplate {
 
 // Use shared INDUSTRIES from lib/industries.ts
 const CATEGORIES = INDUSTRIES
-const categoryLabels = industryLabels
 
 export default function TemplatesPage() {
   const t = useTranslations()
@@ -231,7 +230,7 @@ export default function TemplatesPage() {
                         const cat = CATEGORIES.find(c => c.value === aiIndustry)
                         if (cat) {
                           const Icon = cat.icon
-                          return <><Icon className="h-3.5 w-3.5" />{cat.label}</>
+                          return <><Icon className="h-3.5 w-3.5" />{t(cat.labelKey)}</>
                         }
                         return "Select industry..."
                       })()}
@@ -262,7 +261,7 @@ export default function TemplatesPage() {
                                 )}
                               >
                                 <Icon className="h-3.5 w-3.5 shrink-0" />
-                                {cat.label}
+                                {t(cat.labelKey)}
                               </button>
                             )
                           })}
@@ -329,7 +328,7 @@ export default function TemplatesPage() {
                   const cat = CATEGORIES.find(c => c.value === selectedCategory)
                   if (cat) {
                     const Icon = cat.icon
-                    return <><Icon className="h-3.5 w-3.5" />{cat.label}</>
+                    return <><Icon className="h-3.5 w-3.5" />{t(cat.labelKey)}</>
                   }
                   return selectedCategory
                 })()}
@@ -341,10 +340,10 @@ export default function TemplatesPage() {
             <div className="flex gap-4">
               {(() => {
                 const allItems = [
-                  { value: "all", label: "All", icon: null as LucideIcon | null, count: templates.length },
+                  { value: "all", labelKey: "common.all", icon: null as LucideIcon | null, count: templates.length },
                   ...CATEGORIES.map(cat => ({
                     value: cat.value,
-                    label: cat.label,
+                    labelKey: cat.labelKey,
                     icon: cat.icon as LucideIcon | null,
                     count: templates.filter(t => t.category === cat.value).length
                   }))
@@ -369,7 +368,7 @@ export default function TemplatesPage() {
                           )}
                         >
                           {Icon && <Icon className="h-3.5 w-3.5 shrink-0" />}
-                          {item.label}{item.count > 0 ? ` (${item.count})` : ""}
+                          {t(item.labelKey)}{item.count > 0 ? ` (${item.count})` : ""}
                         </button>
                       )
                     })}
