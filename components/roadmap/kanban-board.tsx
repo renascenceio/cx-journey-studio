@@ -1,7 +1,6 @@
 "use client"
 
 import { useState, useCallback } from "react"
-import { useTranslations } from "next-intl"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -54,7 +53,6 @@ const statusConfig: Record<string, { label: string; color: string; bgColor: stri
 const STATUSES = ["planned", "in_progress", "pending_approval", "completed", "on_hold"] as const
 
 export function KanbanBoard({ initiatives, onStatusChange, onEdit, onDelete, canEdit }: KanbanBoardProps) {
-  const t = useTranslations()
   const [draggedId, setDraggedId] = useState<string | null>(null)
   const [dragOverColumn, setDragOverColumn] = useState<string | null>(null)
 

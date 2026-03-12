@@ -1,7 +1,6 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { useTranslations } from "next-intl"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -45,7 +44,6 @@ interface FinanceData {
 const COLORS = ["#10b981", "#3b82f6", "#8b5cf6", "#f59e0b", "#ef4444"]
 
 export default function AdminFinancePage() {
-  const t = useTranslations("admin")
   const [data, setData] = useState<FinanceData | null>(null)
   const [loading, setLoading] = useState(true)
   const [period, setPeriod] = useState("30d")
@@ -58,7 +56,7 @@ export default function AdminFinancePage() {
       const json = await res.json()
       setData(json)
     } catch {
-      toast.error(t("financeLoadError"))
+      toast.error("Failed to load finance data")
     } finally {
       setLoading(false)
     }
@@ -114,8 +112,8 @@ export default function AdminFinancePage() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-semibold text-foreground">{t("financeTitle")}</h1>
-          <p className="text-sm text-muted-foreground">{t("financeDesc")}</p>
+          <h1 className="text-2xl font-semibold text-foreground">Finance & Revenue</h1>
+          <p className="text-sm text-muted-foreground">Track revenue, transactions, and financial metrics</p>
         </div>
         <div className="flex items-center gap-2">
           <Select value={period} onValueChange={setPeriod}>
@@ -143,7 +141,7 @@ export default function AdminFinancePage() {
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium">{t("totalRevenue")}</CardTitle>
+            <CardTitle className="text-sm font-medium">Total Revenue</CardTitle>
             <DollarSign className="h-4 w-4 text-green-500" />
           </CardHeader>
           <CardContent>
@@ -164,29 +162,27 @@ export default function AdminFinancePage() {
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium">{t("mrr")}</CardTitle>
-            <PiggyBank className="h-4 w-4 text-blue-500" />
+<CardTitle className="text-sm font-medium">MRR</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">${data?.overview.mrr.toFixed(2) || "0.00"}</div>
-            <p className="text-xs text-muted-foreground">{t("monthlyRecurring")}</p>
+            <p className="text-xs text-muted-foreground">Monthly Recurring Revenue</p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium">{t("arpu")}</CardTitle>
-            <Wallet className="h-4 w-4 text-purple-500" />
+<CardTitle className="text-sm font-medium">ARPU</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">${data?.overview.arpu.toFixed(2) || "0.00"}</div>
-            <p className="text-xs text-muted-foreground">{t("avgRevenuePerUser")}</p>
+            <p className="text-xs text-muted-foreground">Average Revenue Per User</p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium">{t("transactions")}</CardTitle>
+            <CardTitle className="text-sm font-medium">Transactions</CardTitle>
             <Receipt className="h-4 w-4 text-orange-500" />
           </CardHeader>
           <CardContent>
@@ -199,16 +195,16 @@ export default function AdminFinancePage() {
       {/* Charts */}
       <Tabs defaultValue="revenue" className="space-y-4">
         <TabsList>
-          <TabsTrigger value="revenue">{t("revenueTrend")}</TabsTrigger>
-          <TabsTrigger value="products">{t("revenueByProduct")}</TabsTrigger>
-          <TabsTrigger value="plans">{t("subscriptions")}</TabsTrigger>
+          <TabsTrigger value="revenue">Revenue Trend</TabsTrigger>
+          <TabsTrigger value="products">By Product</TabsTrigger>
+          <TabsTrigger value="plans">Subscriptions</TabsTrigger>
         </TabsList>
 
         <TabsContent value="revenue">
           <Card>
             <CardHeader>
-              <CardTitle>{t("revenueTrend")}</CardTitle>
-              <CardDescription>{t("revenueTrendDesc")}</CardDescription>
+              <CardTitle>Revenue Trend</CardTitle>
+              <CardDescription>Revenue performance over time</CardDescription>
             </CardHeader>
             <CardContent>
               <ChartContainer config={chartConfig} className="h-80">
@@ -240,8 +236,8 @@ export default function AdminFinancePage() {
         <TabsContent value="products">
           <Card>
             <CardHeader>
-              <CardTitle>{t("revenueByProduct")}</CardTitle>
-              <CardDescription>{t("revenueByProductDesc")}</CardDescription>
+              <CardTitle>Revenue by Product</CardTitle>
+              <CardDescription>Revenue distribution by product type</CardDescription>
             </CardHeader>
             <CardContent>
               <div className="flex flex-col md:flex-row gap-8 items-center">
@@ -282,8 +278,8 @@ export default function AdminFinancePage() {
         <TabsContent value="plans">
           <Card>
             <CardHeader>
-              <CardTitle>{t("subscriptions")}</CardTitle>
-              <CardDescription>{t("subscriptionsDesc")}</CardDescription>
+              <CardTitle>Subscriptions</CardTitle>
+              <CardDescription>User distribution and MRR by plan</CardDescription>
             </CardHeader>
             <CardContent>
               <ChartContainer config={chartConfig} className="h-64">
@@ -311,26 +307,26 @@ export default function AdminFinancePage() {
       {/* Recent Transactions */}
       <Card>
         <CardHeader>
-          <CardTitle>{t("recentTransactions")}</CardTitle>
-          <CardDescription>{t("recentTransactionsDesc")}</CardDescription>
+          <CardTitle>Recent Transactions</CardTitle>
+          <CardDescription>Latest credit purchases and transactions</CardDescription>
         </CardHeader>
         <CardContent>
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>{t("date")}</TableHead>
-                <TableHead>{t("user")}</TableHead>
-                <TableHead>{t("type")}</TableHead>
-                <TableHead>{t("description")}</TableHead>
-                <TableHead className="text-right">{t("credits")}</TableHead>
-                <TableHead className="text-right">{t("amount")}</TableHead>
+                <TableHead>Date</TableHead>
+                <TableHead>User</TableHead>
+                <TableHead>Type</TableHead>
+                <TableHead>Description</TableHead>
+                <TableHead className="text-right">Credits</TableHead>
+                <TableHead className="text-right">Amount</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {data?.recentTransactions.length === 0 ? (
                 <TableRow>
                   <TableCell colSpan={6} className="text-center text-muted-foreground py-8">
-                    {t("noTransactions")}
+                    No transactions found
                   </TableCell>
                 </TableRow>
               ) : (

@@ -1,7 +1,6 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { useTranslations } from "next-intl"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -96,7 +95,6 @@ const PLAN_COLORS: Record<string, string> = {
 }
 
 export default function AdminAnalyticsPage() {
-  const t = useTranslations("admin")
   const [data, setData] = useState<AnalyticsData | null>(null)
   const [loading, setLoading] = useState(true)
   const [range, setRange] = useState("30d")
@@ -180,7 +178,7 @@ export default function AdminAnalyticsPage() {
     return (
       <Card className="border-dashed">
         <CardContent className="py-12 text-center">
-          <p className="text-muted-foreground">{t("analyticsLoadError")}</p>
+          <p className="text-muted-foreground">Failed to load analytics data</p>
           <Button variant="outline" className="mt-4" onClick={handleRefresh}>
             Try Again
           </Button>
@@ -205,8 +203,8 @@ export default function AdminAnalyticsPage() {
       {/* Header */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight">{t("analyticsTitle")}</h1>
-          <p className="text-sm text-muted-foreground">{t("analyticsDesc")}</p>
+          <h1 className="text-2xl font-bold tracking-tight">Platform Analytics</h1>
+          <p className="text-sm text-muted-foreground">Platform metrics and insights</p>
         </div>
         <div className="flex items-center gap-2">
           <Select value={range} onValueChange={setRange}>
@@ -235,10 +233,10 @@ export default function AdminAnalyticsPage() {
           <CardContent className="pt-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-muted-foreground">{t("totalUsers")}</p>
+                <p className="text-sm text-muted-foreground">Total Users</p>
                 <p className="text-3xl font-bold">{data.users.total.toLocaleString()}</p>
                 <p className="text-xs text-muted-foreground mt-1">
-                  +{data.users.newInPeriod} {t("inPeriod")}
+                  +{data.users.newInPeriod} this period
                 </p>
               </div>
               <div className="flex h-12 w-12 items-center justify-center rounded-full bg-blue-100">
@@ -258,10 +256,10 @@ export default function AdminAnalyticsPage() {
           <CardContent className="pt-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-muted-foreground">{t("totalJourneys")}</p>
+                <p className="text-sm text-muted-foreground">Total Journeys</p>
                 <p className="text-3xl font-bold">{data.content.journeys.total.toLocaleString()}</p>
                 <p className="text-xs text-muted-foreground mt-1">
-                  +{data.content.journeys.newInPeriod} {t("inPeriod")}
+                  +{data.content.journeys.newInPeriod} this period
                 </p>
               </div>
               <div className="flex h-12 w-12 items-center justify-center rounded-full bg-purple-100">
@@ -275,10 +273,10 @@ export default function AdminAnalyticsPage() {
           <CardContent className="pt-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-muted-foreground">{t("aiGenerations")}</p>
+                <p className="text-sm text-muted-foreground">AI Generations</p>
                 <p className="text-3xl font-bold">{data.engagement.aiGenerations.toLocaleString()}</p>
                 <p className="text-xs text-muted-foreground mt-1">
-                  {data.engagement.aiGeneratedContent} {t("aiContent")}
+                  {data.engagement.aiGeneratedContent} AI-generated items
                 </p>
               </div>
               <div className="flex h-12 w-12 items-center justify-center rounded-full bg-amber-100">
@@ -292,10 +290,10 @@ export default function AdminAnalyticsPage() {
           <CardContent className="pt-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-muted-foreground">{t("activeUsers")}</p>
+                <p className="text-sm text-muted-foreground">Active Users</p>
                 <p className="text-3xl font-bold">{data.users.activeInPeriod.toLocaleString()}</p>
                 <p className="text-xs text-muted-foreground mt-1">
-                  {Math.round((data.users.activeInPeriod / data.users.total) * 100)}% {t("ofTotal")}
+                  {Math.round((data.users.activeInPeriod / data.users.total) * 100)}% of total
                 </p>
               </div>
               <div className="flex h-12 w-12 items-center justify-center rounded-full bg-green-100">
@@ -309,10 +307,10 @@ export default function AdminAnalyticsPage() {
       {/* Charts */}
       <Tabs defaultValue="growth" className="space-y-4">
         <TabsList>
-          <TabsTrigger value="growth">{t("growth")}</TabsTrigger>
-          <TabsTrigger value="users">{t("users")}</TabsTrigger>
-          <TabsTrigger value="content">{t("content")}</TabsTrigger>
-          <TabsTrigger value="platform">{t("platform")}</TabsTrigger>
+          <TabsTrigger value="growth">Growth</TabsTrigger>
+          <TabsTrigger value="users">Users</TabsTrigger>
+          <TabsTrigger value="content">Content</TabsTrigger>
+          <TabsTrigger value="platform">Platform</TabsTrigger>
         </TabsList>
 
         <TabsContent value="growth" className="space-y-4">
@@ -320,8 +318,8 @@ export default function AdminAnalyticsPage() {
             {/* Signups Trend */}
             <Card>
               <CardHeader>
-                <CardTitle className="text-base">{t("signupTrend")}</CardTitle>
-                <CardDescription>{t("signupTrendDesc")}</CardDescription>
+                <CardTitle className="text-base">User Signups</CardTitle>
+                <CardDescription>New user registrations over time</CardDescription>
               </CardHeader>
               <CardContent>
                 <ChartContainer
@@ -366,8 +364,8 @@ export default function AdminAnalyticsPage() {
             {/* Journeys Created Trend */}
             <Card>
               <CardHeader>
-                <CardTitle className="text-base">{t("journeyTrend")}</CardTitle>
-                <CardDescription>{t("journeyTrendDesc")}</CardDescription>
+                <CardTitle className="text-base">Journeys Created</CardTitle>
+                <CardDescription>New journey creations over time</CardDescription>
               </CardHeader>
               <CardContent>
                 <ChartContainer
@@ -416,8 +414,8 @@ export default function AdminAnalyticsPage() {
             {/* Users by Plan */}
             <Card>
               <CardHeader>
-                <CardTitle className="text-base">{t("usersByPlan")}</CardTitle>
-                <CardDescription>{t("usersByPlanDesc")}</CardDescription>
+                <CardTitle className="text-base">Users by Plan</CardTitle>
+                <CardDescription>Distribution of users across subscription tiers</CardDescription>
               </CardHeader>
               <CardContent>
                 <ChartContainer
@@ -452,23 +450,23 @@ export default function AdminAnalyticsPage() {
             {/* User Metrics */}
             <Card>
               <CardHeader>
-                <CardTitle className="text-base">{t("userMetrics")}</CardTitle>
+                <CardTitle className="text-base">User Metrics</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="flex items-center justify-between p-3 rounded-lg bg-muted/50">
-                  <span className="text-sm">{t("totalRegistered")}</span>
+                  <span className="text-sm">Total Registered</span>
                   <span className="font-bold">{data.users.total.toLocaleString()}</span>
                 </div>
                 <div className="flex items-center justify-between p-3 rounded-lg bg-muted/50">
-                  <span className="text-sm">{t("activeInPeriod")}</span>
+                  <span className="text-sm">Active in Period</span>
                   <span className="font-bold">{data.users.activeInPeriod.toLocaleString()}</span>
                 </div>
                 <div className="flex items-center justify-between p-3 rounded-lg bg-muted/50">
-                  <span className="text-sm">{t("newInPeriod")}</span>
+                  <span className="text-sm">New in Period</span>
                   <span className="font-bold text-green-600">+{data.users.newInPeriod.toLocaleString()}</span>
                 </div>
                 <div className="flex items-center justify-between p-3 rounded-lg bg-muted/50">
-                  <span className="text-sm">{t("activationRate")}</span>
+                  <span className="text-sm">Activation Rate</span>
                   <span className="font-bold">
                     {Math.round((data.users.activeInPeriod / data.users.total) * 100)}%
                   </span>
@@ -483,7 +481,7 @@ export default function AdminAnalyticsPage() {
             {/* Journeys by Type */}
             <Card>
               <CardHeader>
-                <CardTitle className="text-base">{t("journeysByType")}</CardTitle>
+                <CardTitle className="text-base">Journeys by Type</CardTitle>
               </CardHeader>
               <CardContent>
                 <ChartContainer
@@ -508,41 +506,41 @@ export default function AdminAnalyticsPage() {
             {/* Content Depth */}
             <Card>
               <CardHeader>
-                <CardTitle className="text-base">{t("contentDepth")}</CardTitle>
+                <CardTitle className="text-base">Content Overview</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="flex items-center justify-between p-3 rounded-lg bg-muted/50">
                   <div className="flex items-center gap-2">
                     <Map className="h-4 w-4 text-muted-foreground" />
-                    <span className="text-sm">{t("journeys")}</span>
+                    <span className="text-sm">Journeys</span>
                   </div>
                   <span className="font-bold">{data.content.journeys.total.toLocaleString()}</span>
                 </div>
                 <div className="flex items-center justify-between p-3 rounded-lg bg-muted/50">
                   <div className="flex items-center gap-2">
                     <Layers className="h-4 w-4 text-muted-foreground" />
-                    <span className="text-sm">{t("stages")}</span>
+                    <span className="text-sm">Stages</span>
                   </div>
                   <span className="font-bold">{data.content.stages.toLocaleString()}</span>
                 </div>
                 <div className="flex items-center justify-between p-3 rounded-lg bg-muted/50">
                   <div className="flex items-center gap-2">
                     <FileText className="h-4 w-4 text-muted-foreground" />
-                    <span className="text-sm">{t("touchpoints")}</span>
+                    <span className="text-sm">Touchpoints</span>
                   </div>
                   <span className="font-bold">{data.content.touchpoints.toLocaleString()}</span>
                 </div>
                 <div className="flex items-center justify-between p-3 rounded-lg bg-muted/50">
                   <div className="flex items-center gap-2">
                     <Users className="h-4 w-4 text-muted-foreground" />
-                    <span className="text-sm">{t("archetypes")}</span>
+                    <span className="text-sm">Archetypes</span>
                   </div>
                   <span className="font-bold">{data.content.archetypes.toLocaleString()}</span>
                 </div>
                 <div className="flex items-center justify-between p-3 rounded-lg bg-muted/50">
                   <div className="flex items-center gap-2">
                     <Sparkles className="h-4 w-4 text-muted-foreground" />
-                    <span className="text-sm">{t("solutions")}</span>
+                    <span className="text-sm">Solutions</span>
                   </div>
                   <span className="font-bold">{data.content.solutions.toLocaleString()}</span>
                 </div>
@@ -561,7 +559,7 @@ export default function AdminAnalyticsPage() {
                   </div>
                   <div>
                     <p className="text-2xl font-bold">{data.platform.workspaces}</p>
-                    <p className="text-xs text-muted-foreground">{t("workspaces")}</p>
+                    <p className="text-xs text-muted-foreground">Workspaces</p>
                   </div>
                 </div>
               </CardContent>
@@ -575,7 +573,7 @@ export default function AdminAnalyticsPage() {
                   </div>
                   <div>
                     <p className="text-2xl font-bold">{data.platform.templates}</p>
-                    <p className="text-xs text-muted-foreground">{t("templates")}</p>
+                    <p className="text-xs text-muted-foreground">Templates</p>
                   </div>
                 </div>
               </CardContent>
@@ -589,7 +587,7 @@ export default function AdminAnalyticsPage() {
                   </div>
                   <div>
                     <p className="text-2xl font-bold">{data.content.journeys.public}</p>
-                    <p className="text-xs text-muted-foreground">{t("publicJourneys")}</p>
+                    <p className="text-xs text-muted-foreground">Public Journeys</p>
                   </div>
                 </div>
               </CardContent>
@@ -599,31 +597,31 @@ export default function AdminAnalyticsPage() {
           {/* Platform Summary */}
           <Card>
             <CardHeader>
-              <CardTitle className="text-base">{t("platformSummary")}</CardTitle>
+              <CardTitle className="text-base">Platform Summary</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
                 <div className="text-center p-4 rounded-lg bg-muted/30">
                   <p className="text-3xl font-bold text-primary">{data.engagement.avgJourneyDepth}</p>
-                  <p className="text-xs text-muted-foreground mt-1">{t("avgStagesPerJourney")}</p>
+                  <p className="text-xs text-muted-foreground mt-1">Avg Stages / Journey</p>
                 </div>
                 <div className="text-center p-4 rounded-lg bg-muted/30">
                   <p className="text-3xl font-bold text-primary">
                     {data.content.journeys.total ? Math.round(data.content.touchpoints / data.content.journeys.total) : 0}
                   </p>
-                  <p className="text-xs text-muted-foreground mt-1">{t("avgTouchpointsPerJourney")}</p>
+                  <p className="text-xs text-muted-foreground mt-1">Avg Touchpoints / Journey</p>
                 </div>
                 <div className="text-center p-4 rounded-lg bg-muted/30">
                   <p className="text-3xl font-bold text-primary">
                     {Math.round((data.content.journeys.public / (data.content.journeys.total || 1)) * 100)}%
                   </p>
-                  <p className="text-xs text-muted-foreground mt-1">{t("publicVisibility")}</p>
+                  <p className="text-xs text-muted-foreground mt-1">Public Visibility</p>
                 </div>
                 <div className="text-center p-4 rounded-lg bg-muted/30">
                   <p className="text-3xl font-bold text-primary">
                     {data.content.touchpoints ? Math.round((data.engagement.aiGeneratedContent / data.content.touchpoints) * 100) : 0}%
                   </p>
-                  <p className="text-xs text-muted-foreground mt-1">{t("aiGeneratedRatio")}</p>
+                  <p className="text-xs text-muted-foreground mt-1">AI-Generated Content</p>
                 </div>
               </div>
             </CardContent>

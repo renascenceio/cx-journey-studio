@@ -1,7 +1,6 @@
 "use client"
 
 import { useState, useMemo } from "react"
-import { useTranslations } from "next-intl"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -48,7 +47,6 @@ const statusConfig: Record<string, { color: string; bgColor: string; icon: typeo
 type ViewMode = "month" | "quarter"
 
 export function TimelineView({ initiatives, onEdit }: TimelineViewProps) {
-  const t = useTranslations()
   const [viewMode, setViewMode] = useState<ViewMode>("month")
   const [currentDate, setCurrentDate] = useState(new Date())
 
@@ -189,7 +187,7 @@ export function TimelineView({ initiatives, onEdit }: TimelineViewProps) {
             className="h-7 text-xs"
             onClick={() => setViewMode("month")}
           >
-            {t("roadmap.timeline.month")}
+            Month
           </Button>
           <Button
             variant={viewMode === "quarter" ? "default" : "outline"}
@@ -197,7 +195,7 @@ export function TimelineView({ initiatives, onEdit }: TimelineViewProps) {
             className="h-7 text-xs"
             onClick={() => setViewMode("quarter")}
           >
-            {t("roadmap.timeline.quarter")}
+            Quarter
           </Button>
         </div>
       </div>
@@ -248,7 +246,7 @@ export function TimelineView({ initiatives, onEdit }: TimelineViewProps) {
             <div className="flex flex-col items-center justify-center py-12 text-center">
               <Calendar className="h-8 w-8 text-muted-foreground/50 mb-2" />
               <p className="text-sm text-muted-foreground">
-                {t("roadmap.timeline.noDateRange")}
+                No initiatives with date range set. Add start and end dates to see them here.
               </p>
             </div>
           ) : (
