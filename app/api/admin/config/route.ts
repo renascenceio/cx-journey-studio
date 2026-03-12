@@ -71,7 +71,7 @@ export async function PATCH(req: Request) {
   // Map incoming fields to config keys
   const generalFields = ["site_name", "site_description", "support_email"]
   const featureFields = ["enable_signups", "enable_ai", "enable_crowd_solutions", "maintenance_mode"]
-  const billingFields = ["registration_cost", "stripe_publishable_key", "stripe_secret_key"]
+  const billingFields = ["registration_cost", "stripe_publishable_key", "stripe_secret_key", "ai_credit_fee_percentage"]
   const brandingFields = ["primary_color", "custom_css", "max_journeys_per_user"]
   const apiKeyFields = ["openai_key"]
   const soundFields = ["sounds_config"]

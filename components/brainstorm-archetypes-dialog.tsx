@@ -42,6 +42,7 @@ import {
 import { cn } from "@/lib/utils"
 import { INDUSTRIES } from "@/lib/industries"
 import { AILanguageSelector, useAILanguage, AI_LANGUAGES } from "@/components/ai-language-selector"
+import { AIModelSelector, useAIModel } from "@/components/ai-model-selector"
 
 // Use shared INDUSTRIES from lib/industries.ts
 const CATEGORIES = INDUSTRIES
@@ -98,6 +99,8 @@ export function BrainstormArchetypesDialog({ children, onArchetypesCreated }: Br
   
   // AI Language state
   const { language: aiLanguage, setLanguage: setAiLanguage, getPromptPrefix } = useAILanguage(context)
+  // AI Model state (B15)
+  const { modelId: aiModelId, setModelId: setAiModelId, estimatedCredits } = useAIModel()
   
   // Ideas state
   const [ideas, setIdeas] = useState<ArchetypeIdea[]>([])
@@ -119,13 +122,14 @@ export function BrainstormArchetypesDialog({ children, onArchetypesCreated }: Br
         method: "POST",
         headers: { "Content-Type": "application/json" },
 body: JSON.stringify({
-  category,
-  context,
-  targetAudience,
-  count: 9,
-  language: aiLanguage,
-  languagePromptPrefix: getPromptPrefix(),
-  }),
+          category,
+          context,
+          targetAudience,
+          count: 9,
+          language: aiLanguage,
+          languagePromptPrefix: getPromptPrefix(),
+          modelId: aiModelId,
+        }),
       })
       
       if (!res.ok) {
@@ -364,6 +368,12 @@ if (cat) {
                   {t("ai.generationLanguageDesc")}
                 </p>
               </div>
+              
+              <AIModelSelector
+                value={aiModelId}
+                onChange={setAiModelId}
+                showCostEstimate={true}
+              />
             </div>
           )}
           

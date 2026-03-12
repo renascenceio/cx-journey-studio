@@ -7,6 +7,13 @@ const anthropic = createAnthropic({
   apiKey: process.env.ANTHROPIC_API_KEY,
 })
 
+// B15: Map model IDs to Anthropic model identifiers
+const MODEL_MAP: Record<string, string> = {
+  "claude-haiku-4.5": "claude-3-5-haiku-20241022",
+  "claude-sonnet-4.5": "claude-sonnet-4-20250514",
+  "claude-opus-4.6": "claude-3-opus-20240229",
+}
+
 const ideaSchema = z.object({
   name: z.string().describe("Short evocative archetype title like 'Home, Sweet Home', 'Time is Money' - NOT a personal name"),
   subtitle: z.string().describe("Latin-inspired motto, e.g., 'Familia Ante Omnia (Family Over All)'"),
@@ -23,14 +30,17 @@ export const maxDuration = 60
 
 export async function POST(request: Request) {
   try {
-    const { category, context, targetAudience, count = 9 } = await request.json()
+    const { category, context, targetAudience, count = 9, modelId } = await request.json()
 
     if (!category) {
       return NextResponse.json({ error: "Category is required" }, { status: 400 })
     }
 
+    // B15: Use selected model or default to Sonnet
+    const anthropicModel = MODEL_MAP[modelId] || MODEL_MAP["claude-sonnet-4.5"]
+
     const { output } = await generateText({
-      model: anthropic("claude-sonnet-4-20250514"),
+      model: anthropic(anthropicModel),
       output: Output.object({ schema: brainstormSchema }),
       system: `You are a CX strategist brainstorming customer archetype ideas.
 

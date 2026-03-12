@@ -9,7 +9,7 @@ import { Badge } from "@/components/ui/badge"
 import { Switch } from "@/components/ui/switch"
 import { Separator } from "@/components/ui/separator"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { CreditCard, DollarSign, Zap, Users, AlertCircle, Check, X, Infinity, TestTube, Sparkles } from "lucide-react"
+import { CreditCard, DollarSign, Zap, Users, AlertCircle, Check, X, Infinity, TestTube, Sparkles, Percent } from "lucide-react"
 import { toast } from "sonner"
 import useSWR, { mutate as swrMutate } from "swr"
 
@@ -276,6 +276,46 @@ async function handleSaveRegCost() {
         </CardContent>
       </Card>
 
+      {/* B13: AI Credit Fee Control */}
+      <Card className="border-border/60">
+        <CardHeader>
+          <div className="flex items-center gap-2">
+            <Percent className="h-5 w-5 text-green-500" />
+            <CardTitle className="text-base">{t("admin.aiCreditFee")}</CardTitle>
+          </div>
+          <CardDescription>{t("admin.aiCreditFeeDesc")}</CardDescription>
+        </CardHeader>
+        <CardContent className="flex flex-col gap-4">
+          <div className="flex items-center gap-4 max-w-md">
+            <div className="flex-1">
+              <Label htmlFor="fee-percent">{t("admin.markupPercent")}</Label>
+              <div className="flex items-center gap-2 mt-1">
+                <Input 
+                  id="fee-percent" 
+                  type="number" 
+                  min={0} 
+                  max={100}
+                  step={1} 
+                  value={aiCreditFeePercent} 
+                  onChange={(e) => setAiCreditFeePercent(parseFloat(e.target.value) || 0)} 
+                  className="w-24"
+                />
+                <span className="text-muted-foreground">%</span>
+              </div>
+            </div>
+            <Button onClick={handleSaveFeePercent} disabled={saving} className="self-end">
+              {saving ? "Saving..." : "Update"}
+            </Button>
+          </div>
+          <div className="rounded-lg bg-muted/50 p-3 text-sm">
+            <p className="font-medium text-foreground">{t("admin.priceExample")}</p>
+            <p className="text-muted-foreground mt-1">
+              {t("admin.baseCost")}: $10.00 + {aiCreditFeePercent}% = <strong>${getDisplayPrice(10).toFixed(2)}</strong> {t("admin.displayPrice")}
+            </p>
+          </div>
+        </CardContent>
+      </Card>
+
       {/* AI Credits Pricing */}
       <Card className="border-border/60">
         <CardHeader>
@@ -283,39 +323,39 @@ async function handleSaveRegCost() {
             <Sparkles className="h-5 w-5 text-blue-500" />
             <CardTitle className="text-base">AI Credits Pricing</CardTitle>
           </div>
-          <CardDescription>Configure the cost per credit bundle for top-ups</CardDescription>
+          <CardDescription>Configure the cost per credit bundle for top-ups (includes {aiCreditFeePercent}% markup)</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-4">
             <div className="rounded-lg border p-4 text-center">
               <p className="text-2xl font-bold text-foreground">100</p>
               <p className="text-xs text-muted-foreground">credits</p>
-              <p className="mt-2 text-lg font-semibold text-primary">$5</p>
-              <p className="text-xs text-muted-foreground">$0.05/credit</p>
+              <p className="mt-2 text-lg font-semibold text-primary">${getDisplayPrice(5).toFixed(2)}</p>
+              <p className="text-xs text-muted-foreground">${(getDisplayPrice(5) / 100).toFixed(3)}/credit</p>
             </div>
             <div className="rounded-lg border p-4 text-center">
               <p className="text-2xl font-bold text-foreground">500</p>
               <p className="text-xs text-muted-foreground">credits</p>
-              <p className="mt-2 text-lg font-semibold text-primary">$20</p>
-              <p className="text-xs text-muted-foreground">$0.04/credit</p>
+              <p className="mt-2 text-lg font-semibold text-primary">${getDisplayPrice(20).toFixed(2)}</p>
+              <p className="text-xs text-muted-foreground">${(getDisplayPrice(20) / 500).toFixed(3)}/credit</p>
             </div>
             <div className="rounded-lg border p-4 text-center border-primary">
               <Badge className="mb-2" variant="default">Popular</Badge>
               <p className="text-2xl font-bold text-foreground">1,000</p>
               <p className="text-xs text-muted-foreground">credits</p>
-              <p className="mt-2 text-lg font-semibold text-primary">$35</p>
-              <p className="text-xs text-muted-foreground">$0.035/credit</p>
+              <p className="mt-2 text-lg font-semibold text-primary">${getDisplayPrice(35).toFixed(2)}</p>
+              <p className="text-xs text-muted-foreground">${(getDisplayPrice(35) / 1000).toFixed(4)}/credit</p>
             </div>
             <div className="rounded-lg border p-4 text-center">
               <p className="text-2xl font-bold text-foreground">5,000</p>
               <p className="text-xs text-muted-foreground">credits</p>
-              <p className="mt-2 text-lg font-semibold text-primary">$150</p>
-              <p className="text-xs text-muted-foreground">$0.03/credit</p>
+              <p className="mt-2 text-lg font-semibold text-primary">${getDisplayPrice(150).toFixed(2)}</p>
+              <p className="text-xs text-muted-foreground">${(getDisplayPrice(150) / 5000).toFixed(4)}/credit</p>
             </div>
           </div>
           <p className="mt-4 text-xs text-muted-foreground">
             Credit pricing is based on Claude API costs. 1 credit = approximately $0.001 in API costs. 
-            Top-up prices include a margin for platform operations.
+            Top-up prices include a {aiCreditFeePercent}% margin for platform operations.
           </p>
         </CardContent>
       </Card>

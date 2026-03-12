@@ -3,6 +3,13 @@ import { anthropic } from "@ai-sdk/anthropic"
 import { z } from "zod"
 import { NextResponse } from "next/server"
 
+// B15: Map model IDs to Anthropic model identifiers
+const MODEL_MAP: Record<string, string> = {
+  "claude-haiku-4.5": "claude-3-5-haiku-20241022",
+  "claude-sonnet-4.5": "claude-3-5-sonnet-20241022",
+  "claude-opus-4.6": "claude-3-opus-20240229",
+}
+
 const templateSchema = z.object({
   name: z.string().describe("Template name"),
   description: z.string().describe("2-3 sentence description of this journey template"),
@@ -23,14 +30,17 @@ const templateSchema = z.object({
 
 export async function POST(request: Request) {
   try {
-    const { prompt, industry } = await request.json()
+    const { prompt, industry, modelId } = await request.json()
 
     if (!prompt) {
       return NextResponse.json({ error: "Prompt is required" }, { status: 400 })
     }
 
+    // B15: Use selected model or default to Sonnet
+    const anthropicModel = MODEL_MAP[modelId] || MODEL_MAP["claude-sonnet-4.5"]
+    
     const { output } = await generateText({
-      model: anthropic("claude-3-5-sonnet-20241022"),
+      model: anthropic(anthropicModel),
       output: Output.object({ schema: templateSchema }),
       messages: [
         {

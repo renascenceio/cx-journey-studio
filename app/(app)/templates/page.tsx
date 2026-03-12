@@ -29,6 +29,7 @@ import { useRouter } from "next/navigation"
 import { cn } from "@/lib/utils"
 import { INDUSTRIES } from "@/lib/industries"
 import { AILanguageSelector, useAILanguage } from "@/components/ai-language-selector"
+import { AIModelSelector, useAIModel } from "@/components/ai-model-selector"
 
 interface JourneyTemplate {
   id: string
@@ -60,6 +61,7 @@ export default function TemplatesPage() {
   const [aiIndustry, setAiIndustry] = useState("e-commerce")
   const [aiGenerating, setAiGenerating] = useState(false)
   const { language: aiLanguage, setLanguage: setAiLanguage, getPromptPrefix } = useAILanguage(aiPrompt)
+  const { modelId: aiModelId, setModelId: setAiModelId, model: aiModel, estimatedCredits } = useAIModel()
   const router = useRouter()
 
   async function handleAiGenerate() {
@@ -70,11 +72,12 @@ export default function TemplatesPage() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ 
-        prompt: aiPrompt, 
-        industry: aiIndustry,
-        language: aiLanguage,
-        languagePromptPrefix: getPromptPrefix(),
-      }),
+          prompt: aiPrompt, 
+          industry: aiIndustry,
+          language: aiLanguage,
+          languagePromptPrefix: getPromptPrefix(),
+          modelId: aiModelId,
+        }),
       })
       if (!res.ok) throw new Error("Generation failed")
       const { template } = await res.json()
@@ -301,6 +304,11 @@ export default function TemplatesPage() {
                 {t("ai.generationLanguageDesc")}
               </p>
             </div>
+            <AIModelSelector
+              value={aiModelId}
+              onChange={setAiModelId}
+              showCostEstimate={true}
+            />
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setAiDialogOpen(false)} disabled={aiGenerating}>{t("common.cancel")}</Button>
