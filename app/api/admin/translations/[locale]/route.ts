@@ -151,6 +151,7 @@ export async function PUT(
         access: "public",
         contentType: "application/json",
         addRandomSuffix: false,
+        allowOverwrite: true,
       })
       console.log(`[v0] Blob save successful, url: ${result.url}`)
     } else {
