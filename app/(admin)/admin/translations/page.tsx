@@ -1,7 +1,6 @@
 "use client"
 
 import { useState, useEffect, useMemo } from "react"
-import { useTranslations } from "next-intl"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
@@ -125,7 +124,6 @@ function parseCsv(csv: string): TranslationEntry[] {
 }
 
 export default function TranslationsAdminPage() {
-  const t = useTranslations()
   const [selectedLocale, setSelectedLocale] = useState<Locale>("ru")
   const [englishData, setEnglishData] = useState<Record<string, string>>({})
   const [translationData, setTranslationData] = useState<Record<string, string>>({})
@@ -227,12 +225,17 @@ export default function TranslationsAdminPage() {
         body: JSON.stringify(nestedData),
       })
 
-      if (!response.ok) throw new Error("Failed to save")
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}))
+        console.error("[v0] Save failed:", response.status, errorData)
+        throw new Error(errorData.error || `Failed to save (${response.status})`)
+      }
 
       toast.success(`${languageNames[selectedLocale]} translations saved successfully`)
       setEditedKeys(new Set())
-    } catch {
-      toast.error("Failed to save translations")
+    } catch (err) {
+      const message = err instanceof Error ? err.message : "Failed to save translations"
+      toast.error(message)
     } finally {
       setIsLoading(false)
     }

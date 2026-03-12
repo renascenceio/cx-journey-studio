@@ -143,23 +143,27 @@ export async function PUT(
     }
 
     const content = JSON.stringify(translations, null, 2)
+    console.log(`[v0] Saving translations for ${locale}, size: ${content.length} bytes, USE_BLOB: ${USE_BLOB}`)
 
     if (USE_BLOB) {
       // Production: write to Blob storage
-      await put(`translations/${locale}.json`, content, {
+      const result = await put(`translations/${locale}.json`, content, {
         access: "public",
         contentType: "application/json",
         addRandomSuffix: false,
       })
+      console.log(`[v0] Blob save successful, url: ${result.url}`)
     } else {
       // Development: write to filesystem
       const filePath = path.join(process.cwd(), "messages", `${locale}.json`)
       await fs.writeFile(filePath, content, "utf-8")
+      console.log(`[v0] Filesystem save successful: ${filePath}`)
     }
     
     return NextResponse.json({ success: true })
   } catch (error) {
-    console.error("Error writing translations:", error)
-    return NextResponse.json({ error: "Failed to write translations" }, { status: 500 })
+    console.error("[v0] Error writing translations:", error)
+    const errorMessage = error instanceof Error ? error.message : "Failed to write translations"
+    return NextResponse.json({ error: errorMessage }, { status: 500 })
   }
 }
