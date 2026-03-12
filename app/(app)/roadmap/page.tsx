@@ -27,7 +27,9 @@ import {
 } from "lucide-react"
 import { KanbanBoard } from "@/components/roadmap/kanban-board"
 import { TimelineView } from "@/components/roadmap/timeline-view"
+import { ImpactEffortMatrix } from "@/components/roadmap/impact-effort-matrix"
 import { cn } from "@/lib/utils"
+import { Grid3x3 } from "lucide-react"
 import { useProfile } from "@/hooks/use-profile"
 import { getPermissions } from "@/lib/permissions"
 import useSWR from "swr"
@@ -74,7 +76,7 @@ export default function RoadmapPage() {
   const [isLoading, setIsLoading] = useState(true)
   const [expandedId, setExpandedId] = useState<string | null>(null)
   const [filter, setFilter] = useState<string>("all")
-  const [viewMode, setViewMode] = useState<"list" | "kanban" | "timeline">("list")
+  const [viewMode, setViewMode] = useState<"list" | "kanban" | "timeline" | "matrix">("list")
 
   // Add / Edit dialog
   const [dialogOpen, setDialogOpen] = useState(false)
@@ -293,11 +295,20 @@ export default function RoadmapPage() {
             <Button
               variant={viewMode === "timeline" ? "default" : "ghost"}
               size="sm"
-              className="h-8 px-2.5 rounded-l-none"
+              className="h-8 px-2.5 rounded-none border-r"
               onClick={() => setViewMode("timeline")}
             >
               <GanttChartSquare className="h-3.5 w-3.5" />
               <span className="sr-only">Timeline view</span>
+            </Button>
+            <Button
+              variant={viewMode === "matrix" ? "default" : "ghost"}
+              size="sm"
+              className="h-8 px-2.5 rounded-l-none"
+              onClick={() => setViewMode("matrix")}
+            >
+              <Grid3x3 className="h-3.5 w-3.5" />
+              <span className="sr-only">Impact/Effort Matrix</span>
             </Button>
           </div>
           {canManageRoadmap && (
@@ -387,6 +398,11 @@ export default function RoadmapPage() {
         />
       ) : viewMode === "timeline" ? (
         <TimelineView
+          initiatives={filtered}
+          onEdit={openEdit}
+        />
+      ) : viewMode === "matrix" ? (
+        <ImpactEffortMatrix
           initiatives={filtered}
           onEdit={openEdit}
         />

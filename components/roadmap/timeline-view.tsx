@@ -44,7 +44,7 @@ const statusConfig: Record<string, { color: string; bgColor: string; icon: typeo
   on_hold: { color: "bg-amber-500", bgColor: "bg-amber-100 dark:bg-amber-900/30", icon: PauseCircle },
 }
 
-type ViewMode = "month" | "quarter"
+type ViewMode = "month" | "quarter" | "year"
 
 export function TimelineView({ initiatives, onEdit }: TimelineViewProps) {
   const [viewMode, setViewMode] = useState<ViewMode>("month")
@@ -62,7 +62,7 @@ export function TimelineView({ initiatives, onEdit }: TimelineViewProps) {
   )
 
   // Calculate date range for the view
-  const { startDate, endDate, days, weekStarts } = useMemo(() => {
+  const { startDate, endDate, days, weekStarts, monthStarts } = useMemo(() => {
     const today = new Date(currentDate)
     
     if (viewMode === "month") {
@@ -81,8 +81,8 @@ export function TimelineView({ initiatives, onEdit }: TimelineViewProps) {
         d.setDate(d.getDate() + 1)
       }
       
-      return { startDate: start, endDate: end, days: daysArray, weekStarts: weeks }
-    } else {
+      return { startDate: start, endDate: end, days: daysArray, weekStarts: weeks, monthStarts: [] }
+    } else if (viewMode === "quarter") {
       // Quarter view
       const quarterStart = Math.floor(today.getMonth() / 3) * 3
       const start = new Date(today.getFullYear(), quarterStart, 1)
@@ -96,7 +96,16 @@ export function TimelineView({ initiatives, onEdit }: TimelineViewProps) {
         d.setDate(d.getDate() + 7)
       }
       
-      return { startDate: start, endDate: end, days: weeks, weekStarts: weeks }
+      return { startDate: start, endDate: end, days: weeks, weekStarts: weeks, monthStarts: [] }
+    } else {
+      // Year view (12 months)
+      const start = new Date(today.getFullYear(), 0, 1)
+      const end = new Date(today.getFullYear(), 11, 31)
+      
+      // Generate months for the year
+      const months: Date[] = Array.from({ length: 12 }, (_, i) => new Date(today.getFullYear(), i, 1))
+      
+      return { startDate: start, endDate: end, days: months, weekStarts: [], monthStarts: months }
     }
   }, [currentDate, viewMode])
 
@@ -105,8 +114,10 @@ export function TimelineView({ initiatives, onEdit }: TimelineViewProps) {
     const newDate = new Date(currentDate)
     if (viewMode === "month") {
       newDate.setMonth(newDate.getMonth() - 1)
-    } else {
+    } else if (viewMode === "quarter") {
       newDate.setMonth(newDate.getMonth() - 3)
+    } else {
+      newDate.setFullYear(newDate.getFullYear() - 1)
     }
     setCurrentDate(newDate)
   }
@@ -115,8 +126,10 @@ export function TimelineView({ initiatives, onEdit }: TimelineViewProps) {
     const newDate = new Date(currentDate)
     if (viewMode === "month") {
       newDate.setMonth(newDate.getMonth() + 1)
-    } else {
+    } else if (viewMode === "quarter") {
       newDate.setMonth(newDate.getMonth() + 3)
+    } else {
+      newDate.setFullYear(newDate.getFullYear() + 1)
     }
     setCurrentDate(newDate)
   }
@@ -153,7 +166,9 @@ export function TimelineView({ initiatives, onEdit }: TimelineViewProps) {
   // Format header
   const headerLabel = viewMode === "month"
     ? currentDate.toLocaleDateString("en", { month: "long", year: "numeric" })
-    : `Q${Math.floor(currentDate.getMonth() / 3) + 1} ${currentDate.getFullYear()}`
+    : viewMode === "quarter"
+    ? `Q${Math.floor(currentDate.getMonth() / 3) + 1} ${currentDate.getFullYear()}`
+    : `${currentDate.getFullYear()}`
 
   // Today marker position
   const today = new Date()
@@ -197,6 +212,14 @@ export function TimelineView({ initiatives, onEdit }: TimelineViewProps) {
           >
             Quarter
           </Button>
+          <Button
+            variant={viewMode === "year" ? "default" : "outline"}
+            size="sm"
+            className="h-7 text-xs"
+            onClick={() => setViewMode("year")}
+          >
+            12 Months
+          </Button>
         </div>
       </div>
 
@@ -226,12 +249,21 @@ export function TimelineView({ initiatives, onEdit }: TimelineViewProps) {
                         </span>
                       </div>
                     ))
-                  ) : (
+                  ) : viewMode === "quarter" ? (
                     // Week headers for quarter view
                     weekStarts.map((week, i) => (
                       <div key={i} className="flex-1 text-center py-1.5 border-r border-border/20 last:border-r-0">
                         <span className="text-[9px] text-muted-foreground">
                           {week.toLocaleDateString("en", { month: "short", day: "numeric" })}
+                        </span>
+                      </div>
+                    ))
+                  ) : (
+                    // Month headers for year view
+                    monthStarts.map((month, i) => (
+                      <div key={i} className="flex-1 text-center py-1.5 border-r border-border/20 last:border-r-0">
+                        <span className="text-[9px] text-muted-foreground font-medium">
+                          {month.toLocaleDateString("en", { month: "short" })}
                         </span>
                       </div>
                     ))

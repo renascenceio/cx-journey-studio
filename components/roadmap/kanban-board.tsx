@@ -119,7 +119,7 @@ export function KanbanBoard({ initiatives, onStatusChange, onEdit, onDelete, can
             <div className="flex items-center gap-2 px-3 py-2.5 border-b border-border/40">
               <StatusIcon className={cn("h-4 w-4", config.color)} />
               <span className={cn("text-sm font-medium", config.color)}>
-                {t(`roadmap.status.${status}`)}
+                {config.label}
               </span>
               <Badge variant="secondary" className="ml-auto h-5 px-1.5 text-[10px]">
                 {items.length}
@@ -131,7 +131,7 @@ export function KanbanBoard({ initiatives, onStatusChange, onEdit, onDelete, can
               {items.length === 0 ? (
                 <div className="flex flex-col items-center justify-center py-8 text-center">
                   <p className="text-xs text-muted-foreground">
-                    {t("roadmap.kanban.emptyColumn")}
+                    Drag items here
                   </p>
                 </div>
               ) : (
@@ -219,7 +219,7 @@ export function KanbanBoard({ initiatives, onStatusChange, onEdit, onDelete, can
               {/* Drop zone indicator */}
               {isDropTarget && draggedId && (
                 <div className="h-16 border-2 border-dashed border-primary/50 rounded-lg flex items-center justify-center">
-                  <p className="text-xs text-primary">{t("roadmap.kanban.dropHere")}</p>
+                  <p className="text-xs text-primary">Drop here</p>
                 </div>
               )}
             </div>

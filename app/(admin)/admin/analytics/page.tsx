@@ -326,7 +326,7 @@ export default function AdminAnalyticsPage() {
                   config={{
                     count: { label: "Signups", color: CHART_COLORS.primary },
                   }}
-                  className="h-[300px]"
+                  className="h-[300px] overflow-hidden"
                 >
                   <ResponsiveContainer width="100%" height="100%">
                     <LineChart data={data.trends.signups}>
@@ -372,7 +372,7 @@ export default function AdminAnalyticsPage() {
                   config={{
                     count: { label: "Journeys", color: CHART_COLORS.secondary },
                   }}
-                  className="h-[300px]"
+                  className="h-[300px] overflow-hidden"
                 >
                   <ResponsiveContainer width="100%" height="100%">
                     <LineChart data={data.trends.journeys}>
@@ -422,7 +422,7 @@ export default function AdminAnalyticsPage() {
                   config={{
                     value: { label: "Users" },
                   }}
-                  className="h-[300px]"
+                  className="h-[300px] overflow-hidden"
                 >
                   <ResponsiveContainer width="100%" height="100%">
                     <PieChart>
@@ -488,7 +488,7 @@ export default function AdminAnalyticsPage() {
                   config={{
                     count: { label: "Count", color: CHART_COLORS.primary },
                   }}
-                  className="h-[300px]"
+                  className="h-[300px] overflow-hidden"
                 >
                   <ResponsiveContainer width="100%" height="100%">
                     <BarChart data={journeyTypeData} layout="vertical">
