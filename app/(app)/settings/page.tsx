@@ -19,6 +19,7 @@ import { Toaster } from "@/components/ui/sonner"
 import { updateProfile } from "@/lib/actions/data"
 import { SoundSettings } from "@/components/sound-settings"
 import { Textarea } from "@/components/ui/textarea"
+import { TimezonePicker, detectTimezone } from "@/components/timezone-picker"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { cn, getInitials } from "@/lib/utils"
 
@@ -47,6 +48,19 @@ export default function SettingsProfilePage() {
   const nameRef = useRef<HTMLInputElement>(null)
   const emailRef = useRef<HTMLInputElement>(null)
   const fileRef = useRef<HTMLInputElement>(null)
+  const [userTimezone, setUserTimezone] = useState<string>("")
+
+  // Auto-detect timezone on first load
+  useEffect(() => {
+    const saved = localStorage.getItem("user_timezone")
+    if (saved) {
+      setUserTimezone(saved)
+    } else {
+      const detected = detectTimezone()
+      setUserTimezone(detected)
+      localStorage.setItem("user_timezone", detected)
+    }
+  }, [])
 
   // Load billing info from database
   useEffect(() => {
@@ -159,19 +173,15 @@ export default function SettingsProfilePage() {
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="flex flex-col gap-2">
               <Label htmlFor="timezone">{t("settings.timezone")}</Label>
-              <Select defaultValue="america-new-york">
-                <SelectTrigger id="timezone" className="h-9 text-sm">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="america-new-york">America/New York (EST)</SelectItem>
-                  <SelectItem value="america-chicago">America/Chicago (CST)</SelectItem>
-                  <SelectItem value="america-los-angeles">America/Los Angeles (PST)</SelectItem>
-                  <SelectItem value="europe-london">Europe/London (GMT)</SelectItem>
-                  <SelectItem value="europe-berlin">Europe/Berlin (CET)</SelectItem>
-                  <SelectItem value="asia-tokyo">Asia/Tokyo (JST)</SelectItem>
-                </SelectContent>
-              </Select>
+              <TimezonePicker
+                value={userTimezone}
+                onChange={(tz) => {
+                  setUserTimezone(tz)
+                  localStorage.setItem("user_timezone", tz)
+                }}
+                className="w-full"
+              />
+              <p className="text-xs text-muted-foreground">{t("settings.timezoneDesc")}</p>
             </div>
             <div className="flex flex-col gap-2">
               <Label htmlFor="role">{t("settings.role")}</Label>

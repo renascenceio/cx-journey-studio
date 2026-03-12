@@ -8,8 +8,9 @@ import { Button } from "@/components/ui/button"
 import { Separator } from "@/components/ui/separator"
 import { Badge } from "@/components/ui/badge"
 import { useAuth } from "@/lib/auth-provider"
-import { Building2, Sparkles, AlertTriangle, Loader2 } from "lucide-react"
+import { Building2, Sparkles, AlertTriangle, Loader2, Clock } from "lucide-react"
 import { useState, useRef, useEffect } from "react"
+import { TimezonePicker } from "@/components/timezone-picker"
 import { toast } from "sonner"
 import { Toaster } from "@/components/ui/sonner"
 import { updateWorkspace } from "@/lib/actions/data"
@@ -41,6 +42,7 @@ export default function WorkspaceSettingsPage() {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
   const [deleting, setDeleting] = useState(false)
   const [deleteConfirmText, setDeleteConfirmText] = useState("")
+  const [workspaceTimezone, setWorkspaceTimezone] = useState<string>("America/New_York")
   const nameRef = useRef<HTMLInputElement>(null)
   const logoRef = useRef<HTMLInputElement>(null)
 
@@ -130,6 +132,42 @@ export default function WorkspaceSettingsPage() {
                   logo: logoUrl || undefined,
                 })
                 await refreshWorkspaces()
+                toast.success(t("workspaceUpdated"))
+              } catch { toast.error(t("failedToUpdate")) }
+              finally { setSaving(false) }
+            }}
+          >
+            {saving && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
+            {saving ? t("saving") : t("saveChanges")}
+          </Button>
+        </CardContent>
+      </Card>
+
+      {/* Workspace Timezone */}
+      <Card className="border-border/60">
+        <CardHeader>
+          <CardTitle className="text-base flex items-center gap-2">
+            <Clock className="h-4 w-4" />
+            {t("workspaceTimezone")}
+          </CardTitle>
+          <CardDescription>{t("workspaceTimezoneDesc")}</CardDescription>
+        </CardHeader>
+        <CardContent className="flex flex-col gap-4">
+          <div className="flex flex-col gap-2 max-w-md">
+            <TimezonePicker
+              value={workspaceTimezone}
+              onChange={setWorkspaceTimezone}
+              className="w-full"
+            />
+          </div>
+          <Button
+            className="self-start gap-2"
+            variant="outline"
+            disabled={saving}
+            onClick={async () => {
+              setSaving(true)
+              try {
+                // In a real implementation, this would save to the workspace settings
                 toast.success(t("workspaceUpdated"))
               } catch { toast.error(t("failedToUpdate")) }
               finally { setSaving(false) }

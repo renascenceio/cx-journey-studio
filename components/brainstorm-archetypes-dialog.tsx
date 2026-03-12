@@ -41,6 +41,7 @@ import {
 } from "@/components/ui/popover"
 import { cn } from "@/lib/utils"
 import { INDUSTRIES } from "@/lib/industries"
+import { AILanguageSelector, useAILanguage, AI_LANGUAGES } from "@/components/ai-language-selector"
 
 // Use shared INDUSTRIES from lib/industries.ts
 const CATEGORIES = INDUSTRIES
@@ -95,6 +96,9 @@ export function BrainstormArchetypesDialog({ children, onArchetypesCreated }: Br
   const [context, setContext] = useState("")
   const [targetAudience, setTargetAudience] = useState("")
   
+  // AI Language state
+  const { language: aiLanguage, setLanguage: setAiLanguage, getPromptPrefix } = useAILanguage(context)
+  
   // Ideas state
   const [ideas, setIdeas] = useState<ArchetypeIdea[]>([])
   const [generating, setGenerating] = useState(false)
@@ -114,12 +118,14 @@ export function BrainstormArchetypesDialog({ children, onArchetypesCreated }: Br
       const res = await fetch("/api/ai/brainstorm-archetypes", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ 
-          category, 
-          context, 
-          targetAudience,
-          count: 9 
-        }),
+body: JSON.stringify({
+  category,
+  context,
+  targetAudience,
+  count: 9,
+  language: aiLanguage,
+  languagePromptPrefix: getPromptPrefix(),
+  }),
       })
       
       if (!res.ok) {
@@ -344,6 +350,19 @@ if (cat) {
                   onChange={(e) => setContext(e.target.value)}
                   rows={4}
                 />
+              </div>
+              
+              <div className="flex flex-col gap-2">
+                <Label>{t("ai.generationLanguage")}</Label>
+                <AILanguageSelector
+                  value={aiLanguage}
+                  onChange={setAiLanguage}
+                  assetName={context}
+                  showDetectedBadge={true}
+                />
+                <p className="text-xs text-muted-foreground">
+                  {t("ai.generationLanguageDesc")}
+                </p>
               </div>
             </div>
           )}

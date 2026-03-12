@@ -28,6 +28,7 @@ import { createJourney, addStage, addStep } from "@/lib/actions/data"
 import { useRouter } from "next/navigation"
 import { cn } from "@/lib/utils"
 import { INDUSTRIES } from "@/lib/industries"
+import { AILanguageSelector, useAILanguage } from "@/components/ai-language-selector"
 
 interface JourneyTemplate {
   id: string
@@ -58,6 +59,7 @@ export default function TemplatesPage() {
   const [aiPrompt, setAiPrompt] = useState("")
   const [aiIndustry, setAiIndustry] = useState("e-commerce")
   const [aiGenerating, setAiGenerating] = useState(false)
+  const { language: aiLanguage, setLanguage: setAiLanguage, getPromptPrefix } = useAILanguage(aiPrompt)
   const router = useRouter()
 
   async function handleAiGenerate() {
@@ -67,7 +69,12 @@ export default function TemplatesPage() {
       const res = await fetch("/api/ai/generate-template", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ prompt: aiPrompt, industry: aiIndustry }),
+        body: JSON.stringify({ 
+        prompt: aiPrompt, 
+        industry: aiIndustry,
+        language: aiLanguage,
+        languagePromptPrefix: getPromptPrefix(),
+      }),
       })
       if (!res.ok) throw new Error("Generation failed")
       const { template } = await res.json()
@@ -281,6 +288,18 @@ export default function TemplatesPage() {
                 rows={4}
                 className="resize-none"
               />
+            </div>
+            <div className="flex flex-col gap-2">
+              <Label>{t("ai.generationLanguage")}</Label>
+              <AILanguageSelector
+                value={aiLanguage}
+                onChange={setAiLanguage}
+                assetName={aiPrompt}
+                showDetectedBadge={true}
+              />
+              <p className="text-xs text-muted-foreground">
+                {t("ai.generationLanguageDesc")}
+              </p>
             </div>
           </div>
           <DialogFooter>
