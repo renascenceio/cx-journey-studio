@@ -1,8 +1,12 @@
 import { NextRequest, NextResponse } from "next/server"
 import { createClient } from "@/lib/supabase/server"
 import { locales, type Locale } from "@/lib/i18n/config"
+import { put, list } from "@vercel/blob"
 import fs from "fs/promises"
 import path from "path"
+
+// Use Blob storage for production, filesystem for development
+const USE_BLOB = process.env.BLOB_READ_WRITE_TOKEN ? true : false
 
 // Helper to check if user has admin access (either global admin or workspace owner)
 async function checkAdminAccess(supabase: Awaited<ReturnType<typeof createClient>>, userId: string) {
@@ -70,9 +74,34 @@ export async function GET(
   }
 
   try {
-    const filePath = path.join(process.cwd(), "messages", `${locale}.json`)
-    const content = await fs.readFile(filePath, "utf-8")
-    const translations = JSON.parse(content)
+    let translations: Record<string, unknown>
+
+    if (USE_BLOB) {
+      // Try to read from Blob first (for custom translations)
+      try {
+        const blobPrefix = `translations/${locale}.json`
+        const { blobs } = await list({ prefix: blobPrefix, limit: 1 })
+        if (blobs.length > 0) {
+          const response = await fetch(blobs[0].url)
+          translations = await response.json()
+        } else {
+          // Fall back to filesystem (default translations)
+          const filePath = path.join(process.cwd(), "messages", `${locale}.json`)
+          const content = await fs.readFile(filePath, "utf-8")
+          translations = JSON.parse(content)
+        }
+      } catch {
+        // Fall back to filesystem
+        const filePath = path.join(process.cwd(), "messages", `${locale}.json`)
+        const content = await fs.readFile(filePath, "utf-8")
+        translations = JSON.parse(content)
+      }
+    } else {
+      // Development: read from filesystem
+      const filePath = path.join(process.cwd(), "messages", `${locale}.json`)
+      const content = await fs.readFile(filePath, "utf-8")
+      translations = JSON.parse(content)
+    }
     
     return NextResponse.json(translations)
   } catch (error) {
@@ -113,8 +142,20 @@ export async function PUT(
       return NextResponse.json({ error: "Invalid translations format" }, { status: 400 })
     }
 
-    const filePath = path.join(process.cwd(), "messages", `${locale}.json`)
-    await fs.writeFile(filePath, JSON.stringify(translations, null, 2), "utf-8")
+    const content = JSON.stringify(translations, null, 2)
+
+    if (USE_BLOB) {
+      // Production: write to Blob storage
+      await put(`translations/${locale}.json`, content, {
+        access: "public",
+        contentType: "application/json",
+        addRandomSuffix: false,
+      })
+    } else {
+      // Development: write to filesystem
+      const filePath = path.join(process.cwd(), "messages", `${locale}.json`)
+      await fs.writeFile(filePath, content, "utf-8")
+    }
     
     return NextResponse.json({ success: true })
   } catch (error) {
