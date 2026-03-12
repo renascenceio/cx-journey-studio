@@ -15,6 +15,7 @@ import Link from "next/link"
 import {
   Target, Clock, CheckCircle2, PauseCircle, AlertCircle,
   Lightbulb, Map as MapIcon, MoreHorizontal, Pencil, Trash2, GripVertical,
+  MessageSquare, TrendingUp, Zap, Calendar, User,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 
@@ -32,6 +33,9 @@ interface Initiative {
   accountable: string
   start_date: string | null
   end_date: string | null
+  impact_score?: number
+  effort_score?: number
+  comments_count?: number
 }
 
 interface KanbanBoardProps {
@@ -157,8 +161,13 @@ export function KanbanBoard({ initiatives, onStatusChange, onEdit, onDelete, can
                               <p className="text-sm font-medium text-foreground line-clamp-2">
                                 {initiative.title}
                               </p>
+                              {initiative.description && (
+                                <p className="text-[10px] text-muted-foreground line-clamp-2 mt-1">
+                                  {initiative.description}
+                                </p>
+                              )}
                               {initiative.journeys && (
-                                <p className="text-[10px] text-muted-foreground flex items-center gap-1 mt-1">
+                                <p className="text-[10px] text-muted-foreground flex items-center gap-1 mt-1.5">
                                   <MapIcon className="h-3 w-3 shrink-0" />
                                   <span className="truncate">{initiative.journeys.title}</span>
                                 </p>
@@ -193,20 +202,63 @@ export function KanbanBoard({ initiatives, onStatusChange, onEdit, onDelete, can
                             )}
                           </div>
 
-                          {/* Meta info */}
+                          {/* Impact/Effort scores */}
+                          {(initiative.impact_score || initiative.effort_score) && (
+                            <div className="flex items-center gap-3 mt-2 py-1.5 px-2 bg-muted/50 rounded">
+                              {initiative.impact_score && (
+                                <div className="flex items-center gap-1">
+                                  <TrendingUp className="h-3 w-3 text-emerald-500" />
+                                  <span className="text-[10px] font-medium">Impact: {initiative.impact_score}/5</span>
+                                </div>
+                              )}
+                              {initiative.effort_score && (
+                                <div className="flex items-center gap-1">
+                                  <Zap className="h-3 w-3 text-amber-500" />
+                                  <span className="text-[10px] font-medium">Effort: {initiative.effort_score}/5</span>
+                                </div>
+                              )}
+                            </div>
+                          )}
+
+                          {/* Meta info row */}
                           <div className="flex items-center gap-2 mt-2 flex-wrap">
-                            <Badge variant="outline" className="h-5 px-1.5 text-[9px] font-normal">
-                              #{initiative.priority}
+                            {/* Priority Badge */}
+                            <Badge 
+                              variant={initiative.priority <= 3 ? "default" : "outline"} 
+                              className={cn(
+                                "h-5 px-1.5 text-[9px] font-medium",
+                                initiative.priority === 1 && "bg-red-500 hover:bg-red-600",
+                                initiative.priority === 2 && "bg-orange-500 hover:bg-orange-600",
+                                initiative.priority === 3 && "bg-yellow-500 hover:bg-yellow-600 text-yellow-950"
+                              )}
+                            >
+                              P{initiative.priority}
                             </Badge>
+                            
+                            {/* Responsible */}
                             {initiative.responsible && (
-                              <span className="text-[10px] text-muted-foreground truncate max-w-[100px]">
-                                {initiative.responsible}
-                              </span>
+                              <div className="flex items-center gap-1 text-[10px] text-muted-foreground">
+                                <User className="h-3 w-3" />
+                                <span className="truncate max-w-[80px]">{initiative.responsible}</span>
+                              </div>
                             )}
+                            
+                            {/* Date */}
                             {initiative.start_date && (
-                              <span className="text-[10px] text-muted-foreground">
-                                {new Date(initiative.start_date).toLocaleDateString("en", { month: "short", day: "numeric" })}
-                              </span>
+                              <div className="flex items-center gap-1 text-[10px] text-muted-foreground">
+                                <Calendar className="h-3 w-3" />
+                                <span>
+                                  {new Date(initiative.start_date).toLocaleDateString("en", { month: "short", day: "numeric" })}
+                                </span>
+                              </div>
+                            )}
+                            
+                            {/* Comments indicator */}
+                            {(initiative.comments_count ?? 0) > 0 && (
+                              <div className="flex items-center gap-1 text-[10px] text-muted-foreground ml-auto">
+                                <MessageSquare className="h-3 w-3" />
+                                <span>{initiative.comments_count}</span>
+                              </div>
                             )}
                           </div>
                         </div>

@@ -40,7 +40,18 @@ interface AnalyticsData {
     newInPeriod: number
     activeInPeriod: number
     byPlan: Record<string, number>
+    byType?: Record<string, number>
     growthRate: number
+  }
+  teams?: {
+    totalWorkspaces: number
+    avgTeamSize: number
+    teamSizeDistribution: {
+      solo: number
+      small: number
+      medium: number
+      large: number
+    }
   }
   content: {
     journeys: {
@@ -92,6 +103,24 @@ const PLAN_COLORS: Record<string, string> = {
   starter: CHART_COLORS.primary,
   pro: CHART_COLORS.secondary,
   enterprise: CHART_COLORS.success,
+}
+
+const USER_TYPE_COLORS: Record<string, string> = {
+  cx_professional: "#2563eb",
+  product_manager: "#8b5cf6",
+  ux_designer: "#ec4899",
+  business_analyst: "#f59e0b",
+  marketer: "#22c55e",
+  researcher: "#06b6d4",
+  other: "#94a3b8",
+  unknown: "#64748b",
+}
+
+const TEAM_SIZE_COLORS: Record<string, string> = {
+  solo: "#94a3b8",
+  small: "#22c55e",
+  medium: "#2563eb",
+  large: "#8b5cf6",
 }
 
 export default function AdminAnalyticsPage() {
@@ -471,6 +500,110 @@ export default function AdminAnalyticsPage() {
                     {Math.round((data.users.activeInPeriod / data.users.total) * 100)}%
                   </span>
                 </div>
+              </CardContent>
+            </Card>
+          </div>
+          
+          {/* Second row: Users by Type and Team Sizes */}
+          <div className="grid gap-4 lg:grid-cols-2">
+            {/* Users by Type */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-base">Users by Type</CardTitle>
+                <CardDescription>Distribution by user profession/role</CardDescription>
+              </CardHeader>
+              <CardContent>
+                {data.users.byType && Object.keys(data.users.byType).length > 0 ? (
+                  <ChartContainer
+                    config={{
+                      value: { label: "Users" },
+                    }}
+                    className="h-[250px] overflow-hidden"
+                  >
+                    <ResponsiveContainer width="100%" height="100%">
+                      <BarChart 
+                        data={Object.entries(data.users.byType).map(([name, value]) => ({
+                          name: name.replace("_", " ").replace(/\b\w/g, l => l.toUpperCase()),
+                          value,
+                          fill: USER_TYPE_COLORS[name] || CHART_COLORS.muted
+                        }))}
+                        layout="vertical"
+                      >
+                        <CartesianGrid strokeDasharray="3 3" horizontal={false} />
+                        <XAxis type="number" />
+                        <YAxis type="category" dataKey="name" width={120} tick={{ fontSize: 11 }} />
+                        <ChartTooltip content={<ChartTooltipContent />} />
+                        <Bar dataKey="value" radius={[0, 4, 4, 0]}>
+                          {Object.entries(data.users.byType).map(([name], index) => (
+                            <Cell key={index} fill={USER_TYPE_COLORS[name] || CHART_COLORS.muted} />
+                          ))}
+                        </Bar>
+                      </BarChart>
+                    </ResponsiveContainer>
+                  </ChartContainer>
+                ) : (
+                  <div className="h-[250px] flex items-center justify-center text-muted-foreground text-sm">
+                    No user type data available
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+
+            {/* Team Sizes / Workspaces */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-base">Team Sizes</CardTitle>
+                <CardDescription>Workspace distribution by team size</CardDescription>
+              </CardHeader>
+              <CardContent>
+                {data.teams ? (
+                  <div className="space-y-4">
+                    {/* Key metrics */}
+                    <div className="grid grid-cols-2 gap-3">
+                      <div className="p-3 rounded-lg bg-muted/50 text-center">
+                        <p className="text-2xl font-bold">{data.teams.totalWorkspaces}</p>
+                        <p className="text-xs text-muted-foreground">Total Workspaces</p>
+                      </div>
+                      <div className="p-3 rounded-lg bg-muted/50 text-center">
+                        <p className="text-2xl font-bold">{data.teams.avgTeamSize}</p>
+                        <p className="text-xs text-muted-foreground">Avg Team Size</p>
+                      </div>
+                    </div>
+                    
+                    {/* Size distribution */}
+                    <ChartContainer
+                      config={{
+                        value: { label: "Teams" },
+                      }}
+                      className="h-[150px] overflow-hidden"
+                    >
+                      <ResponsiveContainer width="100%" height="100%">
+                        <BarChart 
+                          data={[
+                            { name: "Solo (1)", value: data.teams.teamSizeDistribution.solo, fill: TEAM_SIZE_COLORS.solo },
+                            { name: "Small (2-5)", value: data.teams.teamSizeDistribution.small, fill: TEAM_SIZE_COLORS.small },
+                            { name: "Medium (6-15)", value: data.teams.teamSizeDistribution.medium, fill: TEAM_SIZE_COLORS.medium },
+                            { name: "Large (15+)", value: data.teams.teamSizeDistribution.large, fill: TEAM_SIZE_COLORS.large },
+                          ]}
+                        >
+                          <CartesianGrid strokeDasharray="3 3" vertical={false} />
+                          <XAxis dataKey="name" tick={{ fontSize: 10 }} />
+                          <YAxis tick={{ fontSize: 10 }} />
+                          <ChartTooltip content={<ChartTooltipContent />} />
+                          <Bar dataKey="value" radius={[4, 4, 0, 0]}>
+                            {[TEAM_SIZE_COLORS.solo, TEAM_SIZE_COLORS.small, TEAM_SIZE_COLORS.medium, TEAM_SIZE_COLORS.large].map((color, index) => (
+                              <Cell key={index} fill={color} />
+                            ))}
+                          </Bar>
+                        </BarChart>
+                      </ResponsiveContainer>
+                    </ChartContainer>
+                  </div>
+                ) : (
+                  <div className="h-[250px] flex items-center justify-center text-muted-foreground text-sm">
+                    No team data available
+                  </div>
+                )}
               </CardContent>
             </Card>
           </div>
