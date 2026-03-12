@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+import { useTranslations } from "next-intl"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -55,6 +56,7 @@ function relativeTime(dateStr: string): string {
 }
 
 export default function TeamSettingsPage() {
+  const t = useTranslations("team")
   const { user } = useAuth()
   const { canManageTeam, canChangeRoles } = usePermissions()
   const [inviteOpen, setInviteOpen] = useState(false)
@@ -74,13 +76,13 @@ export default function TeamSettingsPage() {
       <Card className="border-border/60">
         <CardHeader className="flex flex-row items-center justify-between">
           <div>
-            <CardTitle className="text-base">Team Members</CardTitle>
-            <CardDescription>{activeMembers.length} active members</CardDescription>
+            <CardTitle className="text-base">{t("teamMembers")}</CardTitle>
+            <CardDescription>{t("activeMembers", { count: activeMembers.length })}</CardDescription>
           </div>
           {canManageTeam && (
             <Button size="sm" className="gap-1.5" onClick={() => setInviteOpen(true)}>
               <UserPlus className="h-3.5 w-3.5" />
-              Invite Member
+              {t("inviteMember")}
             </Button>
           )}
         </CardHeader>
@@ -115,26 +117,26 @@ export default function TeamSettingsPage() {
                         <MoreHorizontal className="h-3.5 w-3.5" />
                       </Button>
                     </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                      <DropdownMenuItem onClick={() => toast.success(`${member.name} updated to Journey Master`)}>
-                        <Shield className="mr-2 h-3.5 w-3.5" />
-                        Make Journey Master
-                      </DropdownMenuItem>
-                      <DropdownMenuItem onClick={() => toast.success(`${member.name} updated to Contributor`)}>
-                        Make Contributor
-                      </DropdownMenuItem>
-                      <DropdownMenuItem onClick={() => toast.success(`${member.name} updated to Viewer`)}>
-                        Make Viewer
-                      </DropdownMenuItem>
-                      <DropdownMenuSeparator />
-                      <DropdownMenuItem
-                        className="text-destructive"
-                        onClick={() => { setRemoveMember(member.name); setRemoveOpen(true) }}
-                      >
-                        <Trash2 className="mr-2 h-3.5 w-3.5" />
-                        Remove Member
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
+<DropdownMenuContent align="end">
+                                      <DropdownMenuItem onClick={() => toast.success(`${member.name} updated to Journey Master`)}>
+                                        <Shield className="mr-2 h-3.5 w-3.5" />
+                                        {t("makeJourneyMaster")}
+                                      </DropdownMenuItem>
+                                      <DropdownMenuItem onClick={() => toast.success(`${member.name} updated to Contributor`)}>
+                                        {t("makeContributor")}
+                                      </DropdownMenuItem>
+                                      <DropdownMenuItem onClick={() => toast.success(`${member.name} updated to Viewer`)}>
+                                        {t("makeViewer")}
+                                      </DropdownMenuItem>
+                                      <DropdownMenuSeparator />
+                                      <DropdownMenuItem
+                                        className="text-destructive"
+                                        onClick={() => { setRemoveMember(member.name); setRemoveOpen(true) }}
+                                      >
+                                        <Trash2 className="mr-2 h-3.5 w-3.5" />
+                                        {t("removeMember")}
+                                      </DropdownMenuItem>
+                                    </DropdownMenuContent>
                   </DropdownMenu>
                 )}
               </div>
@@ -152,7 +154,7 @@ export default function TeamSettingsPage() {
           <CardHeader>
             <CardTitle className="text-base flex items-center gap-2">
               <Clock className="h-4 w-4" />
-              Pending Invitations
+              {t("pendingInvitations")}
             </CardTitle>
             <CardDescription>{invitedMembers.length} pending</CardDescription>
           </CardHeader>
@@ -176,10 +178,10 @@ export default function TeamSettingsPage() {
                   {canManageTeam && (
                     <div className="flex gap-1">
                       <Button variant="ghost" size="sm" className="h-7 text-xs" onClick={() => toast.success(`Resent invite to ${member.email}`)}>
-                        Resend
+                        {t("resend")}
                       </Button>
                       <Button variant="ghost" size="sm" className="h-7 text-xs text-destructive hover:text-destructive" onClick={() => toast.success(`Revoked invite for ${member.email}`)}>
-                        Revoke
+                        {t("revoke")}
                       </Button>
                     </div>
                   )}
@@ -193,8 +195,8 @@ export default function TeamSettingsPage() {
       {/* Role Descriptions */}
       <Card className="border-border/60">
         <CardHeader>
-          <CardTitle className="text-base">Role Descriptions</CardTitle>
-          <CardDescription>Understanding workspace roles and permissions</CardDescription>
+          <CardTitle className="text-base">{t("roleDescriptions")}</CardTitle>
+          <CardDescription>{t("roleDescriptionsDesc")}</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="grid gap-3 sm:grid-cols-2">
@@ -214,12 +216,12 @@ export default function TeamSettingsPage() {
       <Dialog open={inviteOpen} onOpenChange={setInviteOpen}>
         <DialogContent className="max-w-md">
           <DialogHeader>
-            <DialogTitle>Invite Team Member</DialogTitle>
-            <DialogDescription>Send an invitation to join your workspace</DialogDescription>
+            <DialogTitle>{t("inviteMember")}</DialogTitle>
+            <DialogDescription>{t("inviteByEmailDesc")}</DialogDescription>
           </DialogHeader>
           <div className="flex flex-col gap-4 py-2">
             <div className="flex flex-col gap-2">
-              <Label htmlFor="invite-email">Email address</Label>
+              <Label htmlFor="invite-email">{t("emailAddress")}</Label>
               <Input
                 id="invite-email"
                 type="email"
@@ -229,7 +231,7 @@ export default function TeamSettingsPage() {
               />
             </div>
             <div className="flex flex-col gap-2">
-              <Label htmlFor="invite-role">Role</Label>
+              <Label htmlFor="invite-role">{t("role")}</Label>
               <Select value={inviteRole} onValueChange={(v) => setInviteRole(v as UserRole)}>
                 <SelectTrigger id="invite-role" className="h-9 text-sm">
                   <SelectValue />
@@ -247,14 +249,14 @@ export default function TeamSettingsPage() {
             <Button
               onClick={() => {
                 setInviteOpen(false)
-                toast.success(`Invitation sent to ${inviteEmail}`)
+                toast.success(t("invitationSent", { email: inviteEmail }))
                 setInviteEmail("")
               }}
               disabled={!inviteEmail}
               className="gap-1.5"
             >
               <Mail className="h-3.5 w-3.5" />
-              Send Invite
+              {t("sendInvitation")}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -264,9 +266,9 @@ export default function TeamSettingsPage() {
       <Dialog open={removeOpen} onOpenChange={setRemoveOpen}>
         <DialogContent className="max-w-md">
           <DialogHeader>
-            <DialogTitle>Remove Team Member</DialogTitle>
+            <DialogTitle>{t("removeMember")}</DialogTitle>
             <DialogDescription>
-              Are you sure you want to remove {removeMember} from this workspace? They will lose access to all journeys and data.
+              {t("removeMemberConfirm", { name: removeMember || "" })}
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
@@ -275,7 +277,7 @@ export default function TeamSettingsPage() {
               variant="destructive"
               onClick={() => { setRemoveOpen(false); toast.success(`${removeMember} has been removed`) }}
             >
-              Remove Member
+              {t("removeMember")}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -317,6 +319,7 @@ const CATEGORY_COLORS: Record<string, string> = {
 }
 
 function ContributionLeaderboard() {
+  const t = useTranslations("team")
   // Pass empty arrays for now -- will be populated when data flows through API
   const leaderboard = computeLeaderboard([], [], [], MOCK_TEAM_MEMBERS)
   const maxScore = leaderboard[0]?.total || 1
@@ -329,8 +332,8 @@ function ContributionLeaderboard() {
             <Trophy className="h-4 w-4 text-amber-600 dark:text-amber-400" />
           </div>
           <div>
-            <CardTitle className="text-base">Contribution Race</CardTitle>
-            <CardDescription>Who is making the biggest CX impact this period?</CardDescription>
+            <CardTitle className="text-base">{t("contributionRace")}</CardTitle>
+            <CardDescription>{t("contributionRaceDesc")}</CardDescription>
           </div>
         </div>
         <TooltipProvider>

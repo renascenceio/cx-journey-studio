@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
+import { useTranslations } from "next-intl"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -55,6 +56,7 @@ const mockInvoices = [
 ]
 
 export default function BillingSettingsPage() {
+  const t = useTranslations("billing")
   const { organization } = useAuth()
   const [topUpOpen, setTopUpOpen] = useState(false)
   const [selectedPackage, setSelectedPackage] = useState("medium")
@@ -121,8 +123,8 @@ export default function BillingSettingsPage() {
         <CardHeader>
           <div className="flex items-center justify-between">
             <div>
-              <CardTitle className="text-base">Current Plan</CardTitle>
-              <CardDescription>Manage your subscription and billing</CardDescription>
+              <CardTitle className="text-base">{t("currentPlan")}</CardTitle>
+              <CardDescription>{t("currentPlanDesc")}</CardDescription>
             </div>
             <Badge className={cn("gap-1.5", planInfo.color)}>
               <PlanIcon className="h-3 w-3" />
@@ -133,15 +135,15 @@ export default function BillingSettingsPage() {
         <CardContent className="space-y-4">
           <div className="grid gap-4 sm:grid-cols-3">
             <div className="rounded-lg border border-border/60 p-4">
-              <p className="text-xs text-muted-foreground">Journeys</p>
+              <p className="text-xs text-muted-foreground">{t("journeys")}</p>
               <p className="text-2xl font-semibold">{planInfo.journeys}</p>
             </div>
             <div className="rounded-lg border border-border/60 p-4">
-              <p className="text-xs text-muted-foreground">Team Members</p>
+              <p className="text-xs text-muted-foreground">{t("teamMembers")}</p>
               <p className="text-2xl font-semibold">{planInfo.members}</p>
             </div>
             <div className="rounded-lg border border-border/60 p-4">
-              <p className="text-xs text-muted-foreground">Monthly AI Credits</p>
+              <p className="text-xs text-muted-foreground">{t("monthlyAiCredits")}</p>
               <p className="text-2xl font-semibold">{planInfo.monthlyCredits === -1 ? "Custom" : planInfo.monthlyCredits.toLocaleString()}</p>
             </div>
           </div>
@@ -149,14 +151,12 @@ export default function BillingSettingsPage() {
           {currentPlan !== "enterprise" && (
             <div className="flex items-center justify-between pt-2">
               <p className="text-sm text-muted-foreground">
-                {currentPlan === "free" 
-                  ? "Upgrade to unlock more features and AI credits" 
-                  : "Need more? Upgrade your plan for additional features"}
+                {t("upgradeToUnlock")}
               </p>
               <Button asChild>
                 <Link href="/pricing">
                   <ArrowUpRight className="mr-1.5 h-3.5 w-3.5" />
-                  Upgrade Plan
+                  {t("upgradePlan")}
                 </Link>
               </Button>
             </div>
@@ -171,9 +171,9 @@ export default function BillingSettingsPage() {
             <div>
               <CardTitle className="text-base flex items-center gap-2">
                 <Sparkles className="h-4 w-4 text-primary" />
-                AI Credits
+                {t("aiCredits")}
               </CardTitle>
-              <CardDescription>Credits are used for AI-powered features like journey generation and suggestions</CardDescription>
+              <CardDescription>{t("aiCreditsDesc")}</CardDescription>
             </div>
             {isLowCredits && (
               <Badge variant="outline" className="border-amber-300 text-amber-600 dark:border-amber-700 dark:text-amber-400">
@@ -193,12 +193,12 @@ export default function BillingSettingsPage() {
               <div className="flex items-end justify-between">
                 <div>
                   <p className="text-4xl font-bold">{creditsRemaining}</p>
-                  <p className="text-sm text-muted-foreground">credits remaining</p>
+                  <p className="text-sm text-muted-foreground">{t("creditsRemaining")}</p>
                 </div>
                 <div className="text-right text-sm text-muted-foreground">
-                  <p>{credits.used} used of {credits.total + credits.purchased}</p>
+                  <p>{credits.used} / {credits.total + credits.purchased}</p>
                   {credits.purchased > 0 && (
-                    <p className="text-xs">({credits.purchased} purchased)</p>
+                    <p className="text-xs">({credits.purchased} {t("purchased")})</p>
                   )}
                 </div>
               </div>
@@ -212,12 +212,12 @@ export default function BillingSettingsPage() {
               
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium">Need more credits?</p>
-                  <p className="text-xs text-muted-foreground">Top up anytime, credits never expire</p>
+                  <p className="text-sm font-medium">{t("needMoreCredits")}</p>
+                  <p className="text-xs text-muted-foreground">{t("topUpAnytime")}</p>
                 </div>
                 <Button onClick={() => setTopUpOpen(true)}>
                   <Zap className="mr-1.5 h-3.5 w-3.5" />
-                  Top Up Credits
+                  {t("topUpCredits")}
                 </Button>
               </div>
             </>
@@ -230,7 +230,7 @@ export default function BillingSettingsPage() {
         <CardHeader>
           <CardTitle className="text-base flex items-center gap-2">
             <CreditCard className="h-4 w-4" />
-            Payment Method
+            {t("paymentMethod")}
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -240,12 +240,12 @@ export default function BillingSettingsPage() {
                 VISA
               </div>
               <div>
-                <p className="text-sm font-medium text-foreground">Visa ending in 4242</p>
-                <p className="text-xs text-muted-foreground">Expires 12/2027</p>
+                <p className="text-sm font-medium text-foreground">{t("visaEndingIn", { last4: "4242" })}</p>
+                <p className="text-xs text-muted-foreground">{t("expires", { date: "12/2027" })}</p>
               </div>
             </div>
             <Button variant="outline" size="sm" className="text-xs">
-              Update
+              {t("update")}
             </Button>
           </div>
         </CardContent>
@@ -254,19 +254,19 @@ export default function BillingSettingsPage() {
       {/* Invoices */}
       <Card className="border-border/60">
         <CardHeader>
-          <CardTitle className="text-base">Invoice History</CardTitle>
-          <CardDescription>Download past invoices for your records</CardDescription>
+          <CardTitle className="text-base">{t("invoiceHistory")}</CardTitle>
+          <CardDescription>{t("invoiceHistoryDesc")}</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b border-border">
-                  <th className="pb-2 text-left text-xs font-medium text-muted-foreground">Invoice</th>
-                  <th className="pb-2 text-left text-xs font-medium text-muted-foreground">Date</th>
-                  <th className="pb-2 text-left text-xs font-medium text-muted-foreground hidden sm:table-cell">Description</th>
-                  <th className="pb-2 text-left text-xs font-medium text-muted-foreground">Amount</th>
-                  <th className="pb-2 text-left text-xs font-medium text-muted-foreground">Status</th>
+                  <th className="pb-2 text-left text-xs font-medium text-muted-foreground">{t("invoice")}</th>
+                  <th className="pb-2 text-left text-xs font-medium text-muted-foreground">{t("date")}</th>
+                  <th className="pb-2 text-left text-xs font-medium text-muted-foreground hidden sm:table-cell">{t("description")}</th>
+                  <th className="pb-2 text-left text-xs font-medium text-muted-foreground">{t("amount")}</th>
+                  <th className="pb-2 text-left text-xs font-medium text-muted-foreground">{t("status")}</th>
                   <th className="pb-2 text-right text-xs font-medium text-muted-foreground" />
                 </tr>
               </thead>

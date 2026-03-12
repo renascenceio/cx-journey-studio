@@ -1,5 +1,6 @@
 "use client"
 
+import { useTranslations } from "next-intl"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -31,6 +32,7 @@ const planFeatures: Record<string, string[]> = {
 }
 
 export default function WorkspaceSettingsPage() {
+  const t = useTranslations("workspaceSettings")
   const { workspace, refreshWorkspaces, workspaces } = useAuth()
   const router = useRouter()
   const [saving, setSaving] = useState(false)
@@ -86,9 +88,9 @@ export default function WorkspaceSettingsPage() {
         <CardHeader>
           <CardTitle className="text-base flex items-center gap-2">
             <Building2 className="h-4 w-4" />
-            Workspace Details
+            {t("workspaceDetails")}
           </CardTitle>
-          <CardDescription>Manage your workspace name, slug, and logo</CardDescription>
+          <CardDescription>{t("workspaceDetailsDesc")}</CardDescription>
         </CardHeader>
         <CardContent className="flex flex-col gap-4">
           <div className="flex items-center gap-4 mb-2">
@@ -102,18 +104,18 @@ export default function WorkspaceSettingsPage() {
             <div>
               <input ref={logoRef} type="file" accept="image/*" className="hidden" onChange={handleLogoUpload} />
               <Button variant="outline" size="sm" onClick={() => logoRef.current?.click()} disabled={uploading}>
-                {uploading ? "Uploading..." : "Upload Logo"}
+                {uploading ? t("uploading") : t("uploadLogo")}
               </Button>
-              <p className="text-[11px] text-muted-foreground mt-1">SVG, PNG, or JPG. Max 1MB.</p>
+              <p className="text-[11px] text-muted-foreground mt-1">{t("logoFormats")}</p>
             </div>
           </div>
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="flex flex-col gap-2">
-              <Label htmlFor="ws-name">Workspace Name</Label>
+              <Label htmlFor="ws-name">{t("workspaceName")}</Label>
               <Input id="ws-name" ref={nameRef} defaultValue={workspace.name} />
             </div>
             <div className="flex flex-col gap-2">
-              <Label htmlFor="ws-slug">Slug</Label>
+              <Label htmlFor="ws-slug">{t("slug")}</Label>
               <Input id="ws-slug" defaultValue={workspace.slug} className="bg-muted/50" />
             </div>
           </div>
@@ -128,13 +130,13 @@ export default function WorkspaceSettingsPage() {
                   logo: logoUrl || undefined,
                 })
                 await refreshWorkspaces()
-                toast.success("Workspace updated")
-              } catch { toast.error("Failed to update workspace") }
+                toast.success(t("workspaceUpdated"))
+              } catch { toast.error(t("failedToUpdate")) }
               finally { setSaving(false) }
             }}
           >
             {saving && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
-            {saving ? "Saving..." : "Save Changes"}
+            {saving ? t("saving") : t("saveChanges")}
           </Button>
         </CardContent>
       </Card>
@@ -144,9 +146,9 @@ export default function WorkspaceSettingsPage() {
         <CardHeader>
           <CardTitle className="text-base flex items-center gap-2">
             <Sparkles className="h-4 w-4" />
-            Plan & Usage
+            {t("planAndUsage")}
           </CardTitle>
-          <CardDescription>Current plan and workspace usage</CardDescription>
+          <CardDescription>{t("planAndUsageDesc")}</CardDescription>
         </CardHeader>
         <CardContent className="flex flex-col gap-4">
           <div className="flex items-center justify-between rounded-lg border border-border p-4">
@@ -163,7 +165,7 @@ export default function WorkspaceSettingsPage() {
             </div>
             {plan !== "enterprise" && (
               <Button size="sm">
-                Upgrade
+                {t("upgrade")}
               </Button>
             )}
           </div>
@@ -173,7 +175,7 @@ export default function WorkspaceSettingsPage() {
           <div className="grid grid-cols-3 gap-4 text-center">
             <div className="rounded-lg border border-border p-3">
               <p className="text-2xl font-bold text-foreground">{workspace.memberCount}</p>
-              <p className="text-xs text-muted-foreground">Members</p>
+              <p className="text-xs text-muted-foreground">{t("members")}</p>
             </div>
             <div className="rounded-lg border border-border p-3">
               <p className="text-2xl font-bold text-foreground">{workspace.journeyCount}</p>
@@ -181,7 +183,7 @@ export default function WorkspaceSettingsPage() {
             </div>
             <div className="rounded-lg border border-border p-3">
               <p className="text-2xl font-bold text-foreground">{workspace.archetypeCount}</p>
-              <p className="text-xs text-muted-foreground">Archetypes</p>
+              <p className="text-xs text-muted-foreground">{t("archetypes")}</p>
             </div>
           </div>
         </CardContent>
@@ -192,21 +194,21 @@ export default function WorkspaceSettingsPage() {
         <CardHeader>
           <CardTitle className="text-base text-destructive flex items-center gap-2">
             <AlertTriangle className="h-4 w-4" />
-            Danger Zone
+            {t("dangerZone")}
           </CardTitle>
-          <CardDescription>Permanently delete this workspace and all its data</CardDescription>
+          <CardDescription>{t("dangerZoneDesc")}</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="rounded-lg border border-destructive/20 bg-destructive/5 p-4">
             <p className="text-sm text-muted-foreground mb-3">
-              This action cannot be undone. All journeys, archetypes, and team data will be permanently deleted.
+              {t("deleteWarning")}
             </p>
             <Button 
               variant="destructive" 
               size="sm"
               onClick={() => setDeleteDialogOpen(true)}
             >
-              Delete Workspace
+              {t("deleteWorkspace")}
             </Button>
           </div>
         </CardContent>
