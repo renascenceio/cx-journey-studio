@@ -1,5 +1,6 @@
 import { AppTopbar } from "@/components/app-topbar"
 import { SoundProvider } from "@/components/sound-provider"
+import { SupportWidget } from "@/components/support-widget"
 
 export default function AppLayout({
   children,
@@ -13,6 +14,7 @@ export default function AppLayout({
       <div className="flex min-h-screen flex-col bg-background">
         <AppTopbar />
         <main className="flex-1">{children}</main>
+        <SupportWidget />
       </div>
     </SoundProvider>
   )
