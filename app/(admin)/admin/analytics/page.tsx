@@ -358,14 +358,22 @@ export default function AdminAnalyticsPage() {
                   className="h-[300px] overflow-hidden"
                 >
                   <ResponsiveContainer width="100%" height="100%">
-                    <LineChart data={data.trends.signups}>
-                      <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
+                    <LineChart data={data.trends.signups} margin={{ top: 10, right: 10, bottom: 0, left: 0 }}>
+                      <CartesianGrid strokeDasharray="3 3" className="stroke-muted" vertical={false} />
                       <XAxis 
                         dataKey="date" 
                         tickFormatter={(v) => new Date(v).toLocaleDateString(undefined, { month: "short", day: "numeric" })}
                         className="text-xs"
+                        axisLine={false}
+                        tickLine={false}
                       />
-                      <YAxis className="text-xs" />
+                      <YAxis 
+                        className="text-xs" 
+                        domain={[0, 'auto']}
+                        allowDecimals={false}
+                        axisLine={false}
+                        tickLine={false}
+                      />
                       <Tooltip 
                         content={({ active, payload }) => {
                           if (!active || !payload?.length) return null
@@ -378,11 +386,12 @@ export default function AdminAnalyticsPage() {
                         }}
                       />
                       <Line 
-                        type="linear" 
+                        type="monotone" 
                         dataKey="count" 
                         stroke={CHART_COLORS.primary} 
                         strokeWidth={2}
-                        dot={{ r: 3, fill: CHART_COLORS.primary }}
+                        dot={{ r: 4, fill: CHART_COLORS.primary, strokeWidth: 0 }}
+                        activeDot={{ r: 6, strokeWidth: 0 }}
                       />
                     </LineChart>
                   </ResponsiveContainer>
@@ -404,14 +413,22 @@ export default function AdminAnalyticsPage() {
                   className="h-[300px] overflow-hidden"
                 >
                   <ResponsiveContainer width="100%" height="100%">
-                    <LineChart data={data.trends.journeys}>
-                      <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
+                    <LineChart data={data.trends.journeys} margin={{ top: 10, right: 10, bottom: 0, left: 0 }}>
+                      <CartesianGrid strokeDasharray="3 3" className="stroke-muted" vertical={false} />
                       <XAxis 
                         dataKey="date" 
                         tickFormatter={(v) => new Date(v).toLocaleDateString(undefined, { month: "short", day: "numeric" })}
                         className="text-xs"
+                        axisLine={false}
+                        tickLine={false}
                       />
-                      <YAxis className="text-xs" />
+                      <YAxis 
+                        className="text-xs" 
+                        domain={[0, 'auto']}
+                        allowDecimals={false}
+                        axisLine={false}
+                        tickLine={false}
+                      />
                       <Tooltip 
                         content={({ active, payload }) => {
                           if (!active || !payload?.length) return null
@@ -424,11 +441,12 @@ export default function AdminAnalyticsPage() {
                         }}
                       />
                       <Line 
-                        type="linear" 
+                        type="monotone" 
                         dataKey="count" 
                         stroke={CHART_COLORS.secondary} 
                         strokeWidth={2}
-                        dot={{ r: 3, fill: CHART_COLORS.secondary }}
+                        dot={{ r: 4, fill: CHART_COLORS.secondary, strokeWidth: 0 }}
+                        activeDot={{ r: 6, strokeWidth: 0 }}
                       />
                     </LineChart>
                   </ResponsiveContainer>
