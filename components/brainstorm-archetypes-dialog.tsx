@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+import { useTranslations } from "next-intl"
 import {
   Dialog,
   DialogContent,
@@ -85,6 +86,7 @@ interface BrainstormArchetypesDialogProps {
 }
 
 export function BrainstormArchetypesDialog({ children, onArchetypesCreated }: BrainstormArchetypesDialogProps) {
+  const t = useTranslations()
   const [open, setOpen] = useState(false)
   const [stage, setStage] = useState<"input" | "ideas" | "enriching" | "complete">("input")
   
@@ -280,11 +282,11 @@ export function BrainstormArchetypesDialog({ children, onArchetypesCreated }: Br
                       <span className="flex items-center gap-2">
                         {(() => {
                           const cat = CATEGORIES.find(c => c.value === category)
-                          if (cat) {
-                            const Icon = cat.icon
-                            return <><Icon className="h-3.5 w-3.5" />{cat.label}</>
-                          }
-                          return "Select a category..."
+if (cat) {
+                          const Icon = cat.icon
+                          return <><Icon className="h-3.5 w-3.5" />{t(cat.labelKey)}</>
+                        }
+                        return "Select a category..."
                         })()}
                       </span>
                       <ChevronDown className="h-4 w-4 opacity-50" />
@@ -312,9 +314,9 @@ export function BrainstormArchetypesDialog({ children, onArchetypesCreated }: Br
                                       : "hover:bg-muted"
                                   )}
                                 >
-                                  <Icon className="h-3.5 w-3.5 shrink-0" />
-                                  {cat.label}
-                                </button>
+<Icon className="h-3.5 w-3.5 shrink-0" />
+                                {t(cat.labelKey)}
+                              </button>
                               )
                             })}
                           </div>

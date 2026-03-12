@@ -33,34 +33,8 @@ const statusLabels: Record<Journey["status"], string> = {
   archived: "Archived",
 }
 
-const categoryLabels: Record<string, string> = {
-  airlines: "Airlines",
-  automotive: "Automotive",
-  banking: "Banking",
-  "e-commerce": "E-Commerce",
-  education: "Education",
-  fintech: "Fintech",
-  fitness: "Fitness & Wellness",
-  government: "Government",
-  grocery: "Grocery",
-  healthcare: "Healthcare",
-  hospitality: "Hospitality",
-  insurance: "Insurance",
-  logistics: "Logistics",
-  luxury: "Luxury Goods",
-  media: "Media & Entertainment",
-  pharma: "Pharmaceuticals",
-  property_management: "Property Management",
-  real_estate: "Real Estate",
-  retail: "Retail",
-  saas: "SaaS",
-  telecommunications: "Telecom",
-  travel: "Travel & Tourism",
-  utilities: "Utilities",
-  wealth_management: "Wealth Management",
-}
-
 import { getInitials } from "@/lib/utils"
+import { getIndustryLabelKey } from "@/lib/industries"
 
 interface JourneyCardProps {
   journey: Journey
@@ -96,11 +70,11 @@ export function JourneyCard({ journey, variant = "comprehensive", onPeek }: Jour
           >
             {journey.type.charAt(0).toUpperCase() + journey.type.slice(1)}
           </Badge>
-          {journey.category && (
-            <Badge variant="secondary" className="shrink-0 text-[10px] font-normal">
-              {categoryLabels[journey.category] || journey.category}
-            </Badge>
-          )}
+{journey.category && (
+                <Badge variant="secondary" className="shrink-0 text-[10px] font-normal">
+                  {t(getIndustryLabelKey(journey.category))}
+                </Badge>
+              )}
           <Link href={journeyHref} className="truncate text-sm font-medium text-foreground hover:text-primary transition-colors hover:underline">
             {journey.title}
           </Link>
@@ -200,11 +174,11 @@ export function JourneyCard({ journey, variant = "comprehensive", onPeek }: Jour
               >
                 {journey.type.charAt(0).toUpperCase() + journey.type.slice(1)}
               </Badge>
-              {journey.category && (
-                <Badge variant="secondary" className="text-[10px] font-normal">
-                  {categoryLabels[journey.category] || journey.category}
-                </Badge>
-              )}
+{journey.category && (
+                  <Badge variant="secondary" className="text-[10px] font-normal">
+                    {t(getIndustryLabelKey(journey.category))}
+                  </Badge>
+                )}
               <span className="text-[11px] text-muted-foreground">
                 {statusLabels[journey.status]}
               </span>

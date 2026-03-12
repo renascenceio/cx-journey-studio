@@ -56,33 +56,7 @@ import { Label } from "@/components/ui/label"
 import { toast } from "sonner"
 
 import { getInitials } from "@/lib/utils"
-
-const categoryLabels: Record<string, string> = {
-  airlines: "Airlines",
-  automotive: "Automotive",
-  banking: "Banking",
-  "e-commerce": "E-Commerce",
-  education: "Education",
-  fintech: "Fintech",
-  fitness: "Fitness & Wellness",
-  government: "Government",
-  grocery: "Grocery",
-  healthcare: "Healthcare",
-  hospitality: "Hospitality",
-  insurance: "Insurance",
-  logistics: "Logistics",
-  luxury: "Luxury Goods",
-  media: "Media & Entertainment",
-  pharma: "Pharmaceuticals",
-  property_management: "Property Management",
-  real_estate: "Real Estate",
-  retail: "Retail",
-  saas: "SaaS",
-  telecommunications: "Telecom",
-  travel: "Travel & Tourism",
-  utilities: "Utilities",
-  wealth_management: "Wealth Management",
-}
+import { getIndustryLabelKey } from "@/lib/industries"
 
 export default function JourneyOverviewPage() {
   const params = useParams()

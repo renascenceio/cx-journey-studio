@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useTransition } from "react"
+import { useTranslations } from "next-intl"
 import { useRouter } from "next/navigation"
 import { toast } from "sonner"
 import { Sparkles, Loader2 } from "lucide-react"
@@ -38,6 +39,7 @@ interface CreateArchetypeDialogProps {
 const CATEGORIES = INDUSTRIES
 
 export function CreateArchetypeDialog({ children, journeys }: CreateArchetypeDialogProps) {
+  const t = useTranslations()
   const [open, setOpen] = useState(false)
   const [name, setName] = useState("")
   const [role, setRole] = useState("")
@@ -201,11 +203,11 @@ export function CreateArchetypeDialog({ children, journeys }: CreateArchetypeDia
                     const Icon = c.icon
                     return (
                       <SelectItem key={c.value} value={c.value}>
-                        <span className="flex items-center gap-2">
-                          <Icon className="h-3.5 w-3.5" />
-                          {c.label}
-                        </span>
-                      </SelectItem>
+<span className="flex items-center gap-2">
+                  <Icon className="h-3.5 w-3.5" />
+                  {t(c.labelKey)}
+                </span>
+              </SelectItem>
                     )
                   })}
                 </SelectContent>
@@ -290,7 +292,7 @@ export function CreateArchetypeDialog({ children, journeys }: CreateArchetypeDia
               </SelectTrigger>
               <SelectContent position="popper" sideOffset={4} className="z-[110]">
                 {CATEGORIES.map((c) => (
-                  <SelectItem key={c.value} value={c.value}>{c.label}</SelectItem>
+                  <SelectItem key={c.value} value={c.value}>{t(c.labelKey)}</SelectItem>
                 ))}
               </SelectContent>
             </Select>

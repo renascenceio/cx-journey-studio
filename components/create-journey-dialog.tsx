@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useTransition } from "react"
+import { useTranslations } from "next-intl"
 import { useRouter } from "next/navigation"
 import { toast } from "sonner"
 import {
@@ -43,6 +44,7 @@ interface CreateJourneyDialogProps {
 }
 
 export function CreateJourneyDialog({ children, defaultType = "current" }: CreateJourneyDialogProps) {
+  const t = useTranslations()
   const [open, setOpen] = useState(false)
   const [title, setTitle] = useState("")
   const [description, setDescription] = useState("")
@@ -143,7 +145,7 @@ export function CreateJourneyDialog({ children, defaultType = "current" }: Creat
                         const cat = CATEGORIES.find(c => c.value === category)
                         if (cat) {
                           const Icon = cat.icon
-                          return <><Icon className="h-3.5 w-3.5" />{cat.label}</>
+                          return <><Icon className="h-3.5 w-3.5" />{t(cat.labelKey)}</>
                         }
                         return "Select..."
                       })()}
@@ -174,7 +176,7 @@ export function CreateJourneyDialog({ children, defaultType = "current" }: Creat
                                 )}
                               >
                                 <Icon className="h-3.5 w-3.5 shrink-0" />
-                                {cat.label}
+                                {t(cat.labelKey)}
                               </button>
                             )
                           })}

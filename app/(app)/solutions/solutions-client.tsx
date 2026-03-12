@@ -66,7 +66,7 @@ import { Pencil, Trash2, MoreVertical, Loader2, User, Crown } from "lucide-react
 import type { SolutionCategory, Solution, Journey } from "@/lib/types"
 import { cn } from "@/lib/utils"
 import { ApplySolutionDialog } from "@/components/apply-solution-dialog"
-import { INDUSTRIES, formatIndustry, getIndustryIcon } from "@/lib/industries"
+import { INDUSTRIES, getIndustryIcon, getIndustryLabelKey } from "@/lib/industries"
 import {
   Popover,
   PopoverContent,
@@ -171,11 +171,11 @@ function SolutionCard({ solution, futureJourneys, showActions, onDeleted }: {
             <Badge variant="secondary" className="text-[10px] font-normal capitalize">
               {solution.category}
             </Badge>
-            {solution.industry && (
-              <Badge variant="outline" className="text-[10px] font-normal">
-                {formatIndustry(solution.industry)}
-              </Badge>
-            )}
+{solution.industry && (
+                  <Badge variant="outline" className="text-[10px] font-normal">
+                    {t(getIndustryLabelKey(solution.industry))}
+                  </Badge>
+                )}
             {solution.impact && (
               <Badge variant="outline" className={cn("text-[10px] font-normal", 
                 solution.impact === "high" ? "border-emerald-500 text-emerald-600 dark:text-emerald-400" :
@@ -210,10 +210,10 @@ function SolutionCard({ solution, futureJourneys, showActions, onDeleted }: {
             <UsersRound className="h-3 w-3" />
             <span>{solution.contributorOrg}</span>
 {solution.industry && (
-                  <>
-                    <span className="text-border">|</span>
-                    <span>{formatIndustry(solution.industry)}</span>
-                  </>
+<>
+                  <span className="text-border">|</span>
+                  <span>{t(getIndustryLabelKey(solution.industry))}</span>
+                </>
                 )}
           </div>
         )}
@@ -593,9 +593,9 @@ export function SolutionsClient({ platformSolutions, crowdSolutions, mySolutions
                   <span className="flex items-center gap-2">
                     {(() => {
                       const Icon = getIndustryIcon(selectedIndustry)
-                      return Icon ? <Icon className="h-3.5 w-3.5" /> : null
-                    })()}
-                    {formatIndustry(selectedIndustry)}
+return Icon ? <Icon className="h-3.5 w-3.5" /> : null
+                })()}
+                {t(getIndustryLabelKey(selectedIndustry))}
                   </span>
                 )}
                 <ChevronDown className="ml-2 h-3.5 w-3.5 opacity-50" />
@@ -613,7 +613,7 @@ export function SolutionsClient({ platformSolutions, crowdSolutions, mySolutions
                       className="flex items-center gap-2"
                     >
                       <Globe className="h-4 w-4 text-muted-foreground" />
-                      <span>All Industries</span>
+                      <span>{t("solutions.allIndustries")}</span>
                       {selectedIndustry === "all" && <Check className="ml-auto h-4 w-4" />}
                     </CommandItem>
                     {INDUSTRIES.map((ind) => {
@@ -621,12 +621,12 @@ export function SolutionsClient({ platformSolutions, crowdSolutions, mySolutions
                       return (
                         <CommandItem
                           key={ind.value}
-                          value={ind.label}
+                          value={t(ind.labelKey)}
                           onSelect={() => setSelectedIndustry(ind.value)}
                           className="flex items-center gap-2"
                         >
                           <IndIcon className="h-4 w-4 text-muted-foreground" />
-                          <span>{ind.label}</span>
+                          <span>{t(ind.labelKey)}</span>
                           {selectedIndustry === ind.value && <Check className="ml-auto h-4 w-4" />}
                         </CommandItem>
                       )
