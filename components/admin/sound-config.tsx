@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect, useRef } from "react"
+import { useState, useEffect } from "react"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Switch } from "@/components/ui/switch"
@@ -21,7 +21,7 @@ import {
   Navigation,
   Wind
 } from "lucide-react"
-import { SOUND_LIBRARY, getSoundUrl, type SoundCategory } from "@/lib/sound-library"
+import { SOUND_LIBRARY, playSound, type SoundCategory } from "@/lib/sound-library"
 import { toast } from "sonner"
 
 const CATEGORY_ICONS: Record<string, React.ReactNode> = {
@@ -71,7 +71,6 @@ interface SoundConfigProps {
 export function SoundConfigCard({ config, onSave, saving }: SoundConfigProps) {
   const [localConfig, setLocalConfig] = useState<SoundConfig>(config || DEFAULT_CONFIG)
   const [hasChanges, setHasChanges] = useState(false)
-  const audioRef = useRef<HTMLAudioElement | null>(null)
 
   useEffect(() => {
     if (config) {
@@ -105,23 +104,12 @@ export function SoundConfigCard({ config, onSave, saving }: SoundConfigProps) {
     setHasChanges(true)
   }
 
-  const playSound = (categoryId: string, soundId?: string) => {
+  const previewSound = (categoryId: string, soundId?: string) => {
     const id = soundId || localConfig.categories[categoryId]?.soundId
     if (!id || id === "none") return
     
-    const url = getSoundUrl(categoryId, id)
-    if (!url) return
-
-    if (audioRef.current) {
-      audioRef.current.pause()
-    }
-    
-    const audio = new Audio(url)
-    audio.volume = localConfig.globalVolume * (localConfig.categories[categoryId]?.volume || 0.5)
-    audioRef.current = audio
-    audio.play().catch(() => {
-      toast.error("Could not play sound. Click anywhere first to enable audio.")
-    })
+    const volume = localConfig.globalVolume * (localConfig.categories[categoryId]?.volume || 0.5)
+    playSound(categoryId, id, volume)
   }
 
   const handleSave = async () => {
@@ -216,7 +204,7 @@ export function SoundConfigCard({ config, onSave, saving }: SoundConfigProps) {
                 globalVolume={localConfig.globalVolume}
                 icon={CATEGORY_ICONS[category.id]}
                 onUpdate={(updates) => updateCategory(category.id, updates)}
-                onPlay={(soundId) => playSound(category.id, soundId)}
+                onPlay={(soundId) => previewSound(category.id, soundId)}
               />
             ))}
           </div>
