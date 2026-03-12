@@ -1,13 +1,15 @@
 import { createClient } from "@/lib/supabase/server"
 import { nanoid } from "nanoid"
+import { 
+  STANDARD_REFERRAL_CREDITS, 
+  PREMIUM_REFERRAL_CREDITS, 
+  PREMIUM_REFERRAL_CAP, 
+  CREDITS_EXPIRY_MONTHS 
+} from "./referral-constants"
 
 // B16: Referral Program utilities
-
-// Credit amounts in AI credits (100 credits = $5)
-export const STANDARD_REFERRAL_CREDITS = 100 // $5 worth
-export const PREMIUM_REFERRAL_CREDITS = 200 // $10 worth
-export const PREMIUM_REFERRAL_CAP = 10 // Max premium referrals per user
-export const CREDITS_EXPIRY_MONTHS = 12 // Credits expire after 12 months
+// Re-export constants for backwards compatibility
+export { STANDARD_REFERRAL_CREDITS, PREMIUM_REFERRAL_CREDITS, PREMIUM_REFERRAL_CAP, CREDITS_EXPIRY_MONTHS }
 
 export interface Referral {
   id: string
