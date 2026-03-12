@@ -126,6 +126,7 @@ function SolutionCard({ solution, futureJourneys, showActions, onDeleted }: {
   showActions?: boolean
   onDeleted?: (id: string) => void
 }) {
+  const t = useTranslations()
   const router = useRouter()
   const [upvoted, setUpvoted] = useState(false)
   const [saved, setSaved] = useState(solution.saved)
