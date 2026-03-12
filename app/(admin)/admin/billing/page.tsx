@@ -107,12 +107,19 @@ export default function AdminBillingPage() {
 
   const [plans, setPlans] = useState<Plan[]>(defaultPlans)
   const [regCost, setRegCost] = useState(config?.registrationCost ?? "0")
+  const [aiCreditFeePercent, setAiCreditFeePercent] = useState(config?.aiCreditFeePercentage ?? 0)
 
   useEffect(() => {
     if (plansData?.plans) {
       setPlans(plansData.plans)
     }
   }, [plansData])
+
+  useEffect(() => {
+    if (config?.aiCreditFeePercentage !== undefined) {
+      setAiCreditFeePercent(config.aiCreditFeePercentage)
+    }
+  }, [config])
 
   async function handleSaveStripe() {
     if (!stripeKey && !stripeSecret) return
@@ -133,17 +140,38 @@ export default function AdminBillingPage() {
     finally { setSaving(false) }
   }
 
-  async function handleSaveRegCost() {
+async function handleSaveRegCost() {
+  setSaving(true)
+  try {
+  await fetch("/api/admin/config", {
+  method: "PATCH",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify({ registration_cost: parseFloat(regCost) || 0 }),
+  })
+  toast.success("Registration cost updated")
+  } catch { toast.error("Failed to save") }
+  finally { setSaving(false) }
+  }
+
+  // B13: Save AI credit fee percentage
+  async function handleSaveFeePercent() {
     setSaving(true)
     try {
       await fetch("/api/admin/config", {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ registration_cost: parseFloat(regCost) || 0 }),
+        body: JSON.stringify({ ai_credit_fee_percentage: parseFloat(String(aiCreditFeePercent)) || 0 }),
       })
-      toast.success("Registration cost updated")
+      toast.success("AI credit fee updated")
+      swrMutate("/api/admin/config")
     } catch { toast.error("Failed to save") }
     finally { setSaving(false) }
+  }
+
+  // B13: Calculate display price with markup
+  function getDisplayPrice(basePrice: number) {
+    const markup = 1 + (aiCreditFeePercent / 100)
+    return Math.round(basePrice * markup * 100) / 100
   }
 
   async function createTestUsers() {

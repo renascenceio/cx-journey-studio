@@ -730,6 +730,55 @@
     "ipProtected": "IP Protected",
     "viewLineage": "View Lineage"
   },
+  "transfer": {
+    "title": "Transfer Ownership",
+    "description": "Transfer ownership of {type} \"{name}\" to another user",
+    "warning": "Once transferred, you will no longer be the owner. The new owner will have full control over this asset.",
+    "toMember": "Workspace Member",
+    "toEmail": "By Email",
+    "selectMember": "Select a workspace member",
+    "selectMemberPlaceholder": "Choose recipient...",
+    "recipientEmail": "Recipient email",
+    "emailNote": "If the user doesn't have an account, they'll receive an invitation to join.",
+    "yourRoleAfter": "Your role after transfer",
+    "message": "Message to recipient",
+    "messagePlaceholder": "Add a note explaining why you're transferring this asset...",
+    "send": "Send Transfer Request",
+    "sending": "Sending...",
+    "requestSent": "Transfer request sent. The recipient will be notified.",
+    "failed": "Failed to send transfer request",
+    "selectRecipient": "Please select a recipient",
+    "enterEmail": "Please enter a recipient email",
+    "types": {
+      "workspace": "workspace",
+      "journey": "journey",
+      "archetype": "archetype"
+    },
+    "pending": "Pending",
+    "accepted": "Accepted",
+    "declined": "Declined",
+    "expired": "Expired",
+    "cancelled": "Cancelled",
+    "accept": "Accept",
+    "decline": "Decline",
+    "cancel": "Cancel Transfer",
+    "incomingTransfers": "Incoming Transfers",
+    "outgoingTransfers": "Outgoing Transfers",
+    "noTransfers": "No transfer requests",
+    "transferFrom": "From {name}",
+    "transferTo": "To {name}",
+    "expiresIn": "Expires in {days} days",
+    "acceptConfirm": "Accept this transfer and become the new owner?",
+    "declineConfirm": "Decline this transfer request?"
+  },
+  "roles": {
+    "admin": "Admin",
+    "project_manager": "Project Manager",
+    "journey_master": "Journey Master",
+    "contributor": "Contributor",
+    "viewer": "Viewer",
+    "external": "External"
+  },
   "time": {
     "justNow": "Just now",
     "minutesAgo": "{count} minutes ago",
@@ -894,7 +943,31 @@
       "pending_approval": "Pending Approval",
       "completed": "Completed",
       "on_hold": "On Hold"
-    }
+    },
+    "views": {
+      "list": "List",
+      "kanban": "Board",
+      "timeline": "Timeline"
+    },
+    "kanban": {
+      "dropHere": "Drop here to move",
+      "emptyColumn": "No initiatives in this status",
+      "dragToReorder": "Drag to reorder or change status"
+    },
+    "timeline": {
+      "today": "Today",
+      "noDateRange": "Set start and end dates to see initiatives on the timeline",
+      "week": "Week",
+      "month": "Month",
+      "quarter": "Quarter"
+    },
+    "assignees": "Assignees",
+    "selectAssignee": "Select assignee",
+    "unassigned": "Unassigned",
+    "syncFromJourneys": "Sync from Journeys",
+    "syncSuccess": "Synced {count} initiative(s) from journeys",
+    "alreadySynced": "All applied solutions are already in the roadmap",
+    "syncFailed": "Failed to sync from journeys"
   },
   "billing": {
     "title": "Billing",
