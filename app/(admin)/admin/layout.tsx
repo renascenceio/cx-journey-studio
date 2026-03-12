@@ -39,8 +39,12 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   const router = useRouter()
   const { user, isAuthenticated, isLoading } = useAuth()
 
-  // Show spinner only while auth is loading
-  if (isLoading) {
+  // Only show loading on initial mount when we don't have a user yet
+  // Don't show loading during workspace refresh (which also sets isLoading)
+  const showLoading = isLoading && !user
+
+  // Show spinner only while auth is loading initially
+  if (showLoading) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-background">
         <div className="flex flex-col items-center gap-3">
