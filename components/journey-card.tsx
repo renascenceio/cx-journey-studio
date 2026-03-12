@@ -9,7 +9,14 @@ import { Button } from "@/components/ui/button"
 import { MiniEmotionalArc } from "@/components/mini-emotional-arc"
 import { getEmotionalArc, getAllTouchPoints, opportunities } from "@/lib/data-utils"
 import type { Journey, JourneyViewMode } from "@/lib/types"
-import { Activity, Eye, EyeOff, ExternalLink, GitBranch, Layers, Users, Lightbulb, ThumbsUp, Globe } from "lucide-react"
+import { Activity, Eye, EyeOff, ExternalLink, GitBranch, Layers, Users, Lightbulb, ThumbsUp, Globe, Archive, RotateCcw, Trash2, MoreHorizontal } from "lucide-react"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
 import {
   Tooltip,
   TooltipContent,
@@ -40,9 +47,13 @@ interface JourneyCardProps {
   journey: Journey
   variant?: JourneyViewMode
   onPeek?: (journey: Journey) => void
+  onArchive?: (journey: Journey) => void
+  onRestore?: (journey: Journey) => void
+  onPermanentDelete?: (journey: Journey) => void
 }
 
-export function JourneyCard({ journey, variant = "comprehensive", onPeek }: JourneyCardProps) {
+export function JourneyCard({ journey, variant = "comprehensive", onPeek, onArchive, onRestore, onPermanentDelete }: JourneyCardProps) {
+  const isArchived = journey.status === "archived"
   const t = useTranslations()
   const emotionalArc = getEmotionalArc(journey)
   const touchPointCount = getAllTouchPoints(journey).length
@@ -142,6 +153,39 @@ export function JourneyCard({ journey, variant = "comprehensive", onPeek }: Jour
               <TooltipContent side="top" className="text-xs">{t("journey.openJourney")}</TooltipContent>
             </Tooltip>
           </TooltipProvider>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" size="icon" className="h-7 w-7 opacity-0 transition-opacity group-hover:opacity-100">
+                <MoreHorizontal className="h-3.5 w-3.5" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-48">
+              {isArchived ? (
+                <>
+                  {onRestore && (
+                    <DropdownMenuItem onClick={() => onRestore(journey)} className="gap-2">
+                      <RotateCcw className="h-3.5 w-3.5" />
+                      {t("journeyTabs.restoreJourney")}
+                    </DropdownMenuItem>
+                  )}
+                  {onPermanentDelete && (
+                    <>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem onClick={() => onPermanentDelete(journey)} className="gap-2 text-destructive focus:text-destructive">
+                        <Trash2 className="h-3.5 w-3.5" />
+                        {t("journeyTabs.permanentDelete")}
+                      </DropdownMenuItem>
+                    </>
+                  )}
+                </>
+              ) : onArchive && (
+                <DropdownMenuItem onClick={() => onArchive(journey)} className="gap-2">
+                  <Archive className="h-3.5 w-3.5" />
+                  {t("journeyTabs.archiveJourney")}
+                </DropdownMenuItem>
+              )}
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
 
         {journey.type === "deployed" && journey.healthStatus && (

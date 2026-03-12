@@ -3,7 +3,7 @@
 import { useState, useMemo, Suspense } from "react"
 import { useSearchParams } from "next/navigation"
 import { useTranslations } from "next-intl"
-import { Plus, Search, LayoutGrid, List, Upload, Rocket, Map, Compass, CheckCircle2 } from "lucide-react"
+import { Plus, Search, LayoutGrid, List, Upload, Rocket, Map, Compass, CheckCircle2, Archive, RotateCcw, Trash2, AlertTriangle } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { JourneyImportDialog } from "@/components/journey-import-dialog"
 import { CreateJourneyDialog } from "@/components/create-journey-dialog"
@@ -31,7 +31,17 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog"
-import { updateJourneyStatus } from "@/lib/actions/data"
+import { updateJourneyStatus, archiveJourney, restoreArchivedJourney, permanentlyDeleteJourney } from "@/lib/actions/data"
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog"
 import { mutate } from "swr"
 import { useRouter } from "next/navigation"
 
@@ -96,7 +106,7 @@ function DeployJourneyDialog({ journeys, children }: { journeys: Journey[]; chil
   )
 }
 
-type TabType = "current" | "future" | "deployed"
+type TabType = "current" | "future" | "deployed" | "archived"
 
 // Note: tabs are defined inside the component to use translations
 
@@ -117,6 +127,7 @@ function JourneysContent({ journeys }: { journeys: Journey[] }) {
     { value: "current", label: t("journeyTabs.current"), description: t("journeyTabs.currentDesc"), icon: Map },
     { value: "future", label: t("journeyTabs.future"), description: t("journeyTabs.futureDesc"), icon: Compass },
     { value: "deployed", label: t("journeyTabs.deployed"), description: t("journeyTabs.deployedDesc"), icon: CheckCircle2 },
+    { value: "archived", label: t("journeyTabs.archived"), description: t("journeyTabs.archivedDesc"), icon: Archive },
   ]
   const [activeTab, setActiveTab] = useState<TabType>(initialTab)
   const [searchQuery, setSearchQuery] = useState("")
@@ -124,15 +135,67 @@ function JourneysContent({ journeys }: { journeys: Journey[] }) {
   const [viewMode, setViewMode] = useState<JourneyViewMode>("comprehensive")
   const [peekJourney, setPeekJourney] = useState<Journey | null>(null)
   const [importOpen, setImportOpen] = useState(false)
+  const [archiveDialogJourney, setArchiveDialogJourney] = useState<Journey | null>(null)
+  const [restoreDialogJourney, setRestoreDialogJourney] = useState<Journey | null>(null)
+  const [deleteDialogJourney, setDeleteDialogJourney] = useState<Journey | null>(null)
+  const [actionPending, setActionPending] = useState(false)
+  const router = useRouter()
+
+  // Archive handlers
+  async function handleArchive(journey: Journey) {
+    setActionPending(true)
+    try {
+      await archiveJourney(journey.id)
+      mutate((key: string) => typeof key === "string" && key.includes("/api/journeys"))
+      toast.success(t("journeyTabs.journeyArchived"))
+      setArchiveDialogJourney(null)
+    } catch {
+      toast.error("Failed to archive journey")
+    } finally {
+      setActionPending(false)
+    }
+  }
+
+  async function handleRestore(journey: Journey) {
+    setActionPending(true)
+    try {
+      await restoreArchivedJourney(journey.id)
+      mutate((key: string) => typeof key === "string" && key.includes("/api/journeys"))
+      toast.success(t("journeyTabs.journeyRestored"))
+      setRestoreDialogJourney(null)
+    } catch {
+      toast.error("Failed to restore journey")
+    } finally {
+      setActionPending(false)
+    }
+  }
+
+  async function handlePermanentDelete(journey: Journey) {
+    setActionPending(true)
+    try {
+      await permanentlyDeleteJourney(journey.id)
+      mutate((key: string) => typeof key === "string" && key.includes("/api/journeys"))
+      toast.success(t("journeyTabs.journeyDeleted"))
+      setDeleteDialogJourney(null)
+    } catch {
+      toast.error("Failed to delete journey")
+    } finally {
+      setActionPending(false)
+    }
+  }
 
   const journeysByType = useMemo(() => {
-    return journeys.filter((j) => j.type === activeTab)
+    if (activeTab === "archived") {
+      return journeys.filter((j) => j.status === "archived")
+    }
+    return journeys.filter((j) => j.type === activeTab && j.status !== "archived")
   }, [journeys, activeTab])
 
   const countByType = useMemo(() => ({
-    current: journeys.filter((j) => j.type === "current").length,
-    future: journeys.filter((j) => j.type === "future").length,
-    deployed: journeys.filter((j) => j.type === "deployed").length,
+    current: journeys.filter((j) => j.type === "current" && j.status !== "archived").length,
+    future: journeys.filter((j) => j.type === "future" && j.status !== "archived").length,
+    deployed: journeys.filter((j) => j.type === "deployed" && j.status !== "archived").length,
+    archived: journeys.filter((j) => j.status === "archived").length,
   }), [journeys])
 
   const filteredJourneys = useMemo(() => {
@@ -194,7 +257,11 @@ function JourneysContent({ journeys }: { journeys: Journey[] }) {
             <Upload className="h-3.5 w-3.5" />
             {t("common.import")}
           </Button>
-          {activeTab === "deployed" ? (
+          {activeTab === "archived" ? (
+            <span className="text-xs text-muted-foreground">
+              {countByType.archived} {t("journeyTabs.archived").toLowerCase()}
+            </span>
+          ) : activeTab === "deployed" ? (
             <DeployJourneyDialog journeys={journeys.filter((j) => j.type === "current" || j.type === "future")} t={t}>
               <Button size="sm" className="gap-1.5">
                 <Rocket className="h-3.5 w-3.5" />
@@ -202,7 +269,7 @@ function JourneysContent({ journeys }: { journeys: Journey[] }) {
               </Button>
             </DeployJourneyDialog>
           ) : (
-            <CreateJourneyDialog defaultType={activeTab}>
+            <CreateJourneyDialog defaultType={activeTab as "current" | "future"}>
               <Button size="sm" className="gap-1.5">
                 <Plus className="h-3.5 w-3.5" />
                 {t("dashboard.newJourney")}
@@ -272,19 +339,33 @@ function JourneysContent({ journeys }: { journeys: Journey[] }) {
             <p className="mb-4 text-xs text-muted-foreground">{currentDesc}</p>
             {filteredJourneys.length === 0 ? (
               <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-border py-16">
-                <p className="text-sm font-medium text-foreground">
-                  No {tab.label.toLowerCase()} found
-                </p>
-                <p className="mt-1 text-xs text-muted-foreground">
-                  {searchQuery
-                    ? "Try adjusting your search query"
-                    : `Create your first ${tab.value} journey to get started`}
-                </p>
-                {!searchQuery && (
-                  <Button className="mt-4" size="sm">
-                    <Plus className="mr-2 h-3.5 w-3.5" />
-                    New {tab.value.charAt(0).toUpperCase() + tab.value.slice(1)} Journey
-                  </Button>
+                {tab.value === "archived" ? (
+                  <>
+                    <Archive className="h-10 w-10 text-muted-foreground/50 mb-3" />
+                    <p className="text-sm font-medium text-foreground">
+                      {t("journeyTabs.noArchivedJourneys")}
+                    </p>
+                    <p className="mt-1 text-xs text-muted-foreground max-w-xs text-center">
+                      {t("journeyTabs.noArchivedJourneysDesc")}
+                    </p>
+                  </>
+                ) : (
+                  <>
+                    <p className="text-sm font-medium text-foreground">
+                      No {tab.label.toLowerCase()} found
+                    </p>
+                    <p className="mt-1 text-xs text-muted-foreground">
+                      {searchQuery
+                        ? "Try adjusting your search query"
+                        : `Create your first ${tab.value} journey to get started`}
+                    </p>
+                    {!searchQuery && (
+                      <Button className="mt-4" size="sm">
+                        <Plus className="mr-2 h-3.5 w-3.5" />
+                        New {tab.value.charAt(0).toUpperCase() + tab.value.slice(1)} Journey
+                      </Button>
+                    )}
+                  </>
                 )}
               </div>
             ) : viewMode === "simple" ? (
@@ -295,6 +376,9 @@ function JourneysContent({ journeys }: { journeys: Journey[] }) {
                     journey={journey}
                     variant="simple"
                     onPeek={setPeekJourney}
+                    onArchive={setArchiveDialogJourney}
+                    onRestore={setRestoreDialogJourney}
+                    onPermanentDelete={setDeleteDialogJourney}
                   />
                 ))}
               </div>
@@ -306,6 +390,9 @@ function JourneysContent({ journeys }: { journeys: Journey[] }) {
                     journey={journey}
                     variant="comprehensive"
                     onPeek={setPeekJourney}
+                    onArchive={setArchiveDialogJourney}
+                    onRestore={setRestoreDialogJourney}
+                    onPermanentDelete={setDeleteDialogJourney}
                   />
                 ))}
               </div>
@@ -313,6 +400,73 @@ function JourneysContent({ journeys }: { journeys: Journey[] }) {
           </TabsContent>
         ))}
       </Tabs>
+
+      {/* Archive Confirmation Dialog */}
+      <AlertDialog open={!!archiveDialogJourney} onOpenChange={(open) => !open && setArchiveDialogJourney(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>{t("journeyTabs.archiveJourney")}</AlertDialogTitle>
+            <AlertDialogDescription>
+              {t("journeyTabs.archiveJourneyConfirm", { title: archiveDialogJourney?.title || "" })}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={actionPending}>{t("common.cancel")}</AlertDialogCancel>
+            <AlertDialogAction 
+              onClick={() => archiveDialogJourney && handleArchive(archiveDialogJourney)}
+              disabled={actionPending}
+            >
+              {actionPending ? t("common.loading") : t("journeyTabs.archiveJourney")}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Restore Confirmation Dialog */}
+      <AlertDialog open={!!restoreDialogJourney} onOpenChange={(open) => !open && setRestoreDialogJourney(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>{t("journeyTabs.restoreJourney")}</AlertDialogTitle>
+            <AlertDialogDescription>
+              {t("journeyTabs.restoreJourneyConfirm", { title: restoreDialogJourney?.title || "" })}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={actionPending}>{t("common.cancel")}</AlertDialogCancel>
+            <AlertDialogAction 
+              onClick={() => restoreDialogJourney && handleRestore(restoreDialogJourney)}
+              disabled={actionPending}
+            >
+              {actionPending ? t("common.loading") : t("journeyTabs.restoreJourney")}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Permanent Delete Confirmation Dialog */}
+      <AlertDialog open={!!deleteDialogJourney} onOpenChange={(open) => !open && setDeleteDialogJourney(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle className="flex items-center gap-2 text-destructive">
+              <AlertTriangle className="h-5 w-5" />
+              {t("journeyTabs.permanentDelete")}
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              {t("journeyTabs.permanentDeleteConfirm", { title: deleteDialogJourney?.title || "" })}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={actionPending}>{t("common.cancel")}</AlertDialogCancel>
+            <AlertDialogAction 
+              onClick={() => deleteDialogJourney && handlePermanentDelete(deleteDialogJourney)}
+              disabled={actionPending}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              {actionPending ? t("common.loading") : t("journeyTabs.permanentDelete")}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   )
 }
