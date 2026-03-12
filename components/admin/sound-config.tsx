@@ -17,7 +17,9 @@ import {
   MousePointerClick, 
   AlertTriangle, 
   Sparkles,
-  RefreshCw
+  RefreshCw,
+  Navigation,
+  Wind
 } from "lucide-react"
 import { SOUND_LIBRARY, getSoundUrl, type SoundCategory } from "@/lib/sound-library"
 import { toast } from "sonner"
@@ -28,6 +30,8 @@ const CATEGORY_ICONS: Record<string, React.ReactNode> = {
   action: <MousePointerClick className="h-4 w-4 text-purple-500" />,
   alert: <AlertTriangle className="h-4 w-4 text-amber-500" />,
   ai: <Sparkles className="h-4 w-4 text-indigo-500" />,
+  navigation: <Navigation className="h-4 w-4 text-cyan-500" />,
+  ambient: <Wind className="h-4 w-4 text-teal-500" />,
 }
 
 export interface SoundConfig {
@@ -52,6 +56,8 @@ const DEFAULT_CONFIG: SoundConfig = {
     action: { enabled: false, volume: 0.3, soundId: "click-1" },
     alert: { enabled: true, volume: 0.7, soundId: "alert-1" },
     ai: { enabled: true, volume: 0.5, soundId: "ai-1" },
+    navigation: { enabled: false, volume: 0.3, soundId: "nav-1" },
+    ambient: { enabled: false, volume: 0.2, soundId: "ambient-1" },
   },
   eventOverrides: {},
 }
