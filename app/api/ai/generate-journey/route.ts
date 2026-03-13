@@ -3,6 +3,7 @@ import { createAnthropic } from "@ai-sdk/anthropic"
 import { NextResponse } from "next/server"
 import { createClient } from "@/lib/supabase/server"
 import { revalidatePath } from "next/cache"
+import { detectPredominantLanguage, getLanguageInstruction, extractExplicitLanguage } from "@/lib/language-detection"
 
 interface GeneratedPainPoint {
   description: string
@@ -59,7 +60,12 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Not authenticated" }, { status: 401 })
   }
 
-  const { journeyId, title, description, options } = await req.json()
+  const { journeyId, title, description, options, language: explicitLanguage } = await req.json()
+  
+  // Detect language from title/description or use explicit language
+  const extractedLang = description ? extractExplicitLanguage(description) : undefined
+  const langResult = detectPredominantLanguage(title, description, explicitLanguage || extractedLang)
+  const languageInstruction = getLanguageInstruction(langResult)
   
   // Default options - generate everything if not specified
   const generateOptions = {
@@ -175,6 +181,9 @@ ${a.touchpoints_narrative ? `- Preferred Touchpoints: ${a.touchpoints_narrative}
   const result = await generateText({
     model: anthropic("claude-sonnet-4-20250514"),
     prompt: `You are René AI, a world-class CX journey design expert. Generate a customer journey map structure as JSON.
+
+LANGUAGE REQUIREMENT:
+${languageInstruction}
 
 JOURNEY CONTEXT:
 - Title: ${title}
