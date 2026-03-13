@@ -24,8 +24,6 @@ const DEFAULT_LOGOS = {
   logoDark: "https://py47xstuktdkxylm.public.blob.vercel-storage.com/logos/logo-dark-xOhDTEdqNvUAZaKUpWWdevckyCXaMX.png",
   logoMarkLight: "https://py47xstuktdkxylm.public.blob.vercel-storage.com/logos/logomark-light-IhqbmEuQwYjHrb2rJf3aAzBLZ7TbDV.png",
   logoMarkDark: "https://py47xstuktdkxylm.public.blob.vercel-storage.com/logos/logomark-dark-j1hSjCo5bIOlFJWH2t8l3LU3LfLqYN.png",
-  loginLogoLight: "https://py47xstuktdkxylm.public.blob.vercel-storage.com/logos/logo-light-TKrukgyff9qYn05XX01mnhB1RP7Wrb.png",
-  loginLogoDark: "https://py47xstuktdkxylm.public.blob.vercel-storage.com/logos/logo-dark-xOhDTEdqNvUAZaKUpWWdevckyCXaMX.png",
 }
 
 export default function AdminConfigPage() {
@@ -55,8 +53,6 @@ export default function AdminConfigPage() {
     logoDark: "",
     logoMarkLight: "",
     logoMarkDark: "",
-    loginLogoLight: "",
-    loginLogoDark: "",
   })
   const [soundConfig, setSoundConfig] = useState<SoundConfig | null>(null)
   const [savingSounds, setSavingSounds] = useState(false)
@@ -108,8 +104,6 @@ export default function AdminConfigPage() {
         logoDark: config.logoDarkUrl || "",
         logoMarkLight: config.logoMarkLightUrl || "",
         logoMarkDark: config.logoMarkDarkUrl || "",
-        loginLogoLight: config.loginLogoLightUrl || "",
-        loginLogoDark: config.loginLogoDarkUrl || "",
       })
       // Load sounds config
       if (config.soundsConfig) {
@@ -691,83 +685,6 @@ export default function AdminConfigPage() {
               </div>
             </div>
           </div>
-          
-          {/* Login Page Logos - Separate Section */}
-          <Separator className="my-4" />
-          <div>
-            <Label className="text-sm font-medium">Login Page Logos</Label>
-            <p className="text-xs text-muted-foreground mt-1 mb-4">
-              Custom logos displayed on the login and signup pages. Falls back to full logos if not set.
-            </p>
-            <div className="grid gap-6 sm:grid-cols-2">
-              {/* Login Logo - Light (shown on dark background) */}
-              <div className="flex flex-col gap-3">
-                <Label className="text-xs font-medium">Login Page Logo (Dark Background)</Label>
-                <div className="relative flex h-24 items-center justify-center rounded-lg border border-dashed border-border bg-zinc-900 p-4">
-                  <Image
-                    src={logos.loginLogoDark || logos.logoDark || DEFAULT_LOGOS.loginLogoDark}
-                    alt="Login Logo Dark"
-                    width={200}
-                    height={60}
-                    className="max-h-14 w-auto object-contain"
-                  />
-                </div>
-                <div className="flex gap-2">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="flex-1 text-xs"
-                    disabled={logoUploading === "loginLogoDark"}
-                    onClick={() => document.getElementById("upload-login-dark")?.click()}
-                  >
-                    <Upload className="mr-1.5 h-3 w-3" />
-                    {logoUploading === "loginLogoDark" ? "Uploading..." : "Upload"}
-                  </Button>
-                  <input
-                    id="upload-login-dark"
-                    type="file"
-                    accept="image/*"
-                    className="hidden"
-                    onChange={(e) => e.target.files?.[0] && handleLogoUpload("loginLogoDark", e.target.files[0])}
-                  />
-                </div>
-              </div>
-
-              {/* Login Logo - Dark (shown on light background) */}
-              <div className="flex flex-col gap-3">
-                <Label className="text-xs font-medium">Login Page Logo (Light Background)</Label>
-                <div className="relative flex h-24 items-center justify-center rounded-lg border border-dashed border-border bg-white p-4">
-                  <Image
-                    src={logos.loginLogoLight || logos.logoLight || DEFAULT_LOGOS.loginLogoLight}
-                    alt="Login Logo Light"
-                    width={200}
-                    height={60}
-                    className="max-h-14 w-auto object-contain"
-                  />
-                </div>
-                <div className="flex gap-2">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="flex-1 text-xs"
-                    disabled={logoUploading === "loginLogoLight"}
-                    onClick={() => document.getElementById("upload-login-light")?.click()}
-                  >
-                    <Upload className="mr-1.5 h-3 w-3" />
-                    {logoUploading === "loginLogoLight" ? "Uploading..." : "Upload"}
-                  </Button>
-                  <input
-                    id="upload-login-light"
-                    type="file"
-                    accept="image/*"
-                    className="hidden"
-                    onChange={(e) => e.target.files?.[0] && handleLogoUpload("loginLogoLight", e.target.files[0])}
-                  />
-                </div>
-              </div>
-            </div>
-          </div>
-          
           <p className="mt-4 text-xs text-muted-foreground">
             Recommended: Full logos should be transparent PNGs at least 400px wide. Logo marks should be square, at least 128x128px.
           </p>
