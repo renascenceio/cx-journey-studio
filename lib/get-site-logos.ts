@@ -8,11 +8,14 @@ export async function getSiteLogos() {
   const supabase = await createClient()
   
   // Logos are stored as separate columns on the branding row
-  const { data: branding } = await supabase
+  const { data: branding, error: brandingError } = await supabase
     .from("site_config")
     .select("logo_light_url, logo_dark_url, logo_mark_light_url, logo_mark_dark_url")
     .eq("key", "branding")
     .single()
+  
+  console.log("[v0] getSiteLogos - branding data:", branding)
+  console.log("[v0] getSiteLogos - branding error:", brandingError)
   
   const { data: siteNameRow } = await supabase
     .from("site_config")
