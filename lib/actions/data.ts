@@ -113,6 +113,169 @@ export async function createJourney(formData: {
   return { id: journey.id }
 }
 
+export async function createJourneyFromImport(parsedJourney: {
+  title: string
+  description: string | null
+  stages: {
+    name: string
+    steps: {
+      name: string
+      description: string | null
+      touchPoints: {
+        channel: string
+        description: string
+        emotionalScore: number
+        painPoints: { description: string; severity: string }[]
+        highlights: { description: string; impact: string }[]
+      }[]
+    }[]
+  }[]
+  suggestedTags: string[]
+  suggestedType: "current" | "future" | "template"
+}) {
+  const supabase = await createClient()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+  if (!user) throw new Error("Not authenticated")
+
+  // Get user's profile for org/team
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("organization_id")
+    .eq("id", user.id)
+    .single()
+
+  if (!profile?.organization_id) throw new Error("No organization found")
+
+  // Get first team in org
+  const { data: team } = await supabase
+    .from("teams")
+    .select("id")
+    .eq("organization_id", profile.organization_id)
+    .limit(1)
+    .single()
+
+  // Map template type to current (templates are just current journeys used as templates)
+  const journeyType = parsedJourney.suggestedType === "template" ? "current" : parsedJourney.suggestedType
+
+  // Create the journey
+  const { data: journey, error: journeyError } = await supabase
+    .from("journeys")
+    .insert({
+      title: parsedJourney.title,
+      description: parsedJourney.description || "",
+      type: journeyType,
+      category: "retail",
+      status: "draft",
+      owner_id: user.id,
+      organization_id: profile.organization_id,
+      team_id: team?.id,
+      tags: parsedJourney.suggestedTags || [],
+      health_status: "unknown",
+    })
+    .select("id")
+    .single()
+
+  if (journeyError) throw new Error(journeyError.message)
+
+  // Add creator as collaborator
+  await supabase.from("collaborators").insert({
+    journey_id: journey.id,
+    user_id: user.id,
+    role: "journey_master",
+  })
+
+  // Create all stages, steps, touchpoints, pain points, and highlights
+  for (let stageOrder = 0; stageOrder < parsedJourney.stages.length; stageOrder++) {
+    const stage = parsedJourney.stages[stageOrder]
+
+    const { data: stageData, error: stageError } = await supabase
+      .from("stages")
+      .insert({
+        journey_id: journey.id,
+        name: stage.name,
+        order: stageOrder,
+      })
+      .select("id")
+      .single()
+
+    if (stageError) {
+      console.error("Stage insert error:", stageError)
+      continue
+    }
+
+    for (let stepOrder = 0; stepOrder < stage.steps.length; stepOrder++) {
+      const step = stage.steps[stepOrder]
+
+      const { data: stepData, error: stepError } = await supabase
+        .from("steps")
+        .insert({
+          stage_id: stageData.id,
+          name: step.name,
+          description: step.description || "",
+          order: stepOrder,
+        })
+        .select("id")
+        .single()
+
+      if (stepError) {
+        console.error("Step insert error:", stepError)
+        continue
+      }
+
+      for (const touchPoint of step.touchPoints) {
+        const { data: tpData, error: tpError } = await supabase
+          .from("touch_points")
+          .insert({
+            step_id: stepData.id,
+            channel: touchPoint.channel,
+            description: touchPoint.description,
+            emotional_score: touchPoint.emotionalScore,
+          })
+          .select("id")
+          .single()
+
+        if (tpError) {
+          console.error("TouchPoint insert error:", tpError)
+          continue
+        }
+
+        // Insert pain points
+        for (const painPoint of touchPoint.painPoints) {
+          await supabase.from("pain_points").insert({
+            touch_point_id: tpData.id,
+            description: painPoint.description,
+            severity: painPoint.severity,
+          })
+        }
+
+        // Insert highlights
+        for (const highlight of touchPoint.highlights) {
+          await supabase.from("highlights").insert({
+            touch_point_id: tpData.id,
+            description: highlight.description,
+            impact: highlight.impact,
+          })
+        }
+      }
+    }
+  }
+
+  // Log activity
+  await supabase.from("activity_log").insert({
+    action: "created",
+    actor_id: user.id,
+    journey_id: journey.id,
+    details: `Imported "${parsedJourney.title}" with ${parsedJourney.stages.length} stages`,
+  })
+
+  revalidatePath("/journeys")
+  revalidatePath("/dashboard")
+
+  return { id: journey.id }
+}
+
 export async function createArchetype(formData: {
   journeyId: string
   name: string

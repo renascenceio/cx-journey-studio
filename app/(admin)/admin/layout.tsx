@@ -23,6 +23,7 @@ import {
   Fingerprint,
   Bell,
   FileText,
+  Crown,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Toaster } from "@/components/ui/sonner"
@@ -44,6 +45,7 @@ const adminNav = [
   { label: "Translations", href: "/admin/translations", icon: Languages, segment: "translations" },
   { label: "Support", href: "/admin/support", icon: Headphones, segment: "support" },
   { label: "System Status", href: "/admin/status", icon: Activity, segment: "status" },
+  { label: "Admin Access", href: "/admin/access", icon: Crown, segment: "access" },
 ]
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
