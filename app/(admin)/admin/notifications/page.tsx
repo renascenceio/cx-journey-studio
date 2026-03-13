@@ -766,7 +766,7 @@ export default function NotificationsPage() {
         <table width="480" cellpadding="0" cellspacing="0" style="background-color: #ffffff; border-radius: 12px; overflow: hidden;">
           <tr>
             <td style="background-color: #18181b; padding: 32px; text-align: center;">
-              <img src="https://py47xstuktdkxylm.public.blob.vercel-storage.com/logos/logo-dark-xOhDTEdqNvUAZaKUpWWdevckyCXaMX.png" alt="René Studio" height="48" style="margin-bottom: 16px;">
+              <span style="color: #ffffff; font-size: 24px; font-weight: 700;">René Studio</span>
               <h1 style="color: #ffffff; font-size: 20px; font-weight: 600; margin: 0;">{{ .Subject }}</h1>
             </td>
           </tr>

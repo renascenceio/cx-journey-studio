@@ -18,14 +18,6 @@ import useSWR, { mutate } from "swr"
 
 const fetcher = (url: string) => fetch(url).then((r) => r.json())
 
-// Default logos used as fallbacks
-const DEFAULT_LOGOS = {
-  logoLight: "https://py47xstuktdkxylm.public.blob.vercel-storage.com/logos/logo-light-TKrukgyff9qYn05XX01mnhB1RP7Wrb.png",
-  logoDark: "https://py47xstuktdkxylm.public.blob.vercel-storage.com/logos/logo-dark-xOhDTEdqNvUAZaKUpWWdevckyCXaMX.png",
-  logoMarkLight: "https://py47xstuktdkxylm.public.blob.vercel-storage.com/logos/logomark-light-IhqbmEuQwYjHrb2rJf3aAzBLZ7TbDV.png",
-  logoMarkDark: "https://py47xstuktdkxylm.public.blob.vercel-storage.com/logos/logomark-dark-j1hSjCo5bIOlFJWH2t8l3LU3LfLqYN.png",
-}
-
 export default function AdminConfigPage() {
   const { data: config } = useSWR("/api/admin/config", fetcher)
   const [saving, setSaving] = useState(false)
@@ -557,13 +549,20 @@ export default function AdminConfigPage() {
             <div className="flex flex-col gap-3">
               <Label className="text-xs font-medium">Full Logo (Light Theme)</Label>
               <div className="relative flex h-24 items-center justify-center rounded-lg border border-dashed border-border bg-white p-4">
-                <Image
-                  src={logos.logoLight || DEFAULT_LOGOS.logoLight}
-                  alt="Logo Light"
-                  width={160}
-                  height={48}
-                  className="max-h-12 w-auto object-contain"
-                />
+                {logos.logoLight ? (
+                  <Image
+                    src={logos.logoLight}
+                    alt="Logo Light"
+                    width={160}
+                    height={48}
+                    className="max-h-12 w-auto object-contain"
+                  />
+                ) : (
+                  <div className="flex flex-col items-center gap-1 text-muted-foreground">
+                    <ImageIcon className="h-6 w-6" />
+                    <span className="text-[10px]">No logo</span>
+                  </div>
+                )}
               </div>
               <div className="flex gap-2">
                 <Button
@@ -590,13 +589,20 @@ export default function AdminConfigPage() {
             <div className="flex flex-col gap-3">
               <Label className="text-xs font-medium">Full Logo (Dark Theme)</Label>
               <div className="relative flex h-24 items-center justify-center rounded-lg border border-dashed border-border bg-zinc-900 p-4">
-                <Image
-                  src={logos.logoDark || DEFAULT_LOGOS.logoDark}
-                  alt="Logo Dark"
-                  width={160}
-                  height={48}
-                  className="max-h-12 w-auto object-contain"
-                />
+                {logos.logoDark ? (
+                  <Image
+                    src={logos.logoDark}
+                    alt="Logo Dark"
+                    width={160}
+                    height={48}
+                    className="max-h-12 w-auto object-contain"
+                  />
+                ) : (
+                  <div className="flex flex-col items-center gap-1 text-zinc-500">
+                    <ImageIcon className="h-6 w-6" />
+                    <span className="text-[10px]">No logo</span>
+                  </div>
+                )}
               </div>
               <div className="flex gap-2">
                 <Button
@@ -623,13 +629,20 @@ export default function AdminConfigPage() {
             <div className="flex flex-col gap-3">
               <Label className="text-xs font-medium">Logo Mark (Light Theme)</Label>
               <div className="relative flex h-24 items-center justify-center rounded-lg border border-dashed border-border bg-white p-4">
-                <Image
-                  src={logos.logoMarkLight || DEFAULT_LOGOS.logoMarkLight}
-                  alt="Logo Mark Light"
-                  width={48}
-                  height={48}
-                  className="h-12 w-12 object-contain"
-                />
+                {logos.logoMarkLight ? (
+                  <Image
+                    src={logos.logoMarkLight}
+                    alt="Logo Mark Light"
+                    width={48}
+                    height={48}
+                    className="h-12 w-12 object-contain"
+                  />
+                ) : (
+                  <div className="flex flex-col items-center gap-1 text-muted-foreground">
+                    <ImageIcon className="h-6 w-6" />
+                    <span className="text-[10px]">No logo</span>
+                  </div>
+                )}
               </div>
               <div className="flex gap-2">
                 <Button
@@ -656,13 +669,20 @@ export default function AdminConfigPage() {
             <div className="flex flex-col gap-3">
               <Label className="text-xs font-medium">Logo Mark (Dark Theme)</Label>
               <div className="relative flex h-24 items-center justify-center rounded-lg border border-dashed border-border bg-zinc-900 p-4">
-                <Image
-                  src={logos.logoMarkDark || DEFAULT_LOGOS.logoMarkDark}
-                  alt="Logo Mark Dark"
-                  width={48}
-                  height={48}
-                  className="h-12 w-12 object-contain"
-                />
+                {logos.logoMarkDark ? (
+                  <Image
+                    src={logos.logoMarkDark}
+                    alt="Logo Mark Dark"
+                    width={48}
+                    height={48}
+                    className="h-12 w-12 object-contain"
+                  />
+                ) : (
+                  <div className="flex flex-col items-center gap-1 text-zinc-500">
+                    <ImageIcon className="h-6 w-6" />
+                    <span className="text-[10px]">No logo</span>
+                  </div>
+                )}
               </div>
               <div className="flex gap-2">
                 <Button

@@ -24,10 +24,6 @@ interface AuthLayoutClientProps {
   siteName: string
 }
 
-// Default fallback logos
-const DEFAULT_LOGO_DARK = "https://py47xstuktdkxylm.public.blob.vercel-storage.com/logos/logo-dark-xOhDTEdqNvUAZaKUpWWdevckyCXaMX.png"
-const DEFAULT_LOGO_LIGHT = "https://py47xstuktdkxylm.public.blob.vercel-storage.com/logos/logo-light-TKrukgyff9qYn05XX01mnhB1RP7Wrb.png"
-
 export function AuthLayoutClient({ children, logoDark, logoLight, siteName }: AuthLayoutClientProps) {
   // Use first testimonial for SSR consistency, avoiding hydration mismatch from Math.random()
   const t = testimonials[0]
@@ -42,24 +38,24 @@ export function AuthLayoutClient({ children, logoDark, logoLight, siteName }: Au
   const orgCount = stats?.organizationCount ?? "500+"
   const avgRating = stats?.avgRating ?? "4.9"
   
-  // Use provided logos or fallback to defaults
-  const darkLogo = logoDark || DEFAULT_LOGO_DARK
-  const lightLogo = logoLight || DEFAULT_LOGO_LIGHT
-
   return (
     <AuthProvider>
       <div className="flex min-h-screen">
         {/* Left panel - testimonial */}
         <div className="hidden lg:flex lg:w-1/2 flex-col justify-between bg-primary p-10 text-primary-foreground">
           <Link href="/home" className="flex items-center h-[76px]">
-            <Image
-              src={darkLogo}
-              alt={siteName}
-              width={320}
-              height={85}
-              className="h-[76px] w-auto"
-              priority
-            />
+            {logoDark ? (
+              <Image
+                src={logoDark}
+                alt={siteName}
+                width={320}
+                height={85}
+                className="h-[76px] w-auto"
+                priority
+              />
+            ) : (
+              <span className="text-xl font-semibold text-primary-foreground">{siteName}</span>
+            )}
           </Link>
 
           <div className="flex flex-col gap-6 max-w-lg">
@@ -87,14 +83,18 @@ export function AuthLayoutClient({ children, logoDark, logoLight, siteName }: Au
         {/* Right panel - auth form */}
         <div className="flex flex-1 flex-col items-center justify-center bg-background px-4 py-12">
           <Link href="/home" className="mb-8 lg:hidden flex items-center h-16">
-            <Image
-              src={lightLogo}
-              alt={siteName}
-              width={288}
-              height={77}
-              className="h-16 w-auto"
-              priority
-            />
+            {logoLight ? (
+              <Image
+                src={logoLight}
+                alt={siteName}
+                width={288}
+                height={77}
+                className="h-16 w-auto"
+                priority
+              />
+            ) : (
+              <span className="text-xl font-semibold text-foreground">{siteName}</span>
+            )}
           </Link>
           {children}
         </div>
