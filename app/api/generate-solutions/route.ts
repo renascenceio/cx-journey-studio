@@ -1,9 +1,16 @@
 import { generateText } from "ai"
 import { createAnthropic } from "@ai-sdk/anthropic"
+import { detectPredominantLanguage, getLanguageInstruction, extractExplicitLanguage } from "@/lib/language-detection"
 
 export async function POST(req: Request) {
   try {
-    const { touchPoint, stageName, stepName, journeyTitle, context, industry } = await req.json()
+    const { touchPoint, stageName, stepName, journeyTitle, context, industry, language: explicitLanguage } = await req.json()
+    
+    // Detect language from context
+    const contextText = context || touchPoint?.description || journeyTitle || ""
+    const extractedLang = extractExplicitLanguage(contextText)
+    const langResult = detectPredominantLanguage(journeyTitle, contextText, explicitLanguage || extractedLang)
+    const languageInstruction = getLanguageInstruction(langResult)
 
     // Handle both old touchpoint-based and new context-based generation
     const prompt = touchPoint 
@@ -42,6 +49,9 @@ Be specific and actionable, not generic advice.`
     const result = await generateText({
       model: anthropic("claude-sonnet-4-20250514"),
       prompt: `You are a senior CX (Customer Experience) strategist and service design expert.
+
+LANGUAGE REQUIREMENT:
+${languageInstruction}
 
 Generate practical, actionable solutions to improve customer experiences.
 

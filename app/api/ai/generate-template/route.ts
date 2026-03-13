@@ -2,6 +2,7 @@ import { generateText, Output } from "ai"
 import { anthropic } from "@ai-sdk/anthropic"
 import { z } from "zod"
 import { NextResponse } from "next/server"
+import { detectPredominantLanguage, getLanguageInstruction, extractExplicitLanguage } from "@/lib/language-detection"
 
 // B15: Map model IDs to Anthropic model identifiers
 const MODEL_MAP: Record<string, string> = {
@@ -30,11 +31,16 @@ const templateSchema = z.object({
 
 export async function POST(request: Request) {
   try {
-    const { prompt, industry, modelId } = await request.json()
+    const { prompt, industry, modelId, language: explicitLanguage } = await request.json()
 
     if (!prompt) {
       return NextResponse.json({ error: "Prompt is required" }, { status: 400 })
     }
+
+    // Detect language from prompt
+    const extractedLang = extractExplicitLanguage(prompt)
+    const langResult = detectPredominantLanguage(undefined, prompt, explicitLanguage || extractedLang)
+    const languageInstruction = getLanguageInstruction(langResult)
 
     // B15: Use selected model or default to Sonnet
     const anthropicModel = MODEL_MAP[modelId] || MODEL_MAP["claude-sonnet-4.5"]
@@ -45,7 +51,10 @@ export async function POST(request: Request) {
       messages: [
         {
           role: "system",
-          content: `You are a CX journey mapping expert. Generate a detailed, realistic journey template for the "${industry || "general"}" industry. Include realistic emotional scores that show both positive and negative moments. The template should be immediately usable for customer journey mapping.`,
+          content: `You are a CX journey mapping expert. Generate a detailed, realistic journey template for the "${industry || "general"}" industry. Include realistic emotional scores that show both positive and negative moments. The template should be immediately usable for customer journey mapping.
+
+LANGUAGE REQUIREMENT:
+${languageInstruction}`,
         },
         {
           role: "user",

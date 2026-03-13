@@ -2,13 +2,22 @@ import { generateText, Output } from "ai"
 import { anthropic } from "@ai-sdk/anthropic"
 import { z } from "zod"
 import { NextResponse } from "next/server"
+import { detectPredominantLanguage, getLanguageInstruction } from "@/lib/language-detection"
 
 export async function POST(req: Request) {
-  const { stageName, description, journeyTitle } = await req.json()
+  const { stageName, description, journeyTitle, language: explicitLanguage } = await req.json()
 
   if (!stageName || !description) {
     return NextResponse.json({ error: "Missing stageName or description" }, { status: 400 })
   }
+
+  // Detect language from stage name, description, or journey title
+  const langResult = detectPredominantLanguage(
+    stageName,
+    description + (journeyTitle || ""),
+    explicitLanguage
+  )
+  const languageInstruction = getLanguageInstruction(langResult)
 
   const result = await generateText({
     model: anthropic("claude-3-5-sonnet-20241022"),
@@ -30,6 +39,9 @@ export async function POST(req: Request) {
       }),
     }),
     prompt: `You are a CX journey design expert. Generate 3-5 steps for a journey stage.
+
+LANGUAGE REQUIREMENT:
+${languageInstruction}
 
 Journey: ${journeyTitle || "Customer Journey"}
 Stage Name: ${stageName}

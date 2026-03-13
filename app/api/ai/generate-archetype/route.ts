@@ -3,6 +3,7 @@ import { createAnthropic } from "@ai-sdk/anthropic"
 import { z } from "zod"
 import { NextResponse } from "next/server"
 import { createClient } from "@/lib/supabase/server"
+import { detectPredominantLanguage, getLanguageInstruction, extractExplicitLanguage } from "@/lib/language-detection"
 
 const anthropic = createAnthropic({
   apiKey: process.env.ANTHROPIC_API_KEY,
@@ -84,7 +85,7 @@ interface ExistingArchetypeInput {
 
 export async function POST(request: Request) {
   try {
-    const { prompt, category, generateMultiple, journeyContext, existingArchetypes } = await request.json() as {
+    const { prompt, category, generateMultiple, journeyContext, existingArchetypes, language: explicitLanguage } = await request.json() as {
       prompt: string
       category: string
       generateMultiple?: boolean
@@ -95,11 +96,21 @@ export async function POST(request: Request) {
         tags?: string[]
       }
       existingArchetypes?: ExistingArchetypeInput[]
+      language?: string
     }
 
     if (!prompt) {
       return NextResponse.json({ error: "Prompt is required" }, { status: 400 })
     }
+
+    // Detect language from prompt or journey context
+    const extractedLang = extractExplicitLanguage(prompt)
+    const langResult = detectPredominantLanguage(
+      journeyContext?.title,
+      prompt + (journeyContext?.description || ""),
+      explicitLanguage || extractedLang
+    )
+    const languageInstruction = getLanguageInstruction(langResult)
 
     // Fetch custom prompt from database if available
     const customPromptData = await getCustomPrompt()
@@ -131,6 +142,10 @@ CRITICAL: Generate archetypes that represent DIFFERENT customer segments, behavi
       : ""
 
     const systemPrompt = `You are René AI, a CX (Customer Experience) expert creating behavioral customer archetypes following McKinsey CX methodology.
+
+LANGUAGE REQUIREMENT:
+${languageInstruction}
+
 ${journeyInfo}${existingArchetypesInfo}${customInstructions}
 
 CRITICAL RULES:

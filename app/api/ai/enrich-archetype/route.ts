@@ -2,6 +2,7 @@ import { generateText, Output } from "ai"
 import { createAnthropic } from "@ai-sdk/anthropic"
 import { z } from "zod"
 import { NextResponse } from "next/server"
+import { detectPredominantLanguage, getLanguageInstruction } from "@/lib/language-detection"
 
 const anthropic = createAnthropic({
   apiKey: process.env.ANTHROPIC_API_KEY,
@@ -44,16 +45,23 @@ export const maxDuration = 60
 
 export async function POST(request: Request) {
   try {
-    const { idea, category } = await request.json()
+    const { idea, category, language: explicitLanguage } = await request.json()
 
     if (!idea) {
       return NextResponse.json({ error: "Idea is required" }, { status: 400 })
     }
 
+    // Detect language from idea name and description
+    const langResult = detectPredominantLanguage(idea.name, idea.description, explicitLanguage)
+    const languageInstruction = getLanguageInstruction(langResult)
+
     const { output } = await generateText({
       model: anthropic("claude-sonnet-4-20250514"),
       output: Output.object({ schema: fullArchetypeSchema }),
       system: `You are a CX expert creating a detailed customer archetype.
+
+LANGUAGE REQUIREMENT:
+${languageInstruction}
 
 PILLAR RATINGS (all 0-10 scale, must include all 10):
 Higher Order: Recognition, Integrity, Expectations, Empathy, Emotions

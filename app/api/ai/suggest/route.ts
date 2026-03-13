@@ -3,6 +3,7 @@ import { createAnthropic } from "@ai-sdk/anthropic"
 import { z } from "zod"
 import { NextResponse } from "next/server"
 import { createClient } from "@/lib/supabase/server"
+import { detectPredominantLanguage, getLanguageInstruction } from "@/lib/language-detection"
 
 const anthropic = createAnthropic({
   apiKey: process.env.ANTHROPIC_API_KEY,
@@ -24,7 +25,12 @@ async function getPrompt(category: string): Promise<{ system_prompt: string; exa
 }
 
 export async function POST(req: Request) {
-  const { type, context } = await req.json()
+  const { type, context, language: explicitLanguage } = await req.json()
+  
+  // Detect language from context
+  const contextText = context?.touchpointDescription || context?.archetypeName || context?.journeyTitle || ""
+  const langResult = detectPredominantLanguage(context?.journeyTitle, contextText, explicitLanguage)
+  const languageInstruction = getLanguageInstruction(langResult)
 
   if (type === "pain-point-solutions") {
     // Fetch custom prompt from database
@@ -64,6 +70,10 @@ JOURNEY CONTEXT:
         }),
       }),
       prompt: `Given the following context, suggest 3-5 practical solutions.
+
+LANGUAGE REQUIREMENT:
+${languageInstruction}
+
 ${journeyInfo}${archetypeInfo}
 TOUCHPOINT DETAILS:
 - Description: ${context.touchpointDescription}
@@ -95,6 +105,9 @@ Provide actionable solutions that address the specific pain points while conside
         }),
       }),
       prompt: `You are a CX improvement expert. Suggest 3-4 improvements for this touchpoint.
+
+LANGUAGE REQUIREMENT:
+${languageInstruction}
 
 Touchpoint: ${context.touchpointDescription}
 Channel: ${context.channel}
@@ -143,6 +156,10 @@ JOURNEY CONTEXT:
           }),
         }),
         prompt: `Generate a solution for the following context:
+
+LANGUAGE REQUIREMENT:
+${languageInstruction}
+
 ${archetypeDetails}${journeyDetails}
 SOLUTION PRINCIPLE (this is what your solution MUST address):
 "${context.principle}"
@@ -210,6 +227,10 @@ ${context.journeyDescription ? `- Description: ${context.journeyDescription}` : 
           }),
         }),
         prompt: `Generate solutions for each combination of solution principle and journey stage.
+
+LANGUAGE REQUIREMENT:
+${languageInstruction}
+
 ${archetypeProfile}${journeyProfile}
 IMPORTANT: Each solution must DIRECTLY address its specific Solution Principle while considering the archetype's goals, frustrations, and expectations. Do not generate generic UX or accessibility advice unless the principle specifically mentions it.
 
