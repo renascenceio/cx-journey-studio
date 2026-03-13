@@ -59,7 +59,7 @@ export async function POST(request: NextRequest) {
     })
     
     // Save URL to site_config in database (on the 'branding' row)
-    // Use upsert to create the row if it doesn't exist
+    // Store in the JSONB 'value' column since that's what the schema supports
     const configKey = configKeyMap[type]
     if (configKey) {
       // First, try to get existing branding row
@@ -70,10 +70,13 @@ export async function POST(request: NextRequest) {
         .single()
       
       if (existing) {
-        // Update existing row
+        // Update existing row - merge new logo URL into existing value object
+        const currentValue = typeof existing.value === 'object' ? existing.value : {}
+        const newValue = { ...currentValue, [configKey]: blob.url }
+        
         const { error: updateError } = await supabase
           .from("site_config")
-          .update({ [configKey]: blob.url, updated_at: new Date().toISOString() })
+          .update({ value: newValue, updated_at: new Date().toISOString() })
           .eq("key", "branding")
         
         if (updateError) {
@@ -81,14 +84,12 @@ export async function POST(request: NextRequest) {
           return NextResponse.json({ error: "Failed to save logo URL" }, { status: 500 })
         }
       } else {
-        // Insert new branding row
+        // Insert new branding row with logo URL in JSONB value
         const { error: insertError } = await supabase
           .from("site_config")
           .insert({ 
             key: "branding", 
-            value: "custom",
-            [configKey]: blob.url, 
-            created_at: new Date().toISOString(),
+            value: { [configKey]: blob.url },
             updated_at: new Date().toISOString() 
           })
         

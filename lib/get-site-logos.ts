@@ -7,23 +7,27 @@ export async function getSiteLogos() {
   
   const supabase = await createClient()
   
-  const { data } = await supabase
+  // Logos are stored in the JSONB 'value' column of the branding row
+  const { data: branding } = await supabase
     .from("site_config")
-    .select("logo_light_url, logo_dark_url, logo_mark_light_url, logo_mark_dark_url, value")
+    .select("value")
     .eq("key", "branding")
     .single()
   
-  const siteName = await supabase
+  const { data: siteNameRow } = await supabase
     .from("site_config")
     .select("value")
-    .eq("key", "site_name")
+    .eq("key", "general")
     .single()
 
+  // Extract logo URLs from the JSONB value
+  const brandingValue = branding?.value as Record<string, string> | null
+
   return {
-    logoLight: data?.logo_light_url || null,
-    logoDark: data?.logo_dark_url || null,
-    logoMarkLight: data?.logo_mark_light_url || null,
-    logoMarkDark: data?.logo_mark_dark_url || null,
-    siteName: siteName.data?.value || "René Studio",
+    logoLight: brandingValue?.logo_light_url || null,
+    logoDark: brandingValue?.logo_dark_url || null,
+    logoMarkLight: brandingValue?.logo_mark_light_url || null,
+    logoMarkDark: brandingValue?.logo_mark_dark_url || null,
+    siteName: (siteNameRow?.value as { siteName?: string })?.siteName || "René Studio",
   }
 }
