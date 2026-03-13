@@ -734,6 +734,81 @@ export default function NotificationsPage() {
         </TabsContent>
 
         <TabsContent value="templates" className="mt-0">
+          {/* Supabase Configuration Notice */}
+          <div className="mb-6 rounded-lg border border-amber-200 bg-amber-50 p-4 dark:border-amber-800 dark:bg-amber-900/20">
+            <div className="flex gap-3">
+              <AlertTriangle className="h-5 w-5 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
+              <div>
+                <p className="text-sm font-medium text-amber-800 dark:text-amber-200">Supabase Email Templates</p>
+                <p className="mt-1 text-xs text-amber-700 dark:text-amber-300">
+                  Authentication emails (magic link, password reset, email verification) are managed in your Supabase project dashboard. 
+                  The templates below are visual previews showing our recommended design.
+                </p>
+                <div className="mt-3 flex flex-wrap gap-2">
+                  <Button variant="outline" size="sm" asChild className="h-7 text-xs">
+                    <a href="https://supabase.com/dashboard/project/_/auth/templates" target="_blank" rel="noopener noreferrer">
+                      <ExternalLink className="mr-1.5 h-3 w-3" />
+                      Configure in Supabase
+                    </a>
+                  </Button>
+                  <Button variant="ghost" size="sm" className="h-7 text-xs" onClick={() => {
+                    navigator.clipboard.writeText(`
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; margin: 0; padding: 0; background-color: #f4f4f5;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #f4f4f5; padding: 40px 20px;">
+    <tr>
+      <td align="center">
+        <table width="480" cellpadding="0" cellspacing="0" style="background-color: #ffffff; border-radius: 12px; overflow: hidden;">
+          <tr>
+            <td style="background-color: #18181b; padding: 32px; text-align: center;">
+              <img src="https://py47xstuktdkxylm.public.blob.vercel-storage.com/logos/logo-dark-xOhDTEdqNvUAZaKUpWWdevckyCXaMX.png" alt="René Studio" height="48" style="margin-bottom: 16px;">
+              <h1 style="color: #ffffff; font-size: 20px; font-weight: 600; margin: 0;">{{ .Subject }}</h1>
+            </td>
+          </tr>
+          <tr>
+            <td style="padding: 32px;">
+              <p style="color: #3f3f46; font-size: 15px; line-height: 1.6; margin: 0 0 20px 0;">
+                {{ .Email }}, click the button below to proceed:
+              </p>
+              <table width="100%" cellpadding="0" cellspacing="0">
+                <tr>
+                  <td align="center" style="padding: 20px 0;">
+                    <a href="{{ .ConfirmationURL }}" style="background-color: #18181b; color: #ffffff; padding: 12px 32px; border-radius: 8px; text-decoration: none; font-size: 14px; font-weight: 600; display: inline-block;">
+                      Confirm
+                    </a>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+          <tr>
+            <td style="background-color: #fafafa; border-top: 1px solid #e4e4e7; padding: 24px; text-align: center;">
+              <p style="color: #71717a; font-size: 11px; margin: 0;">
+                René Studio · Renascence · Dubai, UAE
+              </p>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>`.trim())
+                    toast.success("HTML template copied to clipboard")
+                  }}>
+                    <Copy className="mr-1.5 h-3 w-3" />
+                    Copy HTML Template
+                  </Button>
+                </div>
+              </div>
+            </div>
+          </div>
+          
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
             {NOTIFICATION_EVENTS.filter(e => e.emailEnabled).map(event => (
               <Card key={event.id} className="group cursor-pointer hover:border-primary/50 transition-colors">

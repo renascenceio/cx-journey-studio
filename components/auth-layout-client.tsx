@@ -24,6 +24,10 @@ interface AuthLayoutClientProps {
   siteName: string
 }
 
+// Default fallback logos
+const DEFAULT_LOGO_DARK = "https://py47xstuktdkxylm.public.blob.vercel-storage.com/logos/logo-dark-xOhDTEdqNvUAZaKUpWWdevckyCXaMX.png"
+const DEFAULT_LOGO_LIGHT = "https://py47xstuktdkxylm.public.blob.vercel-storage.com/logos/logo-light-TKrukgyff9qYn05XX01mnhB1RP7Wrb.png"
+
 export function AuthLayoutClient({ children, logoDark, logoLight, siteName }: AuthLayoutClientProps) {
   // Use first testimonial for SSR consistency, avoiding hydration mismatch from Math.random()
   const t = testimonials[0]
@@ -37,6 +41,10 @@ export function AuthLayoutClient({ children, logoDark, logoLight, siteName }: Au
   const journeyCount = stats?.journeyCount ?? "10,000+"
   const orgCount = stats?.organizationCount ?? "500+"
   const avgRating = stats?.avgRating ?? "4.9"
+  
+  // Use provided logos or fallback to defaults
+  const darkLogo = logoDark || DEFAULT_LOGO_DARK
+  const lightLogo = logoLight || DEFAULT_LOGO_LIGHT
 
   return (
     <AuthProvider>
@@ -45,7 +53,7 @@ export function AuthLayoutClient({ children, logoDark, logoLight, siteName }: Au
         <div className="hidden lg:flex lg:w-1/2 flex-col justify-between bg-primary p-10 text-primary-foreground">
           <Link href="/home" className="flex items-center h-[76px]">
             <Image
-              src={logoDark || "https://py47xstuktdkxylm.public.blob.vercel-storage.com/logos/logo-dark-xOhDTEdqNvUAZaKUpWWdevckyCXaMX.png"}
+              src={darkLogo}
               alt={siteName}
               width={320}
               height={85}
@@ -80,7 +88,7 @@ export function AuthLayoutClient({ children, logoDark, logoLight, siteName }: Au
         <div className="flex flex-1 flex-col items-center justify-center bg-background px-4 py-12">
           <Link href="/home" className="mb-8 lg:hidden flex items-center h-16">
             <Image
-              src={logoLight || "https://py47xstuktdkxylm.public.blob.vercel-storage.com/logos/logo-light-TKrukgyff9qYn05XX01mnhB1RP7Wrb.png"}
+              src={lightLogo}
               alt={siteName}
               width={288}
               height={77}

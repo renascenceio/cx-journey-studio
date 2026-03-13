@@ -6,6 +6,7 @@ import { ThemeProvider } from '@/components/theme-provider'
 import { AuthProvider } from '@/lib/auth-provider'
 import { I18nProvider } from '@/components/i18n-provider'
 import { isRtlLocale, type Locale } from '@/lib/i18n/config'
+import { CookieConsent } from '@/components/cookie-consent'
 import './globals.css'
 
 const _geist = Geist({ subsets: ["latin"] });
@@ -53,6 +54,7 @@ export default async function RootLayout({
           <I18nProvider locale={locale} messages={messages}>
             <AuthProvider>
               {children}
+              <CookieConsent />
             </AuthProvider>
           </I18nProvider>
         </ThemeProvider>

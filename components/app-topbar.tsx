@@ -159,7 +159,8 @@ export function AppTopbar() {
       .catch(() => {})
   }, [])
 
-  const displayName = user?.name ?? "Guest"
+  // Don't show anything if user is not loaded yet - prevents "Guest" flash
+  const displayName = user?.name || user?.email?.split("@")[0] || ""
   const displayEmail = user?.email ?? ""
   const displayRole = user?.role ?? "viewer"
 

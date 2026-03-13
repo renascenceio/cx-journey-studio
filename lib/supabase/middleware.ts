@@ -42,7 +42,7 @@ export async function updateSession(request: NextRequest) {
   } = await supabase.auth.getUser()
 
   // Public paths that don't require authentication
-  const publicPaths = ['/login', '/signup', '/callback', '/api/', '/home', '/pricing']
+  const publicPaths = ['/login', '/signup', '/callback', '/api/', '/home', '/pricing', '/terms', '/privacy', '/cookies']
   const isPublicPath = publicPaths.some((path) => request.nextUrl.pathname.startsWith(path))
   const isRootPath = request.nextUrl.pathname === '/'
 
