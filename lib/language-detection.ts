@@ -1,6 +1,5 @@
-"use server"
-
 // Language detection and adaptive AI generation utilities
+// This is a utility library - NOT a server action file
 
 export interface LanguageDetectionResult {
   detectedLanguage: string
