@@ -60,11 +60,8 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   
   const theme = resolvedTheme === "dark" ? "dark" : "light"
   
-  // Default logo marks for fallback
-  const defaultLogoMark = theme === "dark"
-    ? "https://py47xstuktdkxylm.public.blob.vercel-storage.com/logos/logomark-dark-j1hSjCo5bIOlFJWH2t8l3LU3LfLqYN.png"
-    : "https://py47xstuktdkxylm.public.blob.vercel-storage.com/logos/logomark-light-IhqbmEuQwYjHrb2rJf3aAzBLZ7TbDV.png"
-  const logoMark = getLogoMark(theme) || defaultLogoMark
+  // getLogoMark now always returns a logo (configured or default)
+  const logoMark = getLogoMark(theme)
 
   // Only show loading on initial mount when we don't have a user yet
   // Don't show loading during workspace refresh (which also sets isLoading)
@@ -146,8 +143,8 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             priority
           />
           <div>
-            <p className="text-sm font-semibold text-foreground">{config?.siteName || "René Studio"}</p>
-            <p className="text-[10px] text-muted-foreground">Admin</p>
+            <p className="text-sm font-semibold text-foreground">René Studio</p>
+            <p className="text-[10px] text-muted-foreground">Control Panel</p>
           </div>
         </div>
 

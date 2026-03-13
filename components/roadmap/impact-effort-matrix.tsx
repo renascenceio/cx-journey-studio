@@ -1,6 +1,6 @@
 "use client"
 
-import { useMemo } from "react"
+import { useMemo, useState, useCallback, useRef } from "react"
 import { Badge } from "@/components/ui/badge"
 import {
   Tooltip,
@@ -10,7 +10,7 @@ import {
 } from "@/components/ui/tooltip"
 import {
   Target, Clock, CheckCircle2, PauseCircle, AlertCircle,
-  Zap, Trophy, Clock4, XCircle, ArrowUp, ArrowRight,
+  Zap, Trophy, Clock4, XCircle, ArrowUp, ArrowRight, GripVertical,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 
@@ -35,6 +35,14 @@ interface ImpactEffortMatrixProps {
   initiatives: Initiative[]
   onEdit: (initiative: Initiative) => void
   onUpdateScores?: (id: string, impact: number, effort: number) => Promise<void>
+}
+
+// Quadrant score mappings
+const quadrantScores: Record<string, { impact: number; effort: number }> = {
+  "quick-wins": { impact: 7, effort: 3 },      // High impact, low effort
+  "major-projects": { impact: 7, effort: 7 },  // High impact, high effort
+  "fill-ins": { impact: 3, effort: 3 },        // Low impact, low effort
+  "time-sinks": { impact: 3, effort: 7 },      // Low impact, high effort
 }
 
 const statusConfig: Record<string, { color: string; dotColor: string; icon: typeof Target }> = {
@@ -94,7 +102,64 @@ const quadrantConfig = {
   },
 }
 
-export function ImpactEffortMatrix({ initiatives, onEdit }: ImpactEffortMatrixProps) {
+export function ImpactEffortMatrix({ initiatives, onEdit, onUpdateScores }: ImpactEffortMatrixProps) {
+  const [draggedId, setDraggedId] = useState<string | null>(null)
+  const [dragOverQuadrant, setDragOverQuadrant] = useState<string | null>(null)
+  const dragIdRef = useRef<string | null>(null)
+
+  // Drag handlers
+  const handleDragStart = useCallback((e: React.DragEvent, id: string) => {
+    e.stopPropagation()
+    setDraggedId(id)
+    dragIdRef.current = id
+    e.dataTransfer.effectAllowed = "move"
+    e.dataTransfer.setData("text/plain", id)
+    e.dataTransfer.setData("application/x-matrix-id", id)
+  }, [])
+
+  const handleDragOver = useCallback((e: React.DragEvent, quadrant: string) => {
+    e.preventDefault()
+    e.stopPropagation()
+    e.dataTransfer.dropEffect = "move"
+    setDragOverQuadrant(quadrant)
+  }, [])
+
+  const handleDragLeave = useCallback((e: React.DragEvent) => {
+    const relatedTarget = e.relatedTarget as HTMLElement
+    if (!relatedTarget || !e.currentTarget.contains(relatedTarget)) {
+      setDragOverQuadrant(null)
+    }
+  }, [])
+
+  const handleDrop = useCallback(async (e: React.DragEvent, quadrant: string) => {
+    e.preventDefault()
+    e.stopPropagation()
+    
+    let id = e.dataTransfer.getData("application/x-matrix-id") || e.dataTransfer.getData("text/plain")
+    if (!id) id = dragIdRef.current
+    
+    setDraggedId(null)
+    setDragOverQuadrant(null)
+    dragIdRef.current = null
+    
+    if (!id || !onUpdateScores) return
+    
+    const scores = quadrantScores[quadrant]
+    if (scores) {
+      try {
+        await onUpdateScores(id, scores.impact, scores.effort)
+      } catch (error) {
+        console.error("Failed to update scores:", error)
+      }
+    }
+  }, [onUpdateScores])
+
+  const handleDragEnd = useCallback(() => {
+    setDraggedId(null)
+    setDragOverQuadrant(null)
+    dragIdRef.current = null
+  }, [])
+
   // Calculate positions based on impact and effort scores
   const positionedInitiatives = useMemo(() => {
     return initiatives.map(init => ({
@@ -140,14 +205,19 @@ export function ImpactEffortMatrix({ initiatives, onEdit }: ImpactEffortMatrixPr
     const config = quadrantConfig[key as keyof typeof quadrantConfig]
     const items = grouped[key] || []
     const Icon = config.icon
+    const isDropTarget = dragOverQuadrant === key
 
     return (
       <div 
         className={cn(
           "relative rounded-xl border p-4 transition-all min-h-[220px]",
           config.bg,
-          config.border
+          config.border,
+          isDropTarget && "ring-2 ring-primary ring-offset-2 border-primary"
         )}
+        onDragOver={(e) => handleDragOver(e, key)}
+        onDragLeave={handleDragLeave}
+        onDrop={(e) => handleDrop(e, key)}
       >
         {/* Header */}
         <div className="flex items-start justify-between mb-3">
@@ -156,24 +226,26 @@ export function ImpactEffortMatrix({ initiatives, onEdit }: ImpactEffortMatrixPr
               <Icon className="h-4 w-4" />
             </div>
             <div>
-              <h3 className={cn("text-sm font-semibold", config.color)}>{config.label}</h3>
+              <div className="flex items-center gap-2">
+                <h3 className={cn("text-sm font-semibold", config.color)}>{config.label}</h3>
+                <Badge 
+                  variant="secondary" 
+                  className={cn(
+                    "text-[10px] font-medium px-1.5 py-0 h-4",
+                    config.color
+                  )}
+                >
+                  {items.length}
+                </Badge>
+              </div>
               <p className="text-[10px] text-muted-foreground">{config.subtitle}</p>
             </div>
           </div>
-          <Badge 
-            variant="secondary" 
-            className={cn(
-              "text-[10px] font-medium px-2 py-0.5",
-              config.color
-            )}
-          >
-            {items.length}
-          </Badge>
         </div>
 
-        {/* Action tag */}
-        <div className="absolute top-3 right-3">
-          <span className={cn("text-[9px] font-medium uppercase tracking-wider", config.color)}>
+        {/* Action tag - moved below header */}
+        <div className="mb-2">
+          <span className={cn("text-[9px] font-medium uppercase tracking-wider px-2 py-0.5 rounded bg-background/60", config.color)}>
             {config.action}
           </span>
         </div>
@@ -182,28 +254,43 @@ export function ImpactEffortMatrix({ initiatives, onEdit }: ImpactEffortMatrixPr
         <div className="space-y-2 max-h-[160px] overflow-y-auto pr-1">
           {items.length === 0 ? (
             <div className="flex items-center justify-center h-24 text-xs text-muted-foreground/60">
-              No initiatives
+              {onUpdateScores ? "Drag items here" : "No initiatives"}
             </div>
           ) : (
             items.map((initiative) => {
               const status = statusConfig[initiative.status]
               const StatusIcon = status.icon
+              const isDragged = draggedId === initiative.id
 
               return (
                 <TooltipProvider key={initiative.id}>
                   <Tooltip delayDuration={200}>
                     <TooltipTrigger asChild>
-                      <button
-                        className="w-full flex items-center gap-2.5 p-2.5 rounded-lg bg-background/90 border border-border/50 text-left transition-all hover:bg-background hover:shadow-md hover:border-border group"
-                        onClick={() => onEdit(initiative)}
+                      <div
+                        draggable={!!onUpdateScores}
+                        onDragStart={(e) => handleDragStart(e, initiative.id)}
+                        onDragEnd={handleDragEnd}
+                        className={cn(
+                          "w-full flex items-center gap-2 p-2.5 rounded-lg bg-background/90 border border-border/50 text-left transition-all hover:bg-background hover:shadow-md hover:border-border group",
+                          onUpdateScores && "cursor-grab active:cursor-grabbing",
+                          isDragged && "opacity-50 ring-2 ring-primary"
+                        )}
                       >
+                        {/* Drag handle */}
+                        {onUpdateScores && (
+                          <GripVertical className="h-3.5 w-3.5 text-muted-foreground/40 shrink-0" />
+                        )}
+                        
                         {/* Priority badge */}
                         <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-md bg-muted text-[11px] font-bold text-muted-foreground group-hover:bg-primary/10 group-hover:text-primary transition-colors">
                           #{initiative.priority}
                         </span>
                         
                         {/* Content */}
-                        <div className="flex-1 min-w-0">
+                        <button
+                          className="flex-1 min-w-0 text-left"
+                          onClick={() => onEdit(initiative)}
+                        >
                           <p className="text-xs font-medium truncate group-hover:text-primary transition-colors">
                             {initiative.title}
                           </p>
@@ -219,11 +306,11 @@ export function ImpactEffortMatrix({ initiatives, onEdit }: ImpactEffortMatrixPr
                               I:{initiative.impact} E:{initiative.effort}
                             </span>
                           </div>
-                        </div>
+                        </button>
 
                         {/* Status icon */}
                         <StatusIcon className={cn("h-3.5 w-3.5 shrink-0 opacity-50 group-hover:opacity-100", status.color)} />
-                      </button>
+                      </div>
                     </TooltipTrigger>
                     <TooltipContent side="top" className="max-w-xs p-3">
                       <div className="space-y-2">

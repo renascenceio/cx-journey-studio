@@ -29,6 +29,7 @@
   "common": {
     "loading": "Loading...",
     "save": "Save",
+    "saveChanges": "Save Changes",
     "saving": "Saving...",
     "cancel": "Cancel",
     "delete": "Delete",
