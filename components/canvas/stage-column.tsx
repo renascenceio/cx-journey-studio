@@ -1,6 +1,6 @@
 "use client"
 
-import { Plus, ArrowLeft, ArrowRight, MessageSquare, Trash2, Pencil } from "lucide-react"
+import { Plus, ArrowLeft, ArrowRight, MessageSquare, Trash2, Pencil, GripVertical } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { StepCard } from "@/components/canvas/step-card"
 import { AddStepDialog, DeleteConfirmDialog } from "@/components/canvas/canvas-dialogs"
@@ -50,6 +50,14 @@ interface StageColumnProps {
   getStepCommentCount?: (stepId: string) => number
   onStepCommentClick?: (stepId: string) => void
   highlightedTouchpointId?: string | null
+  // Drag-and-drop props
+  isDragging?: boolean
+  isDragOver?: boolean
+  onDragStart?: (e: React.DragEvent) => void
+  onDragOver?: (e: React.DragEvent) => void
+  onDragLeave?: () => void
+  onDrop?: (e: React.DragEvent) => void
+  onDragEnd?: () => void
 }
 
 export function StageColumn({
@@ -69,6 +77,14 @@ export function StageColumn({
   getStepCommentCount,
   onStepCommentClick,
   highlightedTouchpointId,
+  // Drag-and-drop
+  isDragging,
+  isDragOver,
+  onDragStart,
+  onDragOver,
+  onDragLeave,
+  onDrop,
+  onDragEnd,
 }: StageColumnProps) {
   const [isRenaming, setIsRenaming] = useState(false)
   const [renameValue, setRenameValue] = useState(stage.name)
@@ -85,33 +101,25 @@ export function StageColumn({
   const stageNumber = stageIndex + 1
 
   return (
-    <div className="flex w-72 shrink-0 flex-col rounded-xl border border-border/60 bg-muted/30 overflow-hidden">
+    <div 
+      className={cn(
+        "flex w-72 shrink-0 flex-col rounded-xl border border-border/60 bg-muted/30 overflow-hidden transition-all",
+        editMode && "cursor-grab active:cursor-grabbing",
+        isDragging && "opacity-50 ring-2 ring-primary",
+        isDragOver && "ring-2 ring-primary ring-offset-2 border-primary"
+      )}
+      draggable={editMode}
+      onDragStart={onDragStart}
+      onDragOver={onDragOver}
+      onDragLeave={onDragLeave}
+      onDrop={onDrop}
+      onDragEnd={onDragEnd}
+    >
       {/* Stage header */}
       <div className={`flex items-center justify-between px-3 py-3 border-b border-border/40 ${scoreBg(avg)}`}>
         <div className="flex items-center gap-2 flex-1 min-w-0">
           {editMode && (
-            <div className="flex items-center gap-0.5 shrink-0">
-              <Button
-                variant="ghost"
-                size="icon"
-                className="h-5 w-5"
-                onClick={onMoveStageLeft}
-                disabled={isFirst}
-              >
-                <ArrowLeft className="h-3 w-3" />
-                <span className="sr-only">Move left</span>
-              </Button>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="h-5 w-5"
-                onClick={onMoveStageRight}
-                disabled={isLast}
-              >
-                <ArrowRight className="h-3 w-3" />
-                <span className="sr-only">Move right</span>
-              </Button>
-            </div>
+            <GripVertical className="h-4 w-4 text-muted-foreground/50 shrink-0 cursor-grab" />
           )}
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2">

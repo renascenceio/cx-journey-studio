@@ -223,6 +223,10 @@ export default function CanvasPage() {
 
   // Local mutable stage order for reordering
   const [stageOrder, setStageOrder] = useState<string[] | null>(null)
+  
+  // Drag-and-drop state for stages
+  const [draggedStageId, setDraggedStageId] = useState<string | null>(null)
+  const [dragOverStageId, setDragOverStageId] = useState<string | null>(null)
 
   const orderedStages = useMemo(() => {
     if (!journey || !stageOrder) return journey?.stages ?? []
@@ -273,6 +277,48 @@ export default function CanvasPage() {
     const [moved] = ids.splice(fromIdx, 1)
     ids.splice(toIdx, 0, moved)
     setStageOrder(ids)
+  }
+  
+  // Drag-and-drop handlers for stages
+  function handleStageDragStart(e: React.DragEvent, stageId: string) {
+    if (!editMode) return
+    setDraggedStageId(stageId)
+    e.dataTransfer.effectAllowed = "move"
+    e.dataTransfer.setData("text/plain", stageId)
+  }
+  
+  function handleStageDragOver(e: React.DragEvent, stageId: string) {
+    if (!editMode || !draggedStageId || draggedStageId === stageId) return
+    e.preventDefault()
+    e.dataTransfer.dropEffect = "move"
+    setDragOverStageId(stageId)
+  }
+  
+  function handleStageDragLeave() {
+    setDragOverStageId(null)
+  }
+  
+  function handleStageDrop(e: React.DragEvent, targetStageId: string) {
+    e.preventDefault()
+    if (!editMode || !draggedStageId || draggedStageId === targetStageId) return
+    
+    const ids = (stageOrder || journey.stages.map((s) => s.id)).slice()
+    const fromIdx = ids.indexOf(draggedStageId)
+    const toIdx = ids.indexOf(targetStageId)
+    
+    if (fromIdx !== -1 && toIdx !== -1) {
+      ids.splice(fromIdx, 1)
+      ids.splice(toIdx, 0, draggedStageId)
+      setStageOrder(ids)
+    }
+    
+    setDraggedStageId(null)
+    setDragOverStageId(null)
+  }
+  
+  function handleStageDragEnd() {
+    setDraggedStageId(null)
+    setDragOverStageId(null)
   }
 
   // handleAddStage is now handled by AddStageDialog wrapper
@@ -361,6 +407,14 @@ export default function CanvasPage() {
                 isLast={idx === orderedStages.length - 1}
                 onMoveStageLeft={() => moveStage(idx, idx - 1)}
                 onMoveStageRight={() => moveStage(idx, idx + 1)}
+                // Drag-and-drop props
+                isDragging={draggedStageId === stage.id}
+                isDragOver={dragOverStageId === stage.id}
+                onDragStart={(e) => handleStageDragStart(e, stage.id)}
+                onDragOver={(e) => handleStageDragOver(e, stage.id)}
+                onDragLeave={handleStageDragLeave}
+                onDrop={(e) => handleStageDrop(e, stage.id)}
+                onDragEnd={handleStageDragEnd}
                 onReorderStep={async (from, to) => {
                   const { reorderSteps } = await import("@/lib/actions/data")
                   const sortedSteps = [...stage.steps].sort((a, b) => a.sortOrder - b.sortOrder)

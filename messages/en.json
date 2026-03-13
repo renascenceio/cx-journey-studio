@@ -184,6 +184,24 @@
     "acceptTerms": "Please accept the terms and privacy policy to continue.",
     "accountCreated": "Check your email to confirm your account, then you can sign in."
   },
+  "cookies": {
+    "title": "Cookie Preferences",
+    "description": "We use cookies to enhance your experience.",
+    "explanation": "We use cookies and similar technologies to help personalize content, tailor and measure ads, and provide a better experience. By clicking 'Accept All', you agree to this use. Click 'Manage Preferences' to customize your choices.",
+    "necessary": "Strictly Necessary",
+    "necessaryDesc": "Required for the website to function. Cannot be disabled.",
+    "analytics": "Analytics",
+    "analyticsDesc": "Help us understand how visitors interact with our website.",
+    "functional": "Functional",
+    "functionalDesc": "Enable enhanced functionality and personalization.",
+    "marketing": "Marketing",
+    "marketingDesc": "Used to track visitors across websites for advertising purposes.",
+    "managePreferences": "Manage Preferences",
+    "learnMore": "Learn more",
+    "savePreferences": "Save Preferences",
+    "rejectAll": "Reject All",
+    "acceptAll": "Accept All"
+  },
   "landing": {
     "hero": {
       "title": "The complete platform to map customer journeys",

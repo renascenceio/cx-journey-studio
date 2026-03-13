@@ -121,7 +121,8 @@ export default function SettingsProfilePage() {
     finally { setSaving(false) }
   }
 
-  const displayName = user?.name ?? "Guest"
+  // Don't show "Guest" - use email fallback or empty string
+  const displayName = user?.name || user?.email?.split("@")[0] || ""
   const displayEmail = user?.email ?? ""
   const displayRole = user?.role ?? "viewer"
 

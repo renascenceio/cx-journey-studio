@@ -1,8 +1,10 @@
 "use client"
 
 import Link from "next/link"
+import Image from "next/image"
 import { usePathname, useRouter } from "next/navigation"
 import { useAuth } from "@/lib/auth-provider"
+import { useSiteConfig } from "@/hooks/use-site-config"
 import {
   LayoutDashboard,
   BookTemplate,
@@ -27,6 +29,7 @@ import {
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Toaster } from "@/components/ui/sonner"
+import { useTheme } from "next-themes"
 
 const adminNav = [
   { label: "Overview", href: "/admin", icon: LayoutDashboard, segment: null },
@@ -52,6 +55,16 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   const pathname = usePathname()
   const router = useRouter()
   const { user, isAuthenticated, isLoading } = useAuth()
+  const { getLogoMark, config } = useSiteConfig()
+  const { resolvedTheme } = useTheme()
+  
+  const theme = resolvedTheme === "dark" ? "dark" : "light"
+  
+  // Default logo marks for fallback
+  const defaultLogoMark = theme === "dark"
+    ? "https://py47xstuktdkxylm.public.blob.vercel-storage.com/logos/logomark-dark-j1hSjCo5bIOlFJWH2t8l3LU3LfLqYN.png"
+    : "https://py47xstuktdkxylm.public.blob.vercel-storage.com/logos/logomark-light-IhqbmEuQwYjHrb2rJf3aAzBLZ7TbDV.png"
+  const logoMark = getLogoMark(theme) || defaultLogoMark
 
   // Only show loading on initial mount when we don't have a user yet
   // Don't show loading during workspace refresh (which also sets isLoading)
@@ -123,13 +136,18 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       {/* Sidebar */}
       <aside className="sticky top-0 flex h-screen w-56 shrink-0 flex-col border-r border-border bg-muted/30">
         {/* Sidebar header */}
-        <div className="flex items-center gap-2 border-b border-border px-4 py-3">
-          <div className="flex h-7 w-7 items-center justify-center rounded-md bg-foreground">
-            <Shield className="h-3.5 w-3.5 text-background" />
-          </div>
+        <div className="flex items-center gap-2.5 border-b border-border px-4 py-3">
+          <Image
+            src={logoMark}
+            alt={config?.siteName || "René Studio"}
+            width={28}
+            height={28}
+            className="h-7 w-7 rounded-md object-contain"
+            priority
+          />
           <div>
-            <p className="text-sm font-semibold text-foreground">Admin Panel</p>
-            <p className="text-[10px] text-muted-foreground">Platform Control</p>
+            <p className="text-sm font-semibold text-foreground">{config?.siteName || "René Studio"}</p>
+            <p className="text-[10px] text-muted-foreground">Admin</p>
           </div>
         </div>
 

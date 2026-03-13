@@ -24,7 +24,7 @@ export function PublicNavbar() {
   const t = useTranslations()
   const [mobileOpen, setMobileOpen] = useState(false)
   const { resolvedTheme, setTheme } = useTheme()
-  const { getLogo, config } = useSiteConfig()
+  const { getLogo, config, isLoading: configLoading } = useSiteConfig()
   const { isAuthenticated, isLoading, user } = useAuth()
   
   const navLinks = [
@@ -35,7 +35,13 @@ export function PublicNavbar() {
   
   // Always use light as default if theme not resolved yet
   const theme = resolvedTheme === "dark" ? "dark" : "light"
-  const logoSrc = getLogo(theme)
+  
+  // Use default logo immediately while config loads to prevent flickering
+  const defaultLogo = theme === "dark" 
+    ? "https://py47xstuktdkxylm.public.blob.vercel-storage.com/logos/logo-dark-xOhDTEdqNvUAZaKUpWWdevckyCXaMX.png"
+    : "https://py47xstuktdkxylm.public.blob.vercel-storage.com/logos/logo-light-TKrukgyff9qYn05XX01mnhB1RP7Wrb.png"
+  const configuredLogo = getLogo(theme)
+  const logoSrc = configuredLogo || defaultLogo
   
   const toggleTheme = () => {
     setTheme(theme === "dark" ? "light" : "dark")
@@ -46,10 +52,7 @@ export function PublicNavbar() {
       <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-6">
         <Link href="/home" className="flex items-center h-14 md:h-[58px]">
           <Image
-            src={logoSrc || (theme === "dark" 
-              ? "https://py47xstuktdkxylm.public.blob.vercel-storage.com/logos/logo-dark-xOhDTEdqNvUAZaKUpWWdevckyCXaMX.png"
-              : "https://py47xstuktdkxylm.public.blob.vercel-storage.com/logos/logo-light-TKrukgyff9qYn05XX01mnhB1RP7Wrb.png"
-            )}
+            src={logoSrc}
             alt={config?.siteName || "René Studio"}
             width={259}
             height={69}
