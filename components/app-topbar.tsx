@@ -120,7 +120,7 @@ export function AppTopbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [createWsOpen, setCreateWsOpen] = useState(false)
   const { theme, setTheme } = useTheme()
-  const { user, workspace, workspaces, switchWorkspace, logout, isLoading } = useAuth()
+  const { user, workspace, workspaces, switchWorkspace, logout, isLoading, isAuthenticated } = useAuth()
   
   // Use state for cached values to avoid hydration mismatch
   const [cachedWorkspace, setCachedWorkspace] = useState<Workspace | null>(null)

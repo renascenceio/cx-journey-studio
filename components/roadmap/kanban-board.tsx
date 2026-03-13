@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useCallback } from "react"
+import { useState, useCallback, useRef } from "react"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -11,11 +11,10 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import Link from "next/link"
 import {
   Target, Clock, CheckCircle2, PauseCircle, AlertCircle,
   Lightbulb, Map as MapIcon, MoreHorizontal, Pencil, Trash2, GripVertical,
-  MessageSquare, TrendingUp, Zap, Calendar, User,
+  TrendingUp, Zap, Calendar, User, MessageSquare,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 
@@ -59,44 +58,61 @@ const STATUSES = ["planned", "in_progress", "pending_approval", "completed", "on
 export function KanbanBoard({ initiatives, onStatusChange, onEdit, onDelete, canEdit }: KanbanBoardProps) {
   const [draggedId, setDraggedId] = useState<string | null>(null)
   const [dragOverColumn, setDragOverColumn] = useState<string | null>(null)
+  const dragIdRef = useRef<string | null>(null)
 
   const handleDragStart = useCallback((e: React.DragEvent, id: string) => {
-    if (!canEdit) return
+    e.stopPropagation()
     setDraggedId(id)
+    dragIdRef.current = id
     e.dataTransfer.effectAllowed = "move"
     e.dataTransfer.setData("text/plain", id)
-    // Set a drag image to make it more visible
-    const target = e.currentTarget as HTMLElement
-    if (target) {
-      e.dataTransfer.setDragImage(target, 20, 20)
-    }
-  }, [canEdit])
+    e.dataTransfer.setData("application/x-kanban-id", id)
+  }, [])
 
   const handleDragOver = useCallback((e: React.DragEvent, status: string) => {
     e.preventDefault()
+    e.stopPropagation()
     e.dataTransfer.dropEffect = "move"
     setDragOverColumn(status)
   }, [])
 
-  const handleDragLeave = useCallback(() => {
-    setDragOverColumn(null)
+  const handleDragLeave = useCallback((e: React.DragEvent) => {
+    // Only clear if leaving the column entirely
+    const relatedTarget = e.relatedTarget as HTMLElement
+    if (!relatedTarget || !e.currentTarget.contains(relatedTarget)) {
+      setDragOverColumn(null)
+    }
   }, [])
 
   const handleDrop = useCallback(async (e: React.DragEvent, newStatus: string) => {
     e.preventDefault()
-    const id = e.dataTransfer.getData("text/plain")
+    e.stopPropagation()
+    
+    // Get ID from dataTransfer or ref
+    let id = e.dataTransfer.getData("application/x-kanban-id") || e.dataTransfer.getData("text/plain")
+    if (!id) id = dragIdRef.current
+    
+    // Clear drag state immediately
     setDraggedId(null)
     setDragOverColumn(null)
+    dragIdRef.current = null
+    
+    if (!id || !canEdit) return
     
     const initiative = initiatives.find(i => i.id === id)
-    if (initiative && initiative.status !== newStatus && canEdit) {
-      await onStatusChange(id, newStatus)
+    if (initiative && initiative.status !== newStatus) {
+      try {
+        await onStatusChange(id, newStatus)
+      } catch (error) {
+        console.error("Failed to update status:", error)
+      }
     }
   }, [initiatives, onStatusChange, canEdit])
 
   const handleDragEnd = useCallback(() => {
     setDraggedId(null)
     setDragOverColumn(null)
+    dragIdRef.current = null
   }, [])
 
   // Group initiatives by status
@@ -119,7 +135,7 @@ export function KanbanBoard({ initiatives, onStatusChange, onEdit, onDelete, can
             className={cn(
               "flex-shrink-0 w-72 rounded-lg border border-border/60 transition-all",
               config.bgColor,
-              isDropTarget && "ring-2 ring-primary ring-offset-2"
+              isDropTarget && "ring-2 ring-primary ring-offset-2 border-primary"
             )}
             onDragOver={(e) => handleDragOver(e, status)}
             onDragLeave={handleDragLeave}
@@ -149,14 +165,8 @@ export function KanbanBoard({ initiatives, onStatusChange, onEdit, onDelete, can
                   <Card
                     key={initiative.id}
                     draggable={canEdit}
-                    onDragStart={(e) => {
-                      e.stopPropagation()
-                      handleDragStart(e, initiative.id)
-                    }}
-                    onDragEnd={(e) => {
-                      e.stopPropagation()
-                      handleDragEnd()
-                    }}
+                    onDragStart={(e) => handleDragStart(e, initiative.id)}
+                    onDragEnd={handleDragEnd}
                     className={cn(
                       "border-border/60 transition-all hover:border-border hover:shadow-sm",
                       canEdit && "cursor-grab active:cursor-grabbing",
@@ -166,12 +176,7 @@ export function KanbanBoard({ initiatives, onStatusChange, onEdit, onDelete, can
                     <CardContent className="p-3">
                       <div className="flex items-start gap-2">
                         {canEdit && (
-                          <div 
-                            className="flex items-center justify-center cursor-grab active:cursor-grabbing shrink-0 mt-0.5"
-                            onMouseDown={(e) => e.stopPropagation()}
-                          >
-                            <GripVertical className="h-4 w-4 text-muted-foreground/50 hover:text-muted-foreground transition-colors" />
-                          </div>
+                          <GripVertical className="h-4 w-4 text-muted-foreground/50 mt-0.5 shrink-0" />
                         )}
                         <div className="flex-1 min-w-0">
                           <div className="flex items-start justify-between gap-2">
@@ -200,13 +205,7 @@ export function KanbanBoard({ initiatives, onStatusChange, onEdit, onDelete, can
                             {canEdit && (
                               <DropdownMenu>
                                 <DropdownMenuTrigger asChild>
-                                  <Button 
-                                    variant="ghost" 
-                                    size="sm" 
-                                    className="h-6 w-6 p-0 shrink-0"
-                                    onMouseDown={(e) => e.stopPropagation()}
-                                    draggable={false}
-                                  >
+                                  <Button variant="ghost" size="sm" className="h-6 w-6 p-0 shrink-0">
                                     <MoreHorizontal className="h-3.5 w-3.5" />
                                   </Button>
                                 </DropdownMenuTrigger>
