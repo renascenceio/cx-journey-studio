@@ -50,19 +50,7 @@ const ELEMENT_TYPES: { value: ElementType; label: string; icon: typeof Route; co
   { value: "highlight", label: "Highlights", icon: Sparkles, color: "bg-amber-500" },
 ]
 
-const CATEGORIES = [
-  "All Categories",
-  "Banking & Finance",
-  "Healthcare",
-  "Retail",
-  "Hospitality",
-  "Telecommunications",
-  "Insurance",
-  "Real Estate",
-  "Education",
-  "Government",
-  "Transportation"
-]
+// Categories will be extracted dynamically from elements
 
 interface CrowdsourceElement {
   id: string
@@ -98,6 +86,12 @@ export default function CrowdsourcePage() {
   }>("/api/admin/crowdsource", fetcher)
 
   const elements = data?.elements || []
+  
+  // Extract unique categories from elements
+  const categories = useMemo(() => {
+    const uniqueCategories = new Set(elements.map(el => el.category).filter(Boolean))
+    return ["All Categories", ...Array.from(uniqueCategories).sort()]
+  }, [elements])
   
   // Filter and sort elements
   const filteredElements = useMemo(() => {
@@ -238,9 +232,9 @@ export default function CrowdsourcePage() {
               <SelectValue placeholder="Category" />
             </SelectTrigger>
             <SelectContent>
-              {CATEGORIES.map(cat => (
-                <SelectItem key={cat} value={cat}>{cat}</SelectItem>
-              ))}
+{categories.map(cat => (
+  <SelectItem key={cat} value={cat}>{cat}</SelectItem>
+  ))}
             </SelectContent>
           </Select>
           <Select value={sortBy} onValueChange={(v) => setSortBy(v as typeof sortBy)}>
