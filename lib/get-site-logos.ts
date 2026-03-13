@@ -7,10 +7,10 @@ export async function getSiteLogos() {
   
   const supabase = await createClient()
   
-  // Logos are stored in the JSONB 'value' column of the branding row
+  // Logos are stored as separate columns on the branding row
   const { data: branding } = await supabase
     .from("site_config")
-    .select("value")
+    .select("logo_light_url, logo_dark_url, logo_mark_light_url, logo_mark_dark_url")
     .eq("key", "branding")
     .single()
   
@@ -20,14 +20,11 @@ export async function getSiteLogos() {
     .eq("key", "general")
     .single()
 
-  // Extract logo URLs from the JSONB value
-  const brandingValue = branding?.value as Record<string, string> | null
-
   return {
-    logoLight: brandingValue?.logo_light_url || null,
-    logoDark: brandingValue?.logo_dark_url || null,
-    logoMarkLight: brandingValue?.logo_mark_light_url || null,
-    logoMarkDark: brandingValue?.logo_mark_dark_url || null,
+    logoLight: branding?.logo_light_url || null,
+    logoDark: branding?.logo_dark_url || null,
+    logoMarkLight: branding?.logo_mark_light_url || null,
+    logoMarkDark: branding?.logo_mark_dark_url || null,
     siteName: (siteNameRow?.value as { siteName?: string })?.siteName || "René Studio",
   }
 }

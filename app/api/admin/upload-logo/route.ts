@@ -59,7 +59,7 @@ export async function POST(request: NextRequest) {
     })
     
     // Save URL to site_config in database (on the 'branding' row)
-    // Store in the JSONB 'value' column since that's what the schema supports
+    // Logos are stored as separate columns (logo_light_url, logo_dark_url, etc.)
     const configKey = configKeyMap[type]
     if (configKey) {
       // First, try to get existing branding row
@@ -70,13 +70,10 @@ export async function POST(request: NextRequest) {
         .single()
       
       if (existing) {
-        // Update existing row - merge new logo URL into existing value object
-        const currentValue = typeof existing.value === 'object' ? existing.value : {}
-        const newValue = { ...currentValue, [configKey]: blob.url }
-        
+        // Update existing row - set the specific logo column
         const { error: updateError } = await supabase
           .from("site_config")
-          .update({ value: newValue, updated_at: new Date().toISOString() })
+          .update({ [configKey]: blob.url, updated_at: new Date().toISOString() })
           .eq("key", "branding")
         
         if (updateError) {
@@ -84,12 +81,13 @@ export async function POST(request: NextRequest) {
           return NextResponse.json({ error: "Failed to save logo URL" }, { status: 500 })
         }
       } else {
-        // Insert new branding row with logo URL in JSONB value
+        // Insert new branding row with logo URL in the column
         const { error: insertError } = await supabase
           .from("site_config")
           .insert({ 
             key: "branding", 
-            value: { [configKey]: blob.url },
+            value: {},
+            [configKey]: blob.url,
             updated_at: new Date().toISOString() 
           })
         
