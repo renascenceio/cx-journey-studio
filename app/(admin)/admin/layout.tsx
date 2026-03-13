@@ -142,14 +142,20 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       <aside className="sticky top-0 flex h-screen w-56 shrink-0 flex-col border-r border-border bg-muted/30">
         {/* Sidebar header */}
         <div className="flex items-center gap-2.5 border-b border-border px-4 py-3">
-          <Image
-            src={logoMark}
-            alt={config?.siteName || "René Studio"}
-            width={28}
-            height={28}
-            className="h-7 w-7 rounded-md object-contain"
-            priority
-          />
+          {logoMark ? (
+            <Image
+              src={logoMark}
+              alt={config?.siteName || "René Studio"}
+              width={28}
+              height={28}
+              className="h-7 w-7 rounded-md object-contain"
+              priority
+            />
+          ) : (
+            <div className="h-7 w-7 rounded-md bg-primary/10 flex items-center justify-center text-xs font-bold text-primary">
+              R
+            </div>
+          )}
           <div>
             <p className="text-sm font-semibold text-foreground">René Studio</p>
             <p className="text-[10px] text-muted-foreground">Control Panel</p>

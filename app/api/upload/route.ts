@@ -42,11 +42,11 @@ export async function POST(request: NextRequest) {
       access: 'public',
     })
 
-    // If avatar, update profile
+    // If avatar, update profile (column is 'avatar' not 'avatar_url')
     if (purpose === 'avatar') {
       await supabase
         .from('profiles')
-        .update({ avatar_url: blob.url })
+        .update({ avatar: blob.url })
         .eq('id', user.id)
     }
 

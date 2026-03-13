@@ -1,6 +1,7 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
+import { useSiteConfig } from "@/hooks/use-site-config"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Switch } from "@/components/ui/switch"
@@ -551,15 +552,24 @@ function EmailPreview({ event }: { event: typeof NOTIFICATION_EVENTS[0] }) {
 }
 
 export default function NotificationsPage() {
+  const { getLogo, config } = useSiteConfig()
+  const [mounted, setMounted] = useState(false)
   const [activeCategory, setActiveCategory] = useState("all")
   const [notifications, setNotifications] = useState(
-    NOTIFICATION_EVENTS.map(e => ({
-      ...e,
-      emailEnabled: e.emailEnabled,
+  NOTIFICATION_EVENTS.map(e => ({
+  ...e,
+  emailEnabled: e.emailEnabled,
       inAppEnabled: e.inAppEnabled,
     }))
   )
   const [sendingTest, setSendingTest] = useState<string | null>(null)
+  
+  // Get logo URL for email templates
+  useEffect(() => {
+    setMounted(true)
+  }, [])
+  
+  const emailLogoUrl = mounted ? getLogo("dark") : null
 
   const filteredEvents = activeCategory === "all" 
     ? notifications 
@@ -766,8 +776,8 @@ export default function NotificationsPage() {
         <table width="480" cellpadding="0" cellspacing="0" style="background-color: #ffffff; border-radius: 12px; overflow: hidden;">
           <tr>
             <td style="background-color: #18181b; padding: 32px; text-align: center;">
-              <span style="color: #ffffff; font-size: 24px; font-weight: 700;">René Studio</span>
-              <h1 style="color: #ffffff; font-size: 20px; font-weight: 600; margin: 0;">{{ .Subject }}</h1>
+              ${emailLogoUrl ? `<img src="${emailLogoUrl}" alt="${config?.siteName || 'René Studio'}" height="48" style="margin-bottom: 16px; max-width: 200px; height: auto;">` : `<span style="color: #ffffff; font-size: 24px; font-weight: 700;">${config?.siteName || 'René Studio'}</span>`}
+              <h1 style="color: #ffffff; font-size: 20px; font-weight: 600; margin: 0 0 0 0;">{{ .Subject }}</h1>
             </td>
           </tr>
           <tr>

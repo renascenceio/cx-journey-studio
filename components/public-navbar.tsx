@@ -53,14 +53,18 @@ export function PublicNavbar() {
     <header className="sticky top-0 z-50 border-b border-border/60 bg-background/80 backdrop-blur-lg">
       <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-6">
         <Link href="/home" className="flex items-center h-14 md:h-[58px]">
-          <Image
-            src={logoSrc}
-            alt={config?.siteName || "René Studio"}
-            width={259}
-            height={69}
-            className="h-14 w-auto md:h-[58px]"
-            priority
-          />
+          {logoSrc ? (
+            <Image
+              src={logoSrc}
+              alt={config?.siteName || "René Studio"}
+              width={259}
+              height={69}
+              className="h-14 w-auto md:h-[58px]"
+              priority
+            />
+          ) : (
+            <span className="text-xl font-bold text-foreground">{config?.siteName || "René Studio"}</span>
+          )}
         </Link>
 
         <nav className="hidden items-center gap-8 md:flex" aria-label="Main navigation">

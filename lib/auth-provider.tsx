@@ -39,7 +39,8 @@ const AuthContext = createContext<AuthContextValue | null>(null)
 
 function mapToAppUser(
   supaUser: SupabaseUser,
-  profile: { name: string; email: string; avatar_url: string | null; role: string; organization_id: string | null } | null
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  profile: Record<string, any> | null
 ): User {
   // Ensure we preserve the admin role - don't default to contributor if role is set
   const userRole = profile?.role as UserRole
@@ -48,7 +49,7 @@ function mapToAppUser(
     id: supaUser.id,
     name: profile?.name || supaUser.user_metadata?.name || supaUser.email?.split("@")[0] || "User",
     email: profile?.email || supaUser.email || "",
-    avatar: profile?.avatar_url || undefined,
+    avatar: profile?.avatar || profile?.avatar_url || undefined,
     role: userRole || "contributor",
     teamIds: [],
     organizationId: profile?.organization_id || "",
@@ -170,14 +171,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   // Load user profile from Supabase
   const loadUserProfile = useCallback(async (sUser: SupabaseUser) => {
-    const { data: profile, error: profileError } = await supabase
+    // First try with all columns, if that fails try with fewer columns
+    let profile = null
+    
+    const { data, error: profileError } = await supabase
       .from("profiles")
-      .select("name, email, avatar_url, role, organization_id")
+      .select("*")
       .eq("id", sUser.id)
       .single()
-
+    
     if (profileError) {
       console.error("Error loading profile:", profileError)
+    } else {
+      profile = data
     }
 
     const appUser = mapToAppUser(sUser, profile)
