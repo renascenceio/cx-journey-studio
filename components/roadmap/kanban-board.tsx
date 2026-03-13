@@ -61,10 +61,16 @@ export function KanbanBoard({ initiatives, onStatusChange, onEdit, onDelete, can
   const [dragOverColumn, setDragOverColumn] = useState<string | null>(null)
 
   const handleDragStart = useCallback((e: React.DragEvent, id: string) => {
+    if (!canEdit) return
     setDraggedId(id)
     e.dataTransfer.effectAllowed = "move"
     e.dataTransfer.setData("text/plain", id)
-  }, [])
+    // Set a drag image to make it more visible
+    const target = e.currentTarget as HTMLElement
+    if (target) {
+      e.dataTransfer.setDragImage(target, 20, 20)
+    }
+  }, [canEdit])
 
   const handleDragOver = useCallback((e: React.DragEvent, status: string) => {
     e.preventDefault()
@@ -143,17 +149,29 @@ export function KanbanBoard({ initiatives, onStatusChange, onEdit, onDelete, can
                   <Card
                     key={initiative.id}
                     draggable={canEdit}
-                    onDragStart={(e) => handleDragStart(e, initiative.id)}
-                    onDragEnd={handleDragEnd}
+                    onDragStart={(e) => {
+                      e.stopPropagation()
+                      handleDragStart(e, initiative.id)
+                    }}
+                    onDragEnd={(e) => {
+                      e.stopPropagation()
+                      handleDragEnd()
+                    }}
                     className={cn(
-                      "cursor-grab active:cursor-grabbing border-border/60 transition-all hover:border-border hover:shadow-sm",
+                      "border-border/60 transition-all hover:border-border hover:shadow-sm",
+                      canEdit && "cursor-grab active:cursor-grabbing",
                       draggedId === initiative.id && "opacity-50 ring-2 ring-primary"
                     )}
                   >
                     <CardContent className="p-3">
                       <div className="flex items-start gap-2">
                         {canEdit && (
-                          <GripVertical className="h-4 w-4 text-muted-foreground/50 mt-0.5 shrink-0" />
+                          <div 
+                            className="flex items-center justify-center cursor-grab active:cursor-grabbing shrink-0 mt-0.5"
+                            onMouseDown={(e) => e.stopPropagation()}
+                          >
+                            <GripVertical className="h-4 w-4 text-muted-foreground/50 hover:text-muted-foreground transition-colors" />
+                          </div>
                         )}
                         <div className="flex-1 min-w-0">
                           <div className="flex items-start justify-between gap-2">
@@ -182,7 +200,13 @@ export function KanbanBoard({ initiatives, onStatusChange, onEdit, onDelete, can
                             {canEdit && (
                               <DropdownMenu>
                                 <DropdownMenuTrigger asChild>
-                                  <Button variant="ghost" size="sm" className="h-6 w-6 p-0 shrink-0">
+                                  <Button 
+                                    variant="ghost" 
+                                    size="sm" 
+                                    className="h-6 w-6 p-0 shrink-0"
+                                    onMouseDown={(e) => e.stopPropagation()}
+                                    draggable={false}
+                                  >
                                     <MoreHorizontal className="h-3.5 w-3.5" />
                                   </Button>
                                 </DropdownMenuTrigger>

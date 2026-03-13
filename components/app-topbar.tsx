@@ -384,7 +384,8 @@ export function AppTopbar() {
             </DropdownMenuContent>
           </DropdownMenu>
 
-          {/* Profile dropdown */}
+          {/* Profile dropdown - only show if user is authenticated */}
+          {isAuthenticated && user ? (
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full">
@@ -441,6 +442,7 @@ export function AppTopbar() {
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
+          ) : null}
 
           <Button variant="ghost" size="icon" className="h-8 w-8 md:hidden" onClick={() => setMobileMenuOpen(!mobileMenuOpen)}>
             {mobileMenuOpen ? <X className="h-4 w-4" /> : <Menu className="h-4 w-4" />}

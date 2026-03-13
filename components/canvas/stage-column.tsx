@@ -88,6 +88,49 @@ export function StageColumn({
 }: StageColumnProps) {
   const [isRenaming, setIsRenaming] = useState(false)
   const [renameValue, setRenameValue] = useState(stage.name)
+  
+  // Local drag-drop state for steps
+  const [draggedStepIdx, setDraggedStepIdx] = useState<number | null>(null)
+  const [dragOverStepIdx, setDragOverStepIdx] = useState<number | null>(null)
+  
+  function handleStepDragStart(e: React.DragEvent, idx: number) {
+    if (!editMode) return
+    e.stopPropagation() // Prevent stage drag
+    setDraggedStepIdx(idx)
+    e.dataTransfer.effectAllowed = "move"
+    e.dataTransfer.setData("text/plain", `step-${idx}`)
+  }
+  
+  function handleStepDragOver(e: React.DragEvent, idx: number) {
+    if (!editMode || draggedStepIdx === null || draggedStepIdx === idx) return
+    e.preventDefault()
+    e.stopPropagation()
+    e.dataTransfer.dropEffect = "move"
+    setDragOverStepIdx(idx)
+  }
+  
+  function handleStepDragLeave() {
+    setDragOverStepIdx(null)
+  }
+  
+  function handleStepDrop(e: React.DragEvent, targetIdx: number) {
+    e.preventDefault()
+    e.stopPropagation()
+    if (!editMode || draggedStepIdx === null || draggedStepIdx === targetIdx) return
+    
+    // Call the reorder callback
+    if (onReorderStep) {
+      onReorderStep(draggedStepIdx, targetIdx)
+    }
+    
+    setDraggedStepIdx(null)
+    setDragOverStepIdx(null)
+  }
+  
+  function handleStepDragEnd() {
+    setDraggedStepIdx(null)
+    setDragOverStepIdx(null)
+  }
   const avg = stageAvgScore(stage)
   const totalTps = stage.steps.reduce(
     (sum, step) =>
@@ -241,6 +284,14 @@ export function StageColumn({
             commentCount={getStepCommentCount?.(step.id) ?? 0}
             onCommentClick={() => onStepCommentClick?.(step.id)}
             highlightedTouchpointId={highlightedTouchpointId}
+            // Drag-and-drop props for steps
+            isDragging={draggedStepIdx === stepIdx}
+            isDragOver={dragOverStepIdx === stepIdx}
+            onDragStart={(e) => handleStepDragStart(e, stepIdx)}
+            onDragOver={(e) => handleStepDragOver(e, stepIdx)}
+            onDragLeave={handleStepDragLeave}
+            onDrop={(e) => handleStepDrop(e, stepIdx)}
+            onDragEnd={handleStepDragEnd}
           />
         ))}
         {editMode && (

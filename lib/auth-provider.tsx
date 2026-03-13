@@ -332,31 +332,31 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, [])
 
   const logout = useCallback(async () => {
-    try {
-      // Sign out from Supabase first (this clears the session)
-      await supabase.auth.signOut({ scope: "global" })
-    } catch (e) {
-      console.error("Logout error:", e)
-    }
-    
-    // Clear all localStorage
+    // Clear all localStorage FIRST to prevent any flash of "Guest" content
     if (typeof window !== "undefined") {
       localStorage.removeItem(USER_STORAGE_KEY)
       localStorage.removeItem(WORKSPACE_STORAGE_KEY)
       localStorage.removeItem(WORKSPACES_STORAGE_KEY)
-      // Clear any other auth-related storage
       localStorage.removeItem("sb-access-token")
       localStorage.removeItem("sb-refresh-token")
+      // Clear all Supabase-related storage
+      Object.keys(localStorage).forEach((key) => {
+        if (key.startsWith("sb-") || key.includes("supabase")) {
+          localStorage.removeItem(key)
+        }
+      })
     }
     
-    // Clear state
-    setUser(null)
-    setSupabaseUser(null)
-    setWorkspace(null)
-    setWorkspaces([])
-    
-    // Force hard redirect to login page (bypasses any caching)
+    // Redirect BEFORE clearing state to prevent any UI flash
+    // Use replace to prevent back button returning to protected route
     window.location.replace("/login")
+    
+    // Sign out from Supabase (runs after redirect initiated)
+    try {
+      await supabase.auth.signOut({ scope: "global" })
+    } catch (e) {
+      // Ignore errors - we're already redirecting
+    }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
