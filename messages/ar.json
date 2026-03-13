@@ -84,7 +84,21 @@
     "haveAccount": "لديك حساب بالفعل؟",
     "termsAgree": "بالتسجيل، أنت توافق على",
     "termsOfService": "شروط الخدمة",
-    "privacyPolicy": "سياسة الخصوصية"
+    "privacyPolicy": "سياسة الخصوصية",
+    "magicLinkOption": "تسجيل الدخول بالرابط السحري",
+    "magicLinkTitle": "تسجيل الدخول بالرابط السحري",
+    "magicLinkDesc": "سنرسل لك رابطاً سحرياً لتسجيل الدخول بدون كلمة مرور.",
+    "magicLinkSent": "تم إرسال الرابط السحري!",
+    "magicLinkSentDesc": "تحقق من بريدك الإلكتروني وانقر على الرابط لتسجيل الدخول.",
+    "backToLogin": "العودة لتسجيل الدخول",
+    "emailRequired": "يرجى إدخال عنوان بريدك الإلكتروني",
+    "workEmail": "البريد الإلكتروني للعمل",
+    "organizationName": "اسم المؤسسة",
+    "organizationPlaceholder": "شركة أكمي",
+    "fullNamePlaceholder": "أحمد محمد",
+    "passwordPlaceholderSignup": "8 أحرف على الأقل",
+    "acceptTerms": "يرجى قبول شروط الخدمة وسياسة الخصوصية للمتابعة.",
+    "accountCreated": "تحقق من بريدك الإلكتروني لتأكيد حسابك، ثم يمكنك تسجيل الدخول."
   },
   "landing": {
     "hero": {
@@ -166,7 +180,7 @@
   "archetypes": {
     "title": "النماذج الأصلية",
     "subtitle": "حدد وافهم شرائح عملائك",
-    "createArchetype": "إنشاء نموذج أصلي",
+    "createArchetype": "إنشاء نموذج ��صلي",
     "editArchetype": "تحرير النموذج الأصلي",
     "deleteArchetype": "حذف النموذج الأصلي",
     "archetypeName": "اسم النموذج الأصلي",

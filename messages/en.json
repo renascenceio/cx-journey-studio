@@ -175,7 +175,14 @@
     "magicLinkSent": "Magic link sent!",
     "magicLinkSentDesc": "Check your email and click the link to sign in.",
     "backToLogin": "Back to login",
-    "emailRequired": "Please enter your email address"
+    "emailRequired": "Please enter your email address",
+    "workEmail": "Work email",
+    "organizationName": "Organization name",
+    "organizationPlaceholder": "Acme Corp",
+    "fullNamePlaceholder": "Alex Morgan",
+    "passwordPlaceholderSignup": "Min 8 characters",
+    "acceptTerms": "Please accept the terms and privacy policy to continue.",
+    "accountCreated": "Check your email to confirm your account, then you can sign in."
   },
   "landing": {
     "hero": {

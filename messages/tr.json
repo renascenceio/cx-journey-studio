@@ -84,7 +84,14 @@
     "haveAccount": "Zaten hesabınız var mı?",
     "termsAgree": "Kayıt olarak kabul ediyorsunuz",
     "termsOfService": "Hizmet Şartları",
-    "privacyPolicy": "Gizlilik Politikası"
+    "privacyPolicy": "Gizlilik Politikası",
+    "magicLinkOption": "Sihirli bağlantı ile giriş yap",
+    "magicLinkTitle": "Sihirli bağlantı ile giriş yap",
+    "magicLinkDesc": "Size şifresiz giriş için sihirli bir bağlantı göndereceğiz.",
+    "magicLinkSent": "Sihirli bağlantı gönderildi!",
+    "magicLinkSentDesc": "E-postanızı kontrol edin ve giriş yapmak için bağlantıya tıklayın.",
+    "backToLogin": "Girişe geri dön",
+    "emailRequired": "Lütfen e-posta adresinizi girin"
   },
   "landing": {
     "hero": {

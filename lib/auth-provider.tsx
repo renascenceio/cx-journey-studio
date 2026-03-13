@@ -317,23 +317,31 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, [])
 
   const logout = useCallback(async () => {
-    // Clear state first
+    try {
+      // Sign out from Supabase first (this clears the session)
+      await supabase.auth.signOut({ scope: "global" })
+    } catch (e) {
+      console.error("Logout error:", e)
+    }
+    
+    // Clear all localStorage
+    if (typeof window !== "undefined") {
+      localStorage.removeItem(USER_STORAGE_KEY)
+      localStorage.removeItem(WORKSPACE_STORAGE_KEY)
+      localStorage.removeItem(WORKSPACES_STORAGE_KEY)
+      // Clear any other auth-related storage
+      localStorage.removeItem("sb-access-token")
+      localStorage.removeItem("sb-refresh-token")
+    }
+    
+    // Clear state
     setUser(null)
     setSupabaseUser(null)
     setWorkspace(null)
     setWorkspaces([])
-    storeUser(null)
-    storeWorkspace(null)
-    storeWorkspaces([])
-    localStorage.removeItem(USER_STORAGE_KEY)
-    localStorage.removeItem(WORKSPACE_STORAGE_KEY)
-    localStorage.removeItem(WORKSPACES_STORAGE_KEY)
     
-    // Sign out from Supabase
-    await supabase.auth.signOut()
-    
-    // Force redirect to login
-    window.location.href = "/login"
+    // Force hard redirect to login page (bypasses any caching)
+    window.location.replace("/login")
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 

@@ -4,19 +4,16 @@ import Link from "next/link"
 import Image from "next/image"
 import { Quote } from "lucide-react"
 import { AuthProvider } from "@/lib/auth-provider"
+import useSWR from "swr"
+
+const fetcher = (url: string) => fetch(url).then((r) => r.json())
 
 const testimonials = [
   {
-    quote: "Journey Studio transformed how we visualize and improve our customer experience. The emotional arc mapping alone saved us months of guesswork.",
-    author: "Maria Gonzalez",
-    role: "VP of Customer Experience",
-    company: "Northwind Financial",
-  },
-  {
-    quote: "We went from siloed journey data to a single source of truth in under a week. The archetype system is incredibly powerful.",
-    author: "Tom Andersen",
-    role: "CX Program Director",
-    company: "Meridian Healthcare",
+    quote: "René Studio transformed how we visualize and improve our customer experience. The emotional arc mapping alone saved us months of guesswork.",
+    author: "Aslan Patov",
+    role: "Chief Executive Officer, Founder",
+    company: "Renascence",
   },
 ]
 
@@ -30,6 +27,16 @@ interface AuthLayoutClientProps {
 export function AuthLayoutClient({ children, logoDark, logoLight, siteName }: AuthLayoutClientProps) {
   // Use first testimonial for SSR consistency, avoiding hydration mismatch from Math.random()
   const t = testimonials[0]
+  
+  // Fetch real stats from the API
+  const { data: stats } = useSWR("/api/public/stats", fetcher, {
+    refreshInterval: 60000, // Refresh every minute
+    revalidateOnFocus: false,
+  })
+  
+  const journeyCount = stats?.journeyCount ?? "10,000+"
+  const orgCount = stats?.organizationCount ?? "500+"
+  const avgRating = stats?.avgRating ?? "4.9"
 
   return (
     <AuthProvider>
@@ -61,11 +68,11 @@ export function AuthLayoutClient({ children, logoDark, logoLight, siteName }: Au
           </div>
 
           <div className="flex items-center gap-6 text-xs text-primary-foreground/50">
-            <span>12,000+ journeys mapped</span>
+            <span>{typeof journeyCount === "number" ? journeyCount.toLocaleString() : journeyCount} journeys mapped</span>
             <span className="h-1 w-1 rounded-full bg-primary-foreground/30" />
-            <span>800+ organizations</span>
+            <span>{typeof orgCount === "number" ? orgCount.toLocaleString() : orgCount} organizations</span>
             <span className="h-1 w-1 rounded-full bg-primary-foreground/30" />
-            <span>4.9 avg rating</span>
+            <span>{avgRating} avg rating</span>
           </div>
         </div>
 

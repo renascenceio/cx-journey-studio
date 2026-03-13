@@ -130,7 +130,21 @@
     "signingIn": "Iniciando sesión...",
     "signingUp": "Registrando...",
     "continueWithGoogle": "Continuar con Google",
-    "continueWithGithub": "Continuar con GitHub"
+    "continueWithGithub": "Continuar con GitHub",
+    "magicLinkOption": "Iniciar sesión con enlace mágico",
+    "magicLinkTitle": "Iniciar sesión con enlace mágico",
+    "magicLinkDesc": "Te enviaremos un enlace mágico para iniciar sesión sin contraseña.",
+    "magicLinkSent": "¡Enlace mágico enviado!",
+    "magicLinkSentDesc": "Revisa tu correo y haz clic en el enlace para iniciar sesión.",
+    "backToLogin": "Volver al inicio de sesión",
+    "emailRequired": "Por favor ingresa tu correo electrónico",
+    "workEmail": "Correo de trabajo",
+    "organizationName": "Nombre de la organización",
+    "organizationPlaceholder": "Acme Corp",
+    "fullNamePlaceholder": "Juan García",
+    "passwordPlaceholderSignup": "Mínimo 8 caracteres",
+    "acceptTerms": "Por favor acepta los términos de servicio y la política de privacidad para continuar.",
+    "accountCreated": "Revisa tu correo electrónico para confirmar tu cuenta, luego puedes iniciar sesión."
   },
   "landing": {
     "hero": {

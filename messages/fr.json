@@ -130,7 +130,21 @@
     "signingIn": "Connexion...",
     "signingUp": "Inscription...",
     "continueWithGoogle": "Continuer avec Google",
-    "continueWithGithub": "Continuer avec GitHub"
+    "continueWithGithub": "Continuer avec GitHub",
+    "magicLinkOption": "Se connecter avec un lien magique",
+    "magicLinkTitle": "Se connecter avec un lien magique",
+    "magicLinkDesc": "Nous vous enverrons un lien magique pour vous connecter sans mot de passe.",
+    "magicLinkSent": "Lien magique envoyé !",
+    "magicLinkSentDesc": "Vérifiez votre e-mail et cliquez sur le lien pour vous connecter.",
+    "backToLogin": "Retour à la connexion",
+    "emailRequired": "Veuillez entrer votre adresse e-mail",
+    "workEmail": "E-mail professionnel",
+    "organizationName": "Nom de l'organisation",
+    "organizationPlaceholder": "Acme Corp",
+    "fullNamePlaceholder": "Jean Dupont",
+    "passwordPlaceholderSignup": "8 caractères minimum",
+    "acceptTerms": "Veuillez accepter les conditions de service et la politique de confidentialité pour continuer.",
+    "accountCreated": "Vérifiez votre e-mail pour confirmer votre compte, puis vous pourrez vous connecter."
   },
   "landing": {
     "hero": {
