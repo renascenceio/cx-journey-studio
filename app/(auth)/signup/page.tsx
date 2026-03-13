@@ -2,6 +2,7 @@
 
 import { useState } from "react"
 import { useRouter } from "next/navigation"
+import { useTranslations } from "next-intl"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardFooter, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
@@ -9,19 +10,18 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Separator } from "@/components/ui/separator"
 import { Checkbox } from "@/components/ui/checkbox"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { getSupabaseClient } from "@/lib/supabase/client"
 import { signInWithGoogle, signInWithMicrosoft } from "@/lib/oauth"
 import { AlertCircle, CheckCircle, Loader2 } from "lucide-react"
 
 export default function SignupPage() {
+  const t = useTranslations()
   const router = useRouter()
   const [isLoading, setIsLoading] = useState(false)
   const [name, setName] = useState("")
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [orgName, setOrgName] = useState("")
-  const [role, setRole] = useState("contributor")
   const [agreed, setAgreed] = useState(false)
   const [error, setError] = useState("")
   const [success, setSuccess] = useState("")
@@ -30,7 +30,7 @@ export default function SignupPage() {
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     if (!agreed) {
-      setError("Please accept the terms and privacy policy to continue.")
+      setError(t("auth.acceptTerms"))
       return
     }
     setError("")
@@ -48,7 +48,6 @@ export default function SignupPage() {
             `${window.location.origin}/auth/callback`,
           data: {
             name,
-            role,
             org_name: orgName,
           },
         },
@@ -84,7 +83,6 @@ export default function SignupPage() {
   .update({
   name,
   organization_id: newOrg.id,
-  role,
   })
   .eq("id", data.user.id)
   
@@ -116,7 +114,7 @@ export default function SignupPage() {
   }
 
       // Email confirmation required
-      setSuccess("Check your email to confirm your account, then you can sign in.")
+      setSuccess(t("auth.accountCreated"))
       setIsLoading(false)
     } catch {
       setError("Something went wrong. Please try again.")
@@ -150,10 +148,10 @@ export default function SignupPage() {
     <Card className="w-full max-w-sm border-border/60">
       <CardHeader className="text-center">
         <CardTitle className="text-xl font-semibold text-foreground">
-          Create your account
+          {t("auth.signupTitle")}
         </CardTitle>
         <CardDescription className="text-muted-foreground">
-          Get started with Journey Studio for free
+          {t("auth.signupSubtitle")}
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -171,33 +169,21 @@ export default function SignupPage() {
         )}
         <form onSubmit={handleSubmit} className="flex flex-col gap-3.5">
           <div className="flex flex-col gap-1.5">
-            <Label htmlFor="name">Full name</Label>
-            <Input id="name" type="text" placeholder="Alex Morgan" required autoComplete="name" value={name} onChange={(e) => setName(e.target.value)} />
+            <Label htmlFor="name">{t("auth.fullName")}</Label>
+            <Input id="name" type="text" placeholder={t("auth.fullNamePlaceholder") || "Alex Morgan"} required autoComplete="name" value={name} onChange={(e) => setName(e.target.value)} />
           </div>
           <div className="flex flex-col gap-1.5">
-            <Label htmlFor="email">Work email</Label>
-            <Input id="email" type="email" placeholder="you@company.com" required autoComplete="email" value={email} onChange={(e) => setEmail(e.target.value)} />
+            <Label htmlFor="email">{t("auth.workEmail") || "Work email"}</Label>
+            <Input id="email" type="email" placeholder={t("auth.emailPlaceholder")} required autoComplete="email" value={email} onChange={(e) => setEmail(e.target.value)} />
           </div>
           <div className="flex flex-col gap-1.5">
-            <Label htmlFor="org">Organization name</Label>
-            <Input id="org" type="text" placeholder="Acme Corp" required value={orgName} onChange={(e) => setOrgName(e.target.value)} />
+            <Label htmlFor="org">{t("auth.organizationName") || "Organization name"}</Label>
+            <Input id="org" type="text" placeholder={t("auth.organizationPlaceholder") || "Acme Corp"} required value={orgName} onChange={(e) => setOrgName(e.target.value)} />
           </div>
+          
           <div className="flex flex-col gap-1.5">
-            <Label htmlFor="role">Your role</Label>
-            <Select value={role} onValueChange={setRole}>
-              <SelectTrigger id="role" className="h-9 text-sm">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="journey_master">Journey Master (Admin)</SelectItem>
-                <SelectItem value="contributor">Contributor</SelectItem>
-                <SelectItem value="viewer">Viewer</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-          <div className="flex flex-col gap-1.5">
-            <Label htmlFor="password">Password</Label>
-            <Input id="password" type="password" placeholder="Min 8 characters" required autoComplete="new-password" minLength={8} value={password} onChange={(e) => setPassword(e.target.value)} />
+            <Label htmlFor="password">{t("auth.password")}</Label>
+            <Input id="password" type="password" placeholder={t("auth.passwordPlaceholderSignup") || "Min 8 characters"} required autoComplete="new-password" minLength={8} value={password} onChange={(e) => setPassword(e.target.value)} />
           </div>
           <div className="flex items-start gap-2 pt-1">
             <Checkbox id="terms" checked={agreed} onCheckedChange={(v) => setAgreed(v === true)} className="mt-0.5" />
@@ -209,12 +195,12 @@ export default function SignupPage() {
             </Label>
           </div>
           <Button type="submit" className="mt-1 w-full" disabled={isLoading || !agreed}>
-            {isLoading ? "Creating account..." : "Create account"}
+            {isLoading ? t("auth.signingUp") : t("auth.signUp")}
           </Button>
         </form>
         <div className="my-5 flex items-center gap-3">
           <Separator className="flex-1" />
-          <span className="text-xs text-muted-foreground">or continue with</span>
+          <span className="text-xs text-muted-foreground">{t("auth.orContinueWith")}</span>
           <Separator className="flex-1" />
         </div>
         <div className="flex gap-3">
@@ -250,9 +236,9 @@ export default function SignupPage() {
       </CardContent>
       <CardFooter className="justify-center">
         <p className="text-sm text-muted-foreground">
-          Already have an account?{" "}
+          {t("auth.hasAccount")}{" "}
           <Link href="/login" className="font-medium text-primary hover:underline">
-            Sign in
+            {t("auth.signIn")}
           </Link>
         </p>
       </CardFooter>

@@ -84,7 +84,14 @@
     "haveAccount": "पहले से खाता है?",
     "termsAgree": "साइन अप करके, आप सहमत हैं",
     "termsOfService": "सेवा की शर्तें",
-    "privacyPolicy": "गोपनीयता नीति"
+    "privacyPolicy": "गोपनीयता नीति",
+    "magicLinkOption": "मैजिक लिंक से साइन इन करें",
+    "magicLinkTitle": "मैजिक लिंक से साइन इन करें",
+    "magicLinkDesc": "हम आपको बिना पासवर्ड के साइन इन करने के लिए एक मैजिक लिंक ईमेल करेंगे।",
+    "magicLinkSent": "मैजिक लिंक भेजा गया!",
+    "magicLinkSentDesc": "अपना ईमेल चेक करें और साइन इन करने के लिए लिंक पर क्लिक करें।",
+    "backToLogin": "लॉगिन पर वापस जाएं",
+    "emailRequired": "कृपया अपना ईमेल पता दर्ज करें"
   },
   "landing": {
     "hero": {
@@ -249,7 +256,7 @@
     "overview": "अवलोकन",
     "overviewDesc": "प्लेटफ़ॉर्म गतिविधि और मैट्रिक्स का सारांश",
     "recentPlatformActivity": "हाल की प्लेटफ़ॉर्म गतिविधि",
-    "latestActionsDesc": "प्लेट���़ॉर्म पर नवीनतम कार्रवाइयां",
+    "latestActionsDesc": "प्��ेट���़ॉर्म पर नवीनतम कार्रवाइयां",
     "noRecentActivity": "कोई हाल की गतिविधि नहीं",
     "users": "उपयोगकर्ता",
     "usersDesc": "उपयोगकर्ता खाते और भूमिकाएं प्रबंधित करें",

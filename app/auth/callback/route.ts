@@ -4,10 +4,38 @@ import { NextResponse } from "next/server"
 export async function GET(request: Request) {
   const { searchParams, origin } = new URL(request.url)
   const code = searchParams.get("code")
-  const next = searchParams.get("next") ?? "/onboarding"
+  const token_hash = searchParams.get("token_hash")
+  const type = searchParams.get("type")
+  const next = searchParams.get("next") ?? "/dashboard"
 
+  const supabase = await createClient()
+
+  // Handle magic link authentication (token_hash based)
+  if (token_hash && type) {
+    const { error } = await supabase.auth.verifyOtp({
+      token_hash,
+      type: type as "email" | "signup" | "recovery" | "invite" | "magiclink",
+    })
+
+    if (!error) {
+      const forwardedHost = request.headers.get("x-forwarded-host")
+      const isLocalEnv = process.env.NODE_ENV === "development"
+      
+      if (isLocalEnv) {
+        return NextResponse.redirect(`${origin}/dashboard`)
+      } else if (forwardedHost) {
+        return NextResponse.redirect(`https://${forwardedHost}/dashboard`)
+      } else {
+        return NextResponse.redirect(`${origin}/dashboard`)
+      }
+    }
+    
+    // Error handling for magic link
+    return NextResponse.redirect(`${origin}/login?error=invalid_token`)
+  }
+
+  // Handle OAuth code exchange
   if (code) {
-    const supabase = await createClient()
     const { error } = await supabase.auth.exchangeCodeForSession(code)
 
     if (!error) {

@@ -130,7 +130,21 @@
     "signingIn": "ログイン中...",
     "signingUp": "登録中...",
     "continueWithGoogle": "Googleで続ける",
-    "continueWithGithub": "GitHubで続ける"
+    "continueWithGithub": "GitHubで続ける",
+    "magicLinkOption": "マジックリンクでログイン",
+    "magicLinkTitle": "マジックリンクでログイン",
+    "magicLinkDesc": "パスワード不要でログインできるマジックリンクをメールでお送りします。",
+    "magicLinkSent": "マジックリンクを送信しました！",
+    "magicLinkSentDesc": "メールを確認し、リンクをクリックしてログインしてください。",
+    "backToLogin": "ログインに戻る",
+    "emailRequired": "メールアドレスを入力してください",
+    "workEmail": "仕事用メール",
+    "organizationName": "組織名",
+    "organizationPlaceholder": "株式会社アクメ",
+    "fullNamePlaceholder": "田中太郎",
+    "passwordPlaceholderSignup": "8文字以上",
+    "acceptTerms": "続行するには、利用規約とプライバシーポリシーに同意してください。",
+    "accountCreated": "アカウントを確認するためにメールを確認してください。その後、サインインできます。"
   },
   "landing": {
     "hero": {

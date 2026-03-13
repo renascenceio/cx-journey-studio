@@ -130,7 +130,14 @@
     "signingIn": "Entrando...",
     "signingUp": "Cadastrando...",
     "continueWithGoogle": "Continuar com Google",
-    "continueWithGithub": "Continuar com GitHub"
+    "continueWithGithub": "Continuar com GitHub",
+    "magicLinkOption": "Entrar com link mágico",
+    "magicLinkTitle": "Entrar com link mágico",
+    "magicLinkDesc": "Enviaremos um link mágico para você entrar sem senha.",
+    "magicLinkSent": "Link mágico enviado!",
+    "magicLinkSentDesc": "Verifique seu e-mail e clique no link para entrar.",
+    "backToLogin": "Voltar ao login",
+    "emailRequired": "Por favor, insira seu endereço de e-mail"
   },
   "landing": {
     "hero": {

@@ -130,7 +130,21 @@
     "signingIn": "登录中...",
     "signingUp": "注册中...",
     "continueWithGoogle": "使用 Google 继续",
-    "continueWithGithub": "使用 GitHub 继续"
+    "continueWithGithub": "使用 GitHub 继续",
+    "magicLinkOption": "使用魔法链接登录",
+    "magicLinkTitle": "使用魔法链接登录",
+    "magicLinkDesc": "我们将通过邮件发送魔法链接，无需密码即可登录。",
+    "magicLinkSent": "魔法链接已发送！",
+    "magicLinkSentDesc": "请查看您的邮箱并点击链接登录。",
+    "backToLogin": "返回登录",
+    "emailRequired": "请输入您的邮箱地址",
+    "workEmail": "工作邮箱",
+    "organizationName": "组织名称",
+    "organizationPlaceholder": "Acme公司",
+    "fullNamePlaceholder": "张三",
+    "passwordPlaceholderSignup": "至少8个字符",
+    "acceptTerms": "请同意服务条款和隐私政策以继续。",
+    "accountCreated": "请查看您的邮箱以确认账户，然后您可以登录。"
   },
   "landing": {
     "hero": {

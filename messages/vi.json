@@ -84,7 +84,14 @@
     "haveAccount": "Đã có tài khoản?",
     "termsAgree": "Bằng cách đăng ký, bạn đồng ý với",
     "termsOfService": "Điều khoản dịch vụ",
-    "privacyPolicy": "Chính sách bảo mật"
+    "privacyPolicy": "Chính sách bảo mật",
+    "magicLinkOption": "Đăng nhập bằng liên kết ma thuật",
+    "magicLinkTitle": "Đăng nhập bằng liên kết ma thuật",
+    "magicLinkDesc": "Chúng tôi sẽ gửi cho bạn liên kết ma thuật để đăng nhập không cần mật khẩu.",
+    "magicLinkSent": "Liên kết ma thuật đã được gửi!",
+    "magicLinkSentDesc": "Kiểm tra email của bạn và nhấp vào liên kết để đăng nhập.",
+    "backToLogin": "Quay lại đăng nhập",
+    "emailRequired": "Vui lòng nhập địa chỉ email của bạn"
   },
   "landing": {
     "hero": {
