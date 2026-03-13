@@ -140,21 +140,9 @@ export default function AdminAccessPage() {
       
       setCurrentUserId(user.id)
 
-      // Check if current user is super admin (hardcoded check for aslan@renascence.io)
+      // Only aslan@renascence.io is the super admin - hardcoded for security
       const isSuperAdminUser = user.email === "aslan@renascence.io"
       setIsSuperAdmin(isSuperAdminUser)
-
-      if (!isSuperAdminUser) {
-        // Check database for super admin role
-        const { data: adminRole } = await supabase
-          .from("admin_roles")
-          .select("role")
-          .eq("user_id", user.id)
-          .eq("is_active", true)
-          .single()
-        
-        setIsSuperAdmin(adminRole?.role === "super_admin")
-      }
 
       // Load admin roles with user profiles
       const { data: roles, error: rolesError } = await supabase

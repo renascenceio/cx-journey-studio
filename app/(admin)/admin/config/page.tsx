@@ -5,12 +5,8 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Textarea } from "@/components/ui/textarea"
 import { Switch } from "@/components/ui/switch"
-import { Separator } from "@/components/ui/separator"
-import { Settings, Globe, Key, Palette, Mail, Shield, Upload, ImageIcon, Trash2, Volume2, ExternalLink, Copy, CheckCircle2, AlertCircle } from "lucide-react"
-import { SoundConfigCard, type SoundConfig } from "@/components/admin/sound-config"
-import Image from "next/image"
+import { Settings, Globe, Key, Shield, ExternalLink, Copy, CheckCircle2 } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { toast } from "sonner"
@@ -34,20 +30,9 @@ export default function AdminConfigPage() {
     anthropicKey: "",
     googleAiKey: "",
     defaultProvider: "openai",
-    customCss: "",
-    primaryColor: "#6366f1",
     maxJourneysPerUser: "50",
   })
   
-  const [logoUploading, setLogoUploading] = useState<string | null>(null)
-  const [logos, setLogos] = useState({
-    logoLight: "",
-    logoDark: "",
-    logoMarkLight: "",
-    logoMarkDark: "",
-  })
-  const [soundConfig, setSoundConfig] = useState<SoundConfig | null>(null)
-  const [savingSounds, setSavingSounds] = useState(false)
   const [copiedField, setCopiedField] = useState<string | null>(null)
   
   // OAuth credentials
@@ -86,73 +71,10 @@ export default function AdminConfigPage() {
         anthropicKey: "",
         googleAiKey: "",
         defaultProvider: config.defaultProvider || "openai",
-        customCss: config.customCss || "",
-        primaryColor: config.primaryColor || "#6366f1",
         maxJourneysPerUser: String(config.maxJourneysPerUser ?? 50),
       })
-      // Load logos from config if available
-      setLogos({
-        logoLight: config.logoLightUrl || "",
-        logoDark: config.logoDarkUrl || "",
-        logoMarkLight: config.logoMarkLightUrl || "",
-        logoMarkDark: config.logoMarkDarkUrl || "",
-      })
-      // Load sounds config
-      if (config.soundsConfig) {
-        setSoundConfig(config.soundsConfig)
-      }
     }
   }, [config])
-
-  async function handleLogoUpload(type: keyof typeof logos, file: File) {
-    setLogoUploading(type)
-    try {
-      const formData = new FormData()
-      formData.append("file", file)
-      formData.append("type", type)
-      
-      const res = await fetch("/api/admin/upload-logo", {
-        method: "POST",
-        body: formData,
-      })
-      
-      if (!res.ok) {
-        const err = await res.json().catch(() => ({ error: "Upload failed" }))
-        throw new Error(err.error || "Upload failed")
-      }
-      
-      const { url } = await res.json()
-      setLogos(prev => ({ ...prev, [type]: url }))
-      // Refresh config and site-config caches
-      mutate("/api/admin/config")
-      mutate("/api/site-config")
-      toast.success("Logo uploaded successfully")
-    } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Failed to upload logo")
-    } finally {
-      setLogoUploading(null)
-    }
-  }
-
-  async function handleSaveSounds(newSoundConfig: SoundConfig) {
-    setSavingSounds(true)
-    try {
-      await fetch("/api/admin/config", {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          sounds_config: newSoundConfig,
-        }),
-      })
-      setSoundConfig(newSoundConfig)
-      mutate("/api/admin/config")
-      toast.success("Sound configuration saved")
-    } catch {
-      toast.error("Failed to save sound configuration")
-    } finally {
-      setSavingSounds(false)
-    }
-  }
 
   async function handleSave() {
     setSaving(true)
@@ -172,8 +94,6 @@ export default function AdminConfigPage() {
           anthropic_key: form.anthropicKey || undefined,
           google_ai_key: form.googleAiKey || undefined,
           default_provider: form.defaultProvider,
-          custom_css: form.customCss,
-          primary_color: form.primaryColor,
           max_journeys_per_user: parseInt(form.maxJourneysPerUser) || 50,
         }),
       })
@@ -187,8 +107,8 @@ export default function AdminConfigPage() {
     <div className="flex flex-col gap-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight text-foreground">Site Configuration</h1>
-          <p className="mt-1 text-sm text-muted-foreground">Control platform behavior, branding, feature flags, and API keys</p>
+          <h1 className="text-2xl font-bold tracking-tight text-foreground">Configuration</h1>
+          <p className="mt-1 text-sm text-muted-foreground">Control platform behavior, feature flags, and API keys</p>
         </div>
         <Button onClick={handleSave} disabled={saving}>
           {saving ? "Saving..." : "Save All Changes"}
@@ -533,220 +453,6 @@ export default function AdminConfigPage() {
           </div>
         </CardContent>
       </Card>
-
-      {/* Logo Management */}
-      <Card className="border-border/60">
-        <CardHeader>
-          <div className="flex items-center gap-2">
-            <ImageIcon className="h-5 w-5 text-indigo-500" />
-            <CardTitle className="text-base">Logo Management</CardTitle>
-          </div>
-          <CardDescription>Upload custom logos for light and dark themes</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="grid gap-6 sm:grid-cols-2">
-            {/* Full Logo - Light */}
-            <div className="flex flex-col gap-3">
-              <Label className="text-xs font-medium">Full Logo (Light Theme)</Label>
-              <div className="relative flex h-24 items-center justify-center rounded-lg border border-dashed border-border bg-white p-4">
-                {logos.logoLight ? (
-                  <Image
-                    src={logos.logoLight}
-                    alt="Logo Light"
-                    width={160}
-                    height={48}
-                    className="max-h-12 w-auto object-contain"
-                  />
-                ) : (
-                  <div className="flex flex-col items-center gap-1 text-muted-foreground">
-                    <ImageIcon className="h-6 w-6" />
-                    <span className="text-[10px]">No logo</span>
-                  </div>
-                )}
-              </div>
-              <div className="flex gap-2">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="flex-1 text-xs"
-                  disabled={logoUploading === "logoLight"}
-                  onClick={() => document.getElementById("upload-logo-light")?.click()}
-                >
-                  <Upload className="mr-1.5 h-3 w-3" />
-                  {logoUploading === "logoLight" ? "Uploading..." : "Upload"}
-                </Button>
-                <input
-                  id="upload-logo-light"
-                  type="file"
-                  accept="image/*"
-                  className="hidden"
-                  onChange={(e) => e.target.files?.[0] && handleLogoUpload("logoLight", e.target.files[0])}
-                />
-              </div>
-            </div>
-
-            {/* Full Logo - Dark */}
-            <div className="flex flex-col gap-3">
-              <Label className="text-xs font-medium">Full Logo (Dark Theme)</Label>
-              <div className="relative flex h-24 items-center justify-center rounded-lg border border-dashed border-border bg-zinc-900 p-4">
-                {logos.logoDark ? (
-                  <Image
-                    src={logos.logoDark}
-                    alt="Logo Dark"
-                    width={160}
-                    height={48}
-                    className="max-h-12 w-auto object-contain"
-                  />
-                ) : (
-                  <div className="flex flex-col items-center gap-1 text-zinc-500">
-                    <ImageIcon className="h-6 w-6" />
-                    <span className="text-[10px]">No logo</span>
-                  </div>
-                )}
-              </div>
-              <div className="flex gap-2">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="flex-1 text-xs"
-                  disabled={logoUploading === "logoDark"}
-                  onClick={() => document.getElementById("upload-logo-dark")?.click()}
-                >
-                  <Upload className="mr-1.5 h-3 w-3" />
-                  {logoUploading === "logoDark" ? "Uploading..." : "Upload"}
-                </Button>
-                <input
-                  id="upload-logo-dark"
-                  type="file"
-                  accept="image/*"
-                  className="hidden"
-                  onChange={(e) => e.target.files?.[0] && handleLogoUpload("logoDark", e.target.files[0])}
-                />
-              </div>
-            </div>
-
-            {/* Logo Mark - Light */}
-            <div className="flex flex-col gap-3">
-              <Label className="text-xs font-medium">Logo Mark (Light Theme)</Label>
-              <div className="relative flex h-24 items-center justify-center rounded-lg border border-dashed border-border bg-white p-4">
-                {logos.logoMarkLight ? (
-                  <Image
-                    src={logos.logoMarkLight}
-                    alt="Logo Mark Light"
-                    width={48}
-                    height={48}
-                    className="h-12 w-12 object-contain"
-                  />
-                ) : (
-                  <div className="flex flex-col items-center gap-1 text-muted-foreground">
-                    <ImageIcon className="h-6 w-6" />
-                    <span className="text-[10px]">No logo</span>
-                  </div>
-                )}
-              </div>
-              <div className="flex gap-2">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="flex-1 text-xs"
-                  disabled={logoUploading === "logoMarkLight"}
-                  onClick={() => document.getElementById("upload-mark-light")?.click()}
-                >
-                  <Upload className="mr-1.5 h-3 w-3" />
-                  {logoUploading === "logoMarkLight" ? "Uploading..." : "Upload"}
-                </Button>
-                <input
-                  id="upload-mark-light"
-                  type="file"
-                  accept="image/*"
-                  className="hidden"
-                  onChange={(e) => e.target.files?.[0] && handleLogoUpload("logoMarkLight", e.target.files[0])}
-                />
-              </div>
-            </div>
-
-            {/* Logo Mark - Dark */}
-            <div className="flex flex-col gap-3">
-              <Label className="text-xs font-medium">Logo Mark (Dark Theme)</Label>
-              <div className="relative flex h-24 items-center justify-center rounded-lg border border-dashed border-border bg-zinc-900 p-4">
-                {logos.logoMarkDark ? (
-                  <Image
-                    src={logos.logoMarkDark}
-                    alt="Logo Mark Dark"
-                    width={48}
-                    height={48}
-                    className="h-12 w-12 object-contain"
-                  />
-                ) : (
-                  <div className="flex flex-col items-center gap-1 text-zinc-500">
-                    <ImageIcon className="h-6 w-6" />
-                    <span className="text-[10px]">No logo</span>
-                  </div>
-                )}
-              </div>
-              <div className="flex gap-2">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="flex-1 text-xs"
-                  disabled={logoUploading === "logoMarkDark"}
-                  onClick={() => document.getElementById("upload-mark-dark")?.click()}
-                >
-                  <Upload className="mr-1.5 h-3 w-3" />
-                  {logoUploading === "logoMarkDark" ? "Uploading..." : "Upload"}
-                </Button>
-                <input
-                  id="upload-mark-dark"
-                  type="file"
-                  accept="image/*"
-                  className="hidden"
-                  onChange={(e) => e.target.files?.[0] && handleLogoUpload("logoMarkDark", e.target.files[0])}
-                />
-              </div>
-            </div>
-          </div>
-          <p className="mt-4 text-xs text-muted-foreground">
-            Recommended: Full logos should be transparent PNGs at least 400px wide. Logo marks should be square, at least 128x128px.
-          </p>
-        </CardContent>
-      </Card>
-
-      {/* Branding */}
-      <Card className="border-border/60">
-        <CardHeader>
-          <div className="flex items-center gap-2">
-            <Palette className="h-5 w-5 text-pink-500" />
-            <CardTitle className="text-base">Branding</CardTitle>
-          </div>
-          <CardDescription>Customize the look and feel of your platform</CardDescription>
-        </CardHeader>
-        <CardContent className="flex flex-col gap-4">
-          <div className="grid gap-4 sm:grid-cols-2">
-            <div className="flex flex-col gap-2">
-              <Label>Primary Color</Label>
-              <div className="flex items-center gap-2">
-                <input type="color" value={form.primaryColor} onChange={(e) => setForm({ ...form, primaryColor: e.target.value })} className="h-9 w-12 cursor-pointer rounded border border-border" />
-                <Input value={form.primaryColor} onChange={(e) => setForm({ ...form, primaryColor: e.target.value })} className="flex-1" />
-              </div>
-            </div>
-            <div className="flex flex-col gap-2">
-              <Label>Max Journeys per User</Label>
-              <Input type="number" min={1} value={form.maxJourneysPerUser} onChange={(e) => setForm({ ...form, maxJourneysPerUser: e.target.value })} />
-            </div>
-          </div>
-          <div className="flex flex-col gap-2">
-            <Label>Custom CSS (advanced)</Label>
-            <Textarea value={form.customCss} onChange={(e) => setForm({ ...form, customCss: e.target.value })} rows={4} placeholder="/* Custom overrides */" className="font-mono text-xs" />
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Sound Configuration */}
-      <SoundConfigCard 
-        config={soundConfig} 
-        onSave={handleSaveSounds} 
-        saving={savingSounds} 
-      />
 
       {/* Security */}
       <Card className="border-border/60">
