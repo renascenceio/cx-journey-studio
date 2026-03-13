@@ -30,6 +30,8 @@ import {
   Search,
   Palette,
   FolderOpen,
+  Building2,
+  FolderKanban,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Toaster } from "@/components/ui/sonner"
@@ -90,11 +92,13 @@ const adminNavSections: NavSectionConfig[] = [
     ],
   },
   {
-    title: "Users",
+    title: "Users & Organizations",
     icon: Users,
     defaultOpen: true,
     items: [
-      { label: "All Users", href: "/admin/users", icon: Users, segment: "users" },
+      { label: "Individuals", href: "/admin/users", icon: Users, segment: "users" },
+      { label: "Organizations", href: "/admin/organizations", icon: Building2, segment: "organizations" },
+      { label: "Workspaces", href: "/admin/workspaces", icon: FolderKanban, segment: "workspaces" },
       { label: "Billing & Plans", href: "/admin/billing", icon: CreditCard, segment: "billing" },
       { label: "Credits FAQ", href: "/admin/credits-faq", icon: Calculator, segment: "credits-faq" },
     ],

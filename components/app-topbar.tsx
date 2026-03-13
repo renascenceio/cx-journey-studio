@@ -416,7 +416,8 @@ export function AppTopbar() {
               <DropdownMenuItem asChild>
                 <Link href="/settings/team"><Users className="mr-2 h-4 w-4" />{t("nav.team")}</Link>
               </DropdownMenuItem>
-              {user?.role === "admin" || user?.role === "journey_master" ? (
+              {/* Only super admin (aslan@renascence.io) can access admin panel */}
+              {user?.email === "aslan@renascence.io" ? (
                 <>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem asChild>
