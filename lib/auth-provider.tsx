@@ -332,7 +332,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, [])
 
   const logout = useCallback(async () => {
-    // Clear all localStorage FIRST to prevent any flash of "Guest" content
+    // Clear all state FIRST to prevent any flash
+    setUser(null)
+    setSupabaseUser(null)
+    setWorkspace(null)
+    setWorkspaces([])
+    
+    // Clear all localStorage
     if (typeof window !== "undefined") {
       localStorage.removeItem(USER_STORAGE_KEY)
       localStorage.removeItem(WORKSPACE_STORAGE_KEY)
@@ -347,16 +353,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       })
     }
     
-    // Redirect BEFORE clearing state to prevent any UI flash
-    // Use replace to prevent back button returning to protected route
-    window.location.replace("/login")
-    
-    // Sign out from Supabase (runs after redirect initiated)
+    // Sign out from Supabase
     try {
       await supabase.auth.signOut({ scope: "global" })
     } catch (e) {
-      // Ignore errors - we're already redirecting
+      // Ignore errors
     }
+    
+    // Redirect after everything is cleared
+    // Use replace to prevent back button returning to protected route
+    window.location.replace("/login")
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 

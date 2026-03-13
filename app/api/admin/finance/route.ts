@@ -52,9 +52,11 @@ export async function GET(request: Request) {
       .gte("created_at", startDate.toISOString())
       .order("created_at", { ascending: false })
 
-    // If table doesn't exist, return empty data instead of error
-    if (txError && txError.code === "42P01") {
-      // Table doesn't exist - return placeholder data
+    // If table doesn't exist or any error, return empty data instead of error
+    // Supabase returns various error codes: 42P01 (table missing), PGRST116 (relation doesn't exist), etc.
+    if (txError) {
+      console.log("[v0] Finance API - credit_transactions error:", txError.code, txError.message)
+      // Return placeholder data for any table-related error
       return NextResponse.json({
         overview: {
           totalRevenue: 0,
@@ -68,11 +70,9 @@ export async function GET(request: Request) {
         revenueTrend: [],
         revenueByProduct: [],
         recentTransactions: [],
-        message: "Credit transactions table not yet configured"
+        message: "Credit transactions not configured"
       })
     }
-    
-    if (txError) throw txError
 
     // Calculate revenue metrics
     const purchaseTransactions = transactions?.filter(t => t.type === "purchase") || []
