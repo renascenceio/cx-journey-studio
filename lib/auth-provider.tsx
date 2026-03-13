@@ -281,7 +281,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
       if (session?.user) {
         await loadUserData(session.user)
-      } else {
+      } else if (event === "SIGNED_OUT") {
         // Clear all cached data on sign out
         setUser(null)
         setSupabaseUser(null)
@@ -290,6 +290,21 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         storeUser(null)
         storeWorkspace(null)
         storeWorkspaces([])
+        
+        // Redirect to login page if we're on a protected route
+        if (typeof window !== "undefined") {
+          const path = window.location.pathname
+          const isProtectedRoute = path.startsWith("/dashboard") || 
+                                   path.startsWith("/journeys") || 
+                                   path.startsWith("/archetypes") ||
+                                   path.startsWith("/settings") ||
+                                   path.startsWith("/workspace") ||
+                                   path.startsWith("/team") ||
+                                   path.startsWith("/admin")
+          if (isProtectedRoute) {
+            window.location.replace("/login")
+          }
+        }
       }
     })
 

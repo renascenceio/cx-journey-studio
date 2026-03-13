@@ -30,6 +30,9 @@ import {
   FileText,
   Clock,
   RefreshCw,
+  ExternalLink,
+  Copy,
+  CheckCircle2,
 } from "lucide-react"
 import { toast } from "sonner"
 import {
@@ -911,6 +914,99 @@ export default function NotificationsPage() {
                       <label htmlFor="inc-tips" className="text-sm">Include tips and updates</label>
                     </div>
                   </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Supabase Email Templates Configuration */}
+            <Card className="lg:col-span-2 border-amber-200 bg-amber-50/30 dark:border-amber-800 dark:bg-amber-900/10">
+              <CardHeader>
+                <div className="flex items-center gap-2">
+                  <Mail className="h-5 w-5 text-amber-600" />
+                  <CardTitle className="text-base">Supabase Auth Email Templates</CardTitle>
+                </div>
+                <CardDescription>
+                  Magic Link, Password Reset, and Email Verification emails are sent directly by Supabase. 
+                  Configure these templates in your Supabase dashboard.
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="flex flex-col gap-4">
+                <div className="rounded-lg border border-amber-200 bg-amber-50 p-4 dark:border-amber-800 dark:bg-amber-900/20">
+                  <div className="flex gap-2">
+                    <AlertTriangle className="h-5 w-5 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
+                    <div>
+                      <p className="text-sm font-medium text-amber-800 dark:text-amber-200">Configuration Required in Supabase</p>
+                      <p className="mt-1 text-xs text-amber-700 dark:text-amber-300">
+                        To customize authentication emails (Magic Link, Password Reset, Email Verification), 
+                        you must configure the email templates directly in your Supabase project dashboard.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="rounded-lg border border-border bg-muted/20 p-4">
+                  <h4 className="text-sm font-medium mb-3">Setup Instructions</h4>
+                  <ol className="text-xs text-muted-foreground space-y-2 list-decimal list-inside">
+                    <li>
+                      Go to{" "}
+                      <a 
+                        href="https://supabase.com/dashboard" 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="text-primary hover:underline inline-flex items-center gap-1"
+                      >
+                        Supabase Dashboard <ExternalLink className="h-3 w-3" />
+                      </a>
+                    </li>
+                    <li>Select your project and navigate to <strong>Authentication</strong> {">"} <strong>Email Templates</strong></li>
+                    <li>Customize each template type:
+                      <ul className="mt-1 ml-4 list-disc space-y-1">
+                        <li><strong>Magic Link</strong> - Passwordless sign-in emails</li>
+                        <li><strong>Confirm Signup</strong> - Email verification for new users</li>
+                        <li><strong>Reset Password</strong> - Password recovery emails</li>
+                        <li><strong>Invite User</strong> - Team invitation emails</li>
+                      </ul>
+                    </li>
+                    <li>Use the template previews above as reference for your email design</li>
+                    <li>Configure your custom SMTP server under <strong>Project Settings</strong> {">"} <strong>Auth</strong> {">"} <strong>SMTP Settings</strong></li>
+                  </ol>
+                </div>
+
+                <div className="rounded-lg border border-border bg-muted/20 p-4">
+                  <h4 className="text-sm font-medium mb-3">Available Template Variables</h4>
+                  <div className="grid gap-2 sm:grid-cols-2 text-xs">
+                    <div className="flex items-center gap-2">
+                      <code className="bg-background border rounded px-1.5 py-0.5">{`{{ .ConfirmationURL }}`}</code>
+                      <span className="text-muted-foreground">- Magic link/verification URL</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <code className="bg-background border rounded px-1.5 py-0.5">{`{{ .Token }}`}</code>
+                      <span className="text-muted-foreground">- OTP token (if enabled)</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <code className="bg-background border rounded px-1.5 py-0.5">{`{{ .Email }}`}</code>
+                      <span className="text-muted-foreground">- User email address</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <code className="bg-background border rounded px-1.5 py-0.5">{`{{ .SiteURL }}`}</code>
+                      <span className="text-muted-foreground">- Your site URL</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="flex flex-wrap gap-2 pt-2">
+                  <Button variant="outline" size="sm" asChild>
+                    <a href="https://supabase.com/dashboard" target="_blank" rel="noopener noreferrer">
+                      <ExternalLink className="mr-1.5 h-3 w-3" />
+                      Open Supabase Dashboard
+                    </a>
+                  </Button>
+                  <Button variant="outline" size="sm" asChild>
+                    <a href="https://supabase.com/docs/guides/auth/auth-smtp" target="_blank" rel="noopener noreferrer">
+                      <ExternalLink className="mr-1.5 h-3 w-3" />
+                      SMTP Configuration Docs
+                    </a>
+                  </Button>
                 </div>
               </CardContent>
             </Card>
