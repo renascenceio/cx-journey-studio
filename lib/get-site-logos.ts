@@ -1,6 +1,10 @@
 import { createClient } from "@/lib/supabase/server"
+import { unstable_noStore as noStore } from "next/cache"
 
 export async function getSiteLogos() {
+  // Disable caching to always fetch fresh logo URLs
+  noStore()
+  
   const supabase = await createClient()
   
   const { data } = await supabase

@@ -47,16 +47,17 @@ export function PublicFooter() {
         <div className="grid gap-8 md:grid-cols-4">
           <div className="flex flex-col items-start gap-3">
             <Link href="/home" className="flex items-center h-[76px]">
-              <Image
-                src={logoSrc || (resolvedTheme === "dark" 
-                  ? "https://py47xstuktdkxylm.public.blob.vercel-storage.com/logos/logo-dark-xOhDTEdqNvUAZaKUpWWdevckyCXaMX.png"
-                  : "https://py47xstuktdkxylm.public.blob.vercel-storage.com/logos/logo-light-TKrukgyff9qYn05XX01mnhB1RP7Wrb.png"
-                )}
-                alt={config?.siteName || "René Studio"}
-                width={480}
-                height={128}
-                className="h-[76px] max-w-[240px] object-contain object-left"
-              />
+              {logoSrc ? (
+                <Image
+                  src={logoSrc}
+                  alt={config?.siteName || "René Studio"}
+                  width={480}
+                  height={128}
+                  className="h-[76px] max-w-[240px] object-contain object-left"
+                />
+              ) : (
+                <span className="text-xl font-semibold text-foreground">{config?.siteName || "René Studio"}</span>
+              )}
             </Link>
             <p className="text-sm leading-relaxed text-muted-foreground text-left">
               Map, understand, and transform every customer experience journey.

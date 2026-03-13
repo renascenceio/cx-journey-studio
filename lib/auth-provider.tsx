@@ -39,7 +39,7 @@ const AuthContext = createContext<AuthContextValue | null>(null)
 
 function mapToAppUser(
   supaUser: SupabaseUser,
-  profile: { name: string; email: string; avatar: string | null; role: string; organization_id: string | null } | null
+  profile: { name: string; email: string; avatar_url: string | null; role: string; organization_id: string | null } | null
 ): User {
   // Ensure we preserve the admin role - don't default to contributor if role is set
   const userRole = profile?.role as UserRole
@@ -48,7 +48,7 @@ function mapToAppUser(
     id: supaUser.id,
     name: profile?.name || supaUser.user_metadata?.name || supaUser.email?.split("@")[0] || "User",
     email: profile?.email || supaUser.email || "",
-    avatar: profile?.avatar || undefined,
+    avatar: profile?.avatar_url || undefined,
     role: userRole || "contributor",
     teamIds: [],
     organizationId: profile?.organization_id || "",
@@ -172,7 +172,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const loadUserProfile = useCallback(async (sUser: SupabaseUser) => {
     const { data: profile, error: profileError } = await supabase
       .from("profiles")
-      .select("name, email, avatar, role, organization_id")
+      .select("name, email, avatar_url, role, organization_id")
       .eq("id", sUser.id)
       .single()
 

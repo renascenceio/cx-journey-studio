@@ -59,16 +59,43 @@ export async function POST(request: NextRequest) {
     })
     
     // Save URL to site_config in database (on the 'branding' row)
+    // Use upsert to create the row if it doesn't exist
     const configKey = configKeyMap[type]
     if (configKey) {
-      const { error: updateError } = await supabase
+      // First, try to get existing branding row
+      const { data: existing } = await supabase
         .from("site_config")
-        .update({ [configKey]: blob.url, updated_at: new Date().toISOString() })
+        .select("*")
         .eq("key", "branding")
+        .single()
       
-      if (updateError) {
-        console.error("Config update error:", updateError)
-        return NextResponse.json({ error: "Failed to save logo URL" }, { status: 500 })
+      if (existing) {
+        // Update existing row
+        const { error: updateError } = await supabase
+          .from("site_config")
+          .update({ [configKey]: blob.url, updated_at: new Date().toISOString() })
+          .eq("key", "branding")
+        
+        if (updateError) {
+          console.error("Config update error:", updateError)
+          return NextResponse.json({ error: "Failed to save logo URL" }, { status: 500 })
+        }
+      } else {
+        // Insert new branding row
+        const { error: insertError } = await supabase
+          .from("site_config")
+          .insert({ 
+            key: "branding", 
+            value: "custom",
+            [configKey]: blob.url, 
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString() 
+          })
+        
+        if (insertError) {
+          console.error("Config insert error:", insertError)
+          return NextResponse.json({ error: "Failed to save logo URL" }, { status: 500 })
+        }
       }
     }
     
