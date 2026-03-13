@@ -273,7 +273,26 @@ export default function AdminAccessPage() {
     )
   }
 
-  const filteredRoles = adminRoles.filter(role => 
+  // The only admin is aslan@renascence.io - hardcoded for security
+  const superAdminDisplay = {
+    id: "super-admin",
+    user_id: currentUserId || "",
+    role: "super_admin",
+    permissions: ADMIN_PERMISSIONS.map(p => p.id),
+    granted_by: null,
+    granted_at: "2024-01-01T00:00:00Z",
+    is_active: true,
+    notes: "System super administrator - hardcoded access",
+    created_at: "2024-01-01T00:00:00Z",
+    user: {
+      id: currentUserId || "",
+      email: "aslan@renascence.io",
+      name: "Aslan Patov",
+      avatar_url: null
+    }
+  }
+  
+  const filteredRoles = [superAdminDisplay].filter(role => 
     role.user?.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
     role.user?.email?.toLowerCase().includes(searchQuery.toLowerCase())
   )
@@ -304,12 +323,13 @@ export default function AdminAccessPage() {
         <div>
           <h1 className="text-2xl font-bold">Admin Access Management</h1>
           <p className="text-muted-foreground">
-            Manage who has access to the admin panel and their permissions
+            Only aslan@renascence.io has admin access (hardcoded for security)
           </p>
         </div>
-        <Dialog open={showAddDialog} onOpenChange={setShowAddDialog}>
+        {/* Grant Access dialog hidden - only aslan@renascence.io is admin */}
+        <Dialog open={false} onOpenChange={setShowAddDialog}>
           <DialogTrigger asChild>
-            <Button>
+            <Button className="hidden">
               <UserPlus className="h-4 w-4 mr-2" />
               Grant Access
             </Button>
@@ -447,7 +467,7 @@ export default function AdminAccessPage() {
             <div>
               <CardTitle>Current Administrators</CardTitle>
               <CardDescription>
-                {adminRoles.length} user{adminRoles.length !== 1 ? "s" : ""} with admin access
+                1 user with admin access (Super Admin only)
               </CardDescription>
             </div>
             <div className="relative">

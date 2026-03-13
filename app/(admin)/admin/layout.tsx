@@ -254,8 +254,8 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     )
   }
 
-  // Only aslan@renascence.io has full admin access
-  const isAdmin = user?.email === SUPER_ADMIN_EMAIL || user?.role === "admin" || user?.role === "journey_master"
+  // ONLY aslan@renascence.io has admin access - no other roles allowed
+  const isAdmin = user?.email === SUPER_ADMIN_EMAIL
   if (!isAdmin) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-background">
