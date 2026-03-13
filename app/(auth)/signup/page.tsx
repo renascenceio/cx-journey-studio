@@ -169,9 +169,9 @@ export default function SignupPage() {
             <Checkbox id="terms" checked={agreed} onCheckedChange={(v) => setAgreed(v === true)} className="mt-0.5" />
             <Label htmlFor="terms" className="text-xs font-normal leading-relaxed text-muted-foreground cursor-pointer">
               I agree to the{" "}
-              <Link href="#" className="text-primary hover:underline">Terms of Service</Link>{" "}
+              <Link href="/terms" className="text-primary hover:underline" target="_blank">Terms of Service</Link>{" "}
               and{" "}
-              <Link href="#" className="text-primary hover:underline">Privacy Policy</Link>
+              <Link href="/privacy" className="text-primary hover:underline" target="_blank">Privacy Policy</Link>
             </Label>
           </div>
           <Button type="submit" className="mt-1 w-full" disabled={isLoading || !agreed}>
