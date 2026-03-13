@@ -288,9 +288,9 @@ export function SpotlightSearch({ trigger }: SpotlightSearchProps) {
       {trigger ? (
         <div onClick={() => setOpen(true)}>{trigger}</div>
       ) : (
-        <div className="group relative">
+        <div className="group relative p-1">
           {/* Apple-style animated gradient border on hover with blur */}
-          <div className="absolute -inset-[2px] rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 overflow-hidden blur-[3px]">
+          <div className="absolute -inset-[3px] rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 blur-[4px]">
             <div 
               className="absolute inset-0 bg-[conic-gradient(from_var(--gradient-angle),theme(colors.primary/0.5),theme(colors.violet.500/0.6),theme(colors.pink.500/0.6),theme(colors.amber.500/0.5),theme(colors.emerald.500/0.5),theme(colors.primary/0.5))] animate-gradient-rotate"
               style={{ '--gradient-angle': '0deg' } as React.CSSProperties}
