@@ -10,8 +10,9 @@ export default async function AuthLayout({
 
   return (
     <AuthLayoutClient 
-      logoDark={logos.logoDark}
-      logoLight={logos.logoLight}
+      // Use login-specific logos if available, otherwise fall back to regular logos
+      logoDark={logos.loginLogoDark || logos.logoDark}
+      logoLight={logos.loginLogoLight || logos.logoLight}
       siteName={logos.siteName}
     >
       {children}
