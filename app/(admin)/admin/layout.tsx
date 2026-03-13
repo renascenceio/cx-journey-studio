@@ -96,7 +96,7 @@ const adminNavSections: NavSectionConfig[] = [
     icon: Users,
     defaultOpen: true,
     items: [
-      { label: "All Users", href: "/admin/users", icon: Users, segment: "users" },
+      { label: "Individuals", href: "/admin/users", icon: Users, segment: "users" },
       { label: "Organizations", href: "/admin/organizations", icon: Building2, segment: "organizations" },
       { label: "Workspaces", href: "/admin/workspaces", icon: FolderKanban, segment: "workspaces" },
       { label: "Billing & Plans", href: "/admin/billing", icon: CreditCard, segment: "billing" },
