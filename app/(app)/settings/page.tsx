@@ -53,6 +53,13 @@ export default function SettingsProfilePage() {
   const fileRef = useRef<HTMLInputElement>(null)
   const [userTimezone, setUserTimezone] = useState<string>("")
 
+  // Load avatar from user profile on mount
+  useEffect(() => {
+    if (user?.avatar) {
+      setAvatarUrl(user.avatar)
+    }
+  }, [user?.avatar])
+
   // Auto-detect timezone on first load
   useEffect(() => {
     const saved = localStorage.getItem("user_timezone")
