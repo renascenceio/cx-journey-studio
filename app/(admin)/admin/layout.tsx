@@ -141,7 +141,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       {/* Sidebar */}
       <aside className="sticky top-0 flex h-screen w-56 shrink-0 flex-col border-r border-border bg-muted/30">
         {/* Sidebar header */}
-        <div className="flex items-center gap-2.5 border-b border-border px-4 py-3">
+        <div className="flex items-center gap-2.5 border-b border-border px-4 py-3" suppressHydrationWarning>
           {logoMark ? (
             <Image
               src={logoMark}

@@ -52,7 +52,7 @@ export function PublicNavbar() {
   return (
     <header className="sticky top-0 z-50 border-b border-border/60 bg-background/80 backdrop-blur-lg">
       <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-6">
-        <Link href="/home" className="flex items-center h-14 md:h-[58px]">
+        <Link href="/home" className="flex items-center h-14 md:h-[58px]" suppressHydrationWarning>
           {logoSrc ? (
             <Image
               src={logoSrc}
