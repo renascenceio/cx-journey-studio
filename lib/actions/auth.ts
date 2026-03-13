@@ -1,6 +1,6 @@
 "use server"
 
-import { createClient } from "@/lib/supabase/server"
+import { createClient, createAdminClient } from "@/lib/supabase/server"
 import { redirect } from "next/navigation"
 
 export async function loginAction(formData: FormData) {
@@ -20,19 +20,62 @@ export async function loginAction(formData: FormData) {
   } = await supabase.auth.getUser()
 
   if (user) {
-    // Check if profile has an org; if not, assign the default one
-    const { data: profile } = await supabase
+    const adminClient = createAdminClient()
+    
+    // Check if profile has an org; if not, create a personal workspace
+    const { data: profile } = await adminClient
       .from("profiles")
-      .select("organization_id")
+      .select("organization_id, name")
       .eq("id", user.id)
       .single()
 
     if (profile && !profile.organization_id) {
-      // Assign the default org
-      await supabase
-        .from("profiles")
-        .update({ organization_id: "a0000000-0000-0000-0000-000000000001" })
-        .eq("id", user.id)
+      const userName = profile.name || user.user_metadata?.name || user.email?.split("@")[0] || "User"
+      const workspaceName = `${userName}'s Workspace`
+      const baseSlug = workspaceName.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "")
+      const uniqueSlug = `${baseSlug}-${Date.now().toString(36)}`
+      
+      // Create a personal workspace
+      const { data: newOrg } = await adminClient
+        .from("organizations")
+        .insert({
+          name: workspaceName,
+          slug: uniqueSlug,
+          plan: "free",
+        })
+        .select("id")
+        .single()
+
+      if (newOrg) {
+        // Update profile with the new organization
+        await adminClient
+          .from("profiles")
+          .update({ organization_id: newOrg.id })
+          .eq("id", user.id)
+
+        // Add user as admin of their workspace
+        await adminClient.from("organization_members").insert({
+          organization_id: newOrg.id,
+          user_id: user.id,
+          role: "admin",
+        })
+
+        // Create a default team
+        const { data: team } = await adminClient.from("teams").insert({
+          name: "My Team",
+          description: `Default team for ${workspaceName}`,
+          organization_id: newOrg.id,
+        }).select("id").single()
+
+        if (team) {
+          await adminClient.from("team_members").insert({
+            team_id: team.id,
+            user_id: user.id,
+          })
+        }
+        
+        redirect("/onboarding")
+      }
     }
   }
 
@@ -66,25 +109,58 @@ export async function signupAction(formData: FormData) {
     return { error: error.message }
   }
 
-  // If the user was auto-confirmed (e.g. local dev), set up their org
+// If the user was auto-confirmed (e.g. local dev), create their personal workspace
   if (data.user && data.session) {
-    // Update the profile with org
-    await supabase
-      .from("profiles")
-      .update({
-        name,
-        organization_id: "a0000000-0000-0000-0000-000000000001",
-        role,
-      })
-      .eq("id", data.user.id)
+  const adminClient = createAdminClient()
+  const workspaceName = orgName || `${name}'s Workspace`
+  const baseSlug = workspaceName.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "")
+  const uniqueSlug = `${baseSlug}-${Date.now().toString(36)}`
+  
+  // Create a personal workspace
+  const { data: newOrg } = await adminClient
+  .from("organizations")
+  .insert({
+  name: workspaceName,
+  slug: uniqueSlug,
+  plan: "free",
+  })
+  .select("id")
+  .single()
 
-    // Add to default team
-    await supabase.from("team_members").insert({
-      team_id: "b0000000-0000-0000-0000-000000000001",
-      user_id: data.user.id,
-    })
+  if (newOrg) {
+  // Update the profile with org
+  await adminClient
+  .from("profiles")
+  .update({
+  name,
+  organization_id: newOrg.id,
+  role,
+  })
+  .eq("id", data.user.id)
+  
+  // Add user as admin of their workspace
+  await adminClient.from("organization_members").insert({
+  organization_id: newOrg.id,
+  user_id: data.user.id,
+  role: "admin",
+  })
+  
+  // Create a default team
+  const { data: team } = await adminClient.from("teams").insert({
+  name: "My Team",
+  description: `Default team for ${workspaceName}`,
+  organization_id: newOrg.id,
+  }).select("id").single()
 
-    redirect("/dashboard")
+  if (team) {
+  await adminClient.from("team_members").insert({
+  team_id: team.id,
+  user_id: data.user.id,
+  })
+  }
+  }
+  
+  redirect("/onboarding")
   }
 
   // Email confirmation required

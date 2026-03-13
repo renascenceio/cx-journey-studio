@@ -30,7 +30,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog"
-import { updateJourneyStatus, archiveJourney, restoreArchivedJourney, permanentlyDeleteJourney } from "@/lib/actions/data"
+import { updateJourneyStatus, archiveJourney, restoreArchivedJourney, permanentlyDeleteJourney, createJourneyFromImport } from "@/lib/actions/data"
 import {
   AlertDialog,
   AlertDialogAction,
@@ -232,10 +232,26 @@ function JourneysContent({ journeys }: { journeys: Journey[] }) {
       <JourneyImportDialog
         open={importOpen}
         onOpenChange={setImportOpen}
-        onImportComplete={(journey) => {
-          toast.success(`Journey "${journey.title}" imported successfully`, {
-            description: `${journey.stages.length} stages with ${journey.stages.reduce((s: number, st: { steps: unknown[] }) => s + st.steps.length, 0)} steps extracted.`,
-          })
+        onImportComplete={async (parsedJourney) => {
+          try {
+            // Save the imported journey to the database
+            const result = await createJourneyFromImport(parsedJourney)
+            
+            if (result?.id) {
+              toast.success(`Journey "${parsedJourney.title}" imported successfully`, {
+                description: `${parsedJourney.stages.length} stages with ${parsedJourney.stages.reduce((s: number, st: { steps: unknown[] }) => s + st.steps.length, 0)} steps saved.`,
+              })
+              // Refresh the journeys list
+              mutate((key: string) => typeof key === "string" && key.includes("/api/journeys"))
+              // Navigate to the new journey
+              router.push(`/journeys/${result.id}`)
+            } else {
+              toast.error("Failed to save imported journey")
+            }
+          } catch (error) {
+            console.error("Import save error:", error)
+            toast.error("Failed to save imported journey")
+          }
         }}
       />
 

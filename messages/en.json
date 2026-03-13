@@ -168,7 +168,14 @@
     "cannotUnlinkLast": "You must have at least one sign-in method",
     "providerUnlinked": "Account disconnected successfully",
     "unlinkFailed": "Failed to disconnect account",
-    "cancel": "Cancel"
+    "cancel": "Cancel",
+    "magicLinkOption": "Sign in with magic link",
+    "magicLinkTitle": "Sign in with magic link",
+    "magicLinkDesc": "We'll email you a magic link for password-free sign in.",
+    "magicLinkSent": "Magic link sent!",
+    "magicLinkSentDesc": "Check your email and click the link to sign in.",
+    "backToLogin": "Back to login",
+    "emailRequired": "Please enter your email address"
   },
   "landing": {
     "hero": {
