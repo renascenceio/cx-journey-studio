@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useMemo } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -47,6 +47,12 @@ export default function AdminFinancePage() {
   const [data, setData] = useState<FinanceData | null>(null)
   const [loading, setLoading] = useState(true)
   const [period, setPeriod] = useState("30d")
+  const [mounted, setMounted] = useState(false)
+  
+  // Prevent hydration mismatch by only rendering dates after mount
+  useEffect(() => {
+    setMounted(true)
+  }, [])
 
   async function fetchData() {
     setLoading(true)
@@ -332,8 +338,8 @@ export default function AdminFinancePage() {
               ) : (
                 data?.recentTransactions.map((tx) => (
                   <TableRow key={tx.id}>
-                    <TableCell className="text-sm">
-                      {new Date(tx.created_at).toLocaleDateString()}
+                    <TableCell className="text-sm" suppressHydrationWarning>
+                      {mounted ? new Date(tx.created_at).toLocaleDateString() : "..."}
                     </TableCell>
                     <TableCell>
                       <div className="text-sm font-medium">{tx.user_name}</div>

@@ -3,6 +3,7 @@
 import Link from "next/link"
 import Image from "next/image"
 import { usePathname, useRouter } from "next/navigation"
+import { useEffect, useState } from "react"
 import { useAuth } from "@/lib/auth-provider"
 import { useSiteConfig } from "@/hooks/use-site-config"
 import {
@@ -54,11 +55,18 @@ const adminNav = [
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()
   const router = useRouter()
+  const [mounted, setMounted] = useState(false)
   const { user, isAuthenticated, isLoading } = useAuth()
   const { getLogoMark, config } = useSiteConfig()
   const { resolvedTheme } = useTheme()
   
-  const theme = resolvedTheme === "dark" ? "dark" : "light"
+  // Wait for mount to avoid hydration mismatch
+  useEffect(() => {
+    setMounted(true)
+  }, [])
+  
+  // Use "light" as server-side default, then switch to resolved theme after mount
+  const theme = mounted && resolvedTheme === "dark" ? "dark" : "light"
   
   // getLogoMark now always returns a logo (configured or default)
   const logoMark = getLogoMark(theme)

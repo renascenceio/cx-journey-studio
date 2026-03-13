@@ -2,7 +2,7 @@
 
 import Link from "next/link"
 import Image from "next/image"
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useTheme } from "next-themes"
 import { useTranslations } from "next-intl"
 import { Button } from "@/components/ui/button"
@@ -23,9 +23,15 @@ import { useAuth } from "@/lib/auth-provider"
 export function PublicNavbar() {
   const t = useTranslations()
   const [mobileOpen, setMobileOpen] = useState(false)
+  const [mounted, setMounted] = useState(false)
   const { resolvedTheme, setTheme } = useTheme()
-  const { getLogo, config, isLoading: configLoading } = useSiteConfig()
+  const { getLogo, config } = useSiteConfig()
   const { isAuthenticated, isLoading, user } = useAuth()
+  
+  // Wait for client to mount to avoid hydration mismatch with theme
+  useEffect(() => {
+    setMounted(true)
+  }, [])
   
   const navLinks = [
     { href: "/home#features", label: t("publicNav.features") },
@@ -33,8 +39,8 @@ export function PublicNavbar() {
     { href: "/home#how-it-works", label: t("publicNav.howItWorks") },
   ]
   
-  // Always use light as default if theme not resolved yet
-  const theme = resolvedTheme === "dark" ? "dark" : "light"
+  // Use "light" as server-side default, then switch to resolved theme after mount
+  const theme = mounted && resolvedTheme === "dark" ? "dark" : "light"
   
   // getLogo now always returns a logo (configured or default), no flickering
   const logoSrc = getLogo(theme)
