@@ -49,7 +49,7 @@ function mapToAppUser(
     id: supaUser.id,
     name: profile?.name || supaUser.user_metadata?.name || supaUser.email?.split("@")[0] || "User",
     email: profile?.email || supaUser.email || "",
-    avatar: profile?.avatar_url || profile?.avatar || undefined,
+    avatar: profile?.avatar || profile?.avatar_url || undefined,
     role: userRole || "contributor",
     teamIds: [],
     organizationId: profile?.organization_id || "",
