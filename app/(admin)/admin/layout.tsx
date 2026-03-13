@@ -308,8 +308,10 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     )
   }
 
-  // Check admin access - super admin, site admin, or workspace admin
-  const hasAdminAccess = isSuperAdmin || isAnyAdmin
+  // Check admin access - super admin check via email first, then permissions hook
+  // Use email check directly to avoid race conditions with the permissions API
+  const isSuperAdminByEmail = user?.email === SUPER_ADMIN_EMAIL
+  const hasAdminAccess = isSuperAdminByEmail || isSuperAdmin || isAnyAdmin
   if (!hasAdminAccess && !permissionsLoading) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-background">
