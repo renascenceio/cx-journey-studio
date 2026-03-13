@@ -2,8 +2,8 @@
 
 import Link from "next/link"
 import Image from "next/image"
-import { usePathname, useRouter } from "next/navigation"
-import { useEffect, useState } from "react"
+import { usePathname } from "next/navigation"
+import { useEffect, useState, useMemo } from "react"
 import { useAuth } from "@/lib/auth-provider"
 import { useSiteConfig } from "@/hooks/use-site-config"
 import {
@@ -15,7 +15,6 @@ import {
   ArrowLeft,
   Shield,
   Lightbulb,
-  Globe,
   Headphones,
   Sparkles,
   Calculator,
@@ -27,38 +26,186 @@ import {
   Bell,
   FileText,
   Crown,
+  ChevronDown,
+  Search,
+  Palette,
+  FolderOpen,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Toaster } from "@/components/ui/sonner"
 import { useTheme } from "next-themes"
+import { Input } from "@/components/ui/input"
 
-const adminNav = [
-  { label: "Overview", href: "/admin", icon: LayoutDashboard, segment: null },
-  { label: "Analytics", href: "/admin/analytics", icon: BarChart3, segment: "analytics" },
-  { label: "Finance", href: "/admin/finance", icon: Banknote, segment: "finance" },
-  { label: "Lineage", href: "/admin/lineage", icon: Fingerprint, segment: "lineage" },
-  { label: "Templates", href: "/admin/templates", icon: BookTemplate, segment: "templates" },
-  { label: "Users", href: "/admin/users", icon: Users, segment: "users" },
-  { label: "Solutions", href: "/admin/solutions", icon: Lightbulb, segment: "solutions" },
-  { label: "AI Prompts", href: "/admin/ai-prompts", icon: Sparkles, segment: "ai-prompts" },
-  { label: "Notifications", href: "/admin/notifications", icon: Bell, segment: "notifications" },
-  { label: "Billing & Plans", href: "/admin/billing", icon: CreditCard, segment: "billing" },
-  { label: "Credits FAQ", href: "/admin/credits-faq", icon: Calculator, segment: "credits-faq" },
-  { label: "Site Config", href: "/admin/config", icon: Settings, segment: "config" },
-  { label: "Legal Content", href: "/admin/legal", icon: FileText, segment: "legal" },
-  { label: "Translations", href: "/admin/translations", icon: Languages, segment: "translations" },
-  { label: "Support", href: "/admin/support", icon: Headphones, segment: "support" },
-  { label: "System Status", href: "/admin/status", icon: Activity, segment: "status" },
-  { label: "Admin Access", href: "/admin/access", icon: Crown, segment: "access" },
+// The only email with full admin access
+const SUPER_ADMIN_EMAIL = "aslan@renascence.io"
+
+interface NavItem {
+  label: string
+  href: string
+  icon: React.ComponentType<{ className?: string }>
+  segment: string | null
+}
+
+interface NavSectionConfig {
+  title: string
+  icon: React.ComponentType<{ className?: string }>
+  items: NavItem[]
+  defaultOpen?: boolean
+}
+
+const adminNavSections: NavSectionConfig[] = [
+  {
+    title: "Dashboard",
+    icon: LayoutDashboard,
+    defaultOpen: true,
+    items: [
+      { label: "Overview", href: "/admin", icon: LayoutDashboard, segment: null },
+      { label: "Analytics", href: "/admin/analytics", icon: BarChart3, segment: "analytics" },
+      { label: "Finance", href: "/admin/finance", icon: Banknote, segment: "finance" },
+    ],
+  },
+  {
+    title: "Users",
+    icon: Users,
+    defaultOpen: true,
+    items: [
+      { label: "All Users", href: "/admin/users", icon: Users, segment: "users" },
+      { label: "Billing & Plans", href: "/admin/billing", icon: CreditCard, segment: "billing" },
+      { label: "Credits FAQ", href: "/admin/credits-faq", icon: Calculator, segment: "credits-faq" },
+    ],
+  },
+  {
+    title: "Content",
+    icon: FolderOpen,
+    defaultOpen: true,
+    items: [
+      { label: "Templates", href: "/admin/templates", icon: BookTemplate, segment: "templates" },
+      { label: "Solutions", href: "/admin/solutions", icon: Lightbulb, segment: "solutions" },
+      { label: "Legal", href: "/admin/legal", icon: FileText, segment: "legal" },
+      { label: "Lineage", href: "/admin/lineage", icon: Fingerprint, segment: "lineage" },
+    ],
+  },
+  {
+    title: "Brand",
+    icon: Palette,
+    defaultOpen: false,
+    items: [
+      { label: "Brand Settings", href: "/admin/brand", icon: Palette, segment: "brand" },
+      { label: "Notifications", href: "/admin/notifications", icon: Bell, segment: "notifications" },
+    ],
+  },
+  {
+    title: "Configuration",
+    icon: Settings,
+    defaultOpen: false,
+    items: [
+      { label: "General", href: "/admin/config", icon: Settings, segment: "config" },
+      { label: "AI Prompts", href: "/admin/ai-prompts", icon: Sparkles, segment: "ai-prompts" },
+      { label: "Translations", href: "/admin/translations", icon: Languages, segment: "translations" },
+    ],
+  },
+  {
+    title: "System",
+    icon: Activity,
+    defaultOpen: false,
+    items: [
+      { label: "Support", href: "/admin/support", icon: Headphones, segment: "support" },
+      { label: "System Status", href: "/admin/status", icon: Activity, segment: "status" },
+      { label: "Admin Access", href: "/admin/access", icon: Crown, segment: "access" },
+    ],
+  },
 ]
+
+// Flatten all nav items for search
+const allNavItems = adminNavSections.flatMap(section => 
+  section.items.map(item => ({ ...item, section: section.title }))
+)
+
+// Collapsible section component
+function NavSectionItem({ 
+  section, 
+  isActive, 
+  expandedSections, 
+  toggleSection 
+}: { 
+  section: NavSectionConfig
+  isActive: (nav: NavItem) => boolean
+  expandedSections: Record<string, boolean>
+  toggleSection: (title: string) => void
+}) {
+  const isExpanded = expandedSections[section.title] ?? section.defaultOpen
+  const hasActiveItem = section.items.some(isActive)
+  
+  return (
+    <div className="mb-1">
+      <button
+        onClick={() => toggleSection(section.title)}
+        className={cn(
+          "flex w-full items-center justify-between rounded-md px-3 py-1.5 text-xs font-medium transition-colors",
+          hasActiveItem ? "text-foreground" : "text-muted-foreground hover:text-foreground"
+        )}
+      >
+        <div className="flex items-center gap-2">
+          <section.icon className="h-3.5 w-3.5" />
+          {section.title}
+        </div>
+        <ChevronDown className={cn("h-3.5 w-3.5 transition-transform", isExpanded && "rotate-180")} />
+      </button>
+      {isExpanded && (
+        <div className="mt-1 space-y-0.5 pl-2">
+          {section.items.map((nav) => (
+            <Link
+              key={nav.href}
+              href={nav.href}
+              className={cn(
+                "flex items-center gap-2 rounded-md px-3 py-1.5 text-sm transition-colors",
+                isActive(nav)
+                  ? "bg-primary/10 font-medium text-primary"
+                  : "text-muted-foreground hover:bg-accent hover:text-foreground"
+              )}
+            >
+              <nav.icon className="h-3.5 w-3.5" />
+              {nav.label}
+            </Link>
+          ))}
+        </div>
+      )}
+    </div>
+  )
+}
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()
-  const router = useRouter()
   const [mounted, setMounted] = useState(false)
+  const [searchQuery, setSearchQuery] = useState("")
+  const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>(() => {
+    // Initialize with defaultOpen values
+    const initial: Record<string, boolean> = {}
+    adminNavSections.forEach(section => {
+      initial[section.title] = section.defaultOpen ?? false
+    })
+    return initial
+  })
   const { user, isAuthenticated, isLoading } = useAuth()
   const { getLogoMark, config } = useSiteConfig()
   const { resolvedTheme } = useTheme()
+  
+  // Filter nav items based on search
+  const filteredNavItems = useMemo(() => {
+    if (!searchQuery) return []
+    const query = searchQuery.toLowerCase()
+    return allNavItems.filter(item => 
+      item.label.toLowerCase().includes(query) ||
+      item.section.toLowerCase().includes(query)
+    )
+  }, [searchQuery])
+  
+  const toggleSection = (title: string) => {
+    setExpandedSections(prev => ({
+      ...prev,
+      [title]: !prev[title]
+    }))
+  }
   
   // Wait for mount to avoid hydration mismatch
   useEffect(() => {
@@ -107,7 +254,8 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     )
   }
 
-  const isAdmin = user?.role === "admin" || user?.role === "journey_master"
+  // Only aslan@renascence.io has full admin access
+  const isAdmin = user?.email === SUPER_ADMIN_EMAIL || user?.role === "admin" || user?.role === "journey_master"
   if (!isAdmin) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-background">
@@ -162,23 +310,61 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           </div>
         </div>
 
+        {/* Search */}
+        <div className="px-3 py-2 border-b border-border">
+          <div className="relative">
+            <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
+            <Input
+              type="text"
+              placeholder="Search menu..."
+              className="h-8 pl-8 text-xs bg-background"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
+          </div>
+        </div>
+
         {/* Nav items */}
-        <nav className="flex flex-1 flex-col gap-0.5 px-2 py-3">
-          {adminNav.map((nav) => (
-            <Link
-              key={nav.href}
-              href={nav.href}
-              className={cn(
-                "flex items-center gap-2.5 rounded-md px-3 py-2 text-sm transition-colors",
-                isActive(nav)
-                  ? "bg-primary/10 font-medium text-primary"
-                  : "text-muted-foreground hover:bg-accent hover:text-foreground"
+        <nav className="flex flex-1 flex-col gap-1 px-2 py-3 overflow-y-auto">
+          {searchQuery ? (
+            // Search results
+            <div className="space-y-1">
+              {filteredNavItems.length === 0 ? (
+                <p className="px-3 py-2 text-xs text-muted-foreground">No results found</p>
+              ) : (
+                filteredNavItems.map((nav) => (
+                  <Link
+                    key={nav.href}
+                    href={nav.href}
+                    className={cn(
+                      "flex items-center gap-2.5 rounded-md px-3 py-2 text-sm transition-colors",
+                      isActive(nav)
+                        ? "bg-primary/10 font-medium text-primary"
+                        : "text-muted-foreground hover:bg-accent hover:text-foreground"
+                    )}
+                    onClick={() => setSearchQuery("")}
+                  >
+                    <nav.icon className="h-4 w-4" />
+                    <div className="flex flex-col">
+                      <span>{nav.label}</span>
+                      <span className="text-[10px] text-muted-foreground">{nav.section}</span>
+                    </div>
+                  </Link>
+                ))
               )}
-            >
-              <nav.icon className="h-4 w-4" />
-              {nav.label}
-            </Link>
-          ))}
+            </div>
+          ) : (
+            // Sectioned navigation
+            adminNavSections.map((section) => (
+              <NavSectionItem
+                key={section.title}
+                section={section}
+                isActive={isActive}
+                expandedSections={expandedSections}
+                toggleSection={toggleSection}
+              />
+            ))
+          )}
         </nav>
 
         {/* Back to app */}
