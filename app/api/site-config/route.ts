@@ -10,7 +10,7 @@ export async function GET() {
   // Get all config rows
   const { data, error } = await supabase
     .from("site_config")
-    .select("key, value, logo_light_url, logo_dark_url, logo_mark_light_url, logo_mark_dark_url")
+    .select("key, value, logo_light_url, logo_dark_url, logo_mark_light_url, logo_mark_dark_url, login_logo_light_url, login_logo_dark_url")
   
   if (error) {
     return NextResponse.json({ error: error.message }, { status: 500 })
@@ -31,6 +31,8 @@ export async function GET() {
       if (row.logo_dark_url) config.logo_dark_url = row.logo_dark_url
       if (row.logo_mark_light_url) config.logo_mark_light_url = row.logo_mark_light_url
       if (row.logo_mark_dark_url) config.logo_mark_dark_url = row.logo_mark_dark_url
+      if (row.login_logo_light_url) config.login_logo_light_url = row.login_logo_light_url
+      if (row.login_logo_dark_url) config.login_logo_dark_url = row.login_logo_dark_url
     }
     
     // Sound config - stored as the full value object
