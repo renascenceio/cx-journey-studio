@@ -46,7 +46,7 @@ export function PublicFooter() {
       <div className="mx-auto max-w-6xl px-6 py-12">
         <div className="grid gap-8 md:grid-cols-4">
           <div className="flex flex-col items-start gap-3">
-            <Link href="/home" className="flex items-center h-[76px]">
+            <Link href="/home" className="flex items-center h-[76px]" suppressHydrationWarning>
               {logoSrc ? (
                 <Image
                   src={logoSrc}

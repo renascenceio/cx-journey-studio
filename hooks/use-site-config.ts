@@ -43,15 +43,19 @@ export function useSiteConfig() {
     mutate,
     // Helper to get the appropriate logo based on theme
     // Returns null if no logo is configured (no fallbacks)
+    // Explicitly checks for empty strings and null/undefined
     getLogo: (theme: "light" | "dark") => {
       if (!data) return null // Return null while loading
       const url = theme === "dark" ? data.logo_dark_url : data.logo_light_url
-      return url || null
+      // Return null for empty string, null, or undefined
+      if (!url || url === "") return null
+      return url
     },
     getLogoMark: (theme: "light" | "dark") => {
       if (!data) return null
       const url = theme === "dark" ? data.logo_mark_dark_url : data.logo_mark_light_url
-      return url || null
+      if (!url || url === "") return null
+      return url
     },
     site_name: data?.siteName || "René Studio",
   }
