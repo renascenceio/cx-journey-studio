@@ -36,12 +36,8 @@ export function PublicNavbar() {
   // Always use light as default if theme not resolved yet
   const theme = resolvedTheme === "dark" ? "dark" : "light"
   
-  // Use default logo immediately while config loads to prevent flickering
-  const defaultLogo = theme === "dark" 
-    ? "https://py47xstuktdkxylm.public.blob.vercel-storage.com/logos/logo-dark-xOhDTEdqNvUAZaKUpWWdevckyCXaMX.png"
-    : "https://py47xstuktdkxylm.public.blob.vercel-storage.com/logos/logo-light-TKrukgyff9qYn05XX01mnhB1RP7Wrb.png"
-  const configuredLogo = getLogo(theme)
-  const logoSrc = configuredLogo || defaultLogo
+  // getLogo now always returns a logo (configured or default), no flickering
+  const logoSrc = getLogo(theme)
   
   const toggleTheme = () => {
     setTheme(theme === "dark" ? "light" : "dark")

@@ -45,12 +45,33 @@ export async function GET(request: Request) {
 
   try {
     // Get transactions from credit_transactions table
+    // This table may not exist yet in some deployments
     const { data: transactions, error: txError } = await supabase
       .from("credit_transactions")
       .select("*")
       .gte("created_at", startDate.toISOString())
       .order("created_at", { ascending: false })
 
+    // If table doesn't exist, return empty data instead of error
+    if (txError && txError.code === "42P01") {
+      // Table doesn't exist - return placeholder data
+      return NextResponse.json({
+        overview: {
+          totalRevenue: 0,
+          totalCredits: 0,
+          transactionCount: 0,
+          mrr: 0,
+          arpu: 0,
+          revenueGrowth: 0,
+        },
+        planCounts: { free: 0, pro: 0, enterprise: 0 },
+        revenueTrend: [],
+        revenueByProduct: [],
+        recentTransactions: [],
+        message: "Credit transactions table not yet configured"
+      })
+    }
+    
     if (txError) throw txError
 
     // Calculate revenue metrics

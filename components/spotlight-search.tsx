@@ -288,19 +288,28 @@ export function SpotlightSearch({ trigger }: SpotlightSearchProps) {
       {trigger ? (
         <div onClick={() => setOpen(true)}>{trigger}</div>
       ) : (
-        <Button
-          variant="outline"
-          className="relative h-9 w-52 justify-start gap-2.5 rounded-xl border-border/50 bg-muted/30 text-sm text-muted-foreground shadow-sm transition-all hover:bg-muted/50 hover:border-border hover:shadow-md lg:w-64"
-          onClick={() => setOpen(true)}
-        >
-          <div className="flex h-5 w-5 items-center justify-center rounded-md bg-gradient-to-br from-primary/20 to-primary/5">
-            <Search className="h-3 w-3 text-primary" />
+        <div className="group relative">
+          {/* Apple-style animated gradient border on hover */}
+          <div className="absolute -inset-[1px] rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 overflow-hidden">
+            <div 
+              className="absolute inset-0 bg-[conic-gradient(from_var(--gradient-angle),theme(colors.primary/0.3),theme(colors.violet.500/0.4),theme(colors.pink.500/0.4),theme(colors.amber.500/0.3),theme(colors.emerald.500/0.3),theme(colors.primary/0.3))] animate-gradient-rotate"
+              style={{ '--gradient-angle': '0deg' } as React.CSSProperties}
+            />
           </div>
-          <span className="flex-1 text-left font-normal">{t("spotlight.placeholder")}</span>
-          <kbd className="pointer-events-none hidden h-5 select-none items-center gap-0.5 rounded-md border border-border/50 bg-background px-1.5 font-mono text-[10px] font-medium text-muted-foreground/70 shadow-sm sm:flex">
-            <Command className="h-2.5 w-2.5" />K
-          </kbd>
-        </Button>
+          <Button
+            variant="outline"
+            className="relative h-9 w-52 justify-start gap-2.5 rounded-xl border-transparent bg-muted/30 text-sm text-muted-foreground transition-all group-hover:bg-background group-hover:border-transparent lg:w-64"
+            onClick={() => setOpen(true)}
+          >
+            <div className="flex h-5 w-5 items-center justify-center rounded-md bg-gradient-to-br from-primary/20 to-primary/5 group-hover:from-primary/30 group-hover:to-violet-500/10 transition-all">
+              <Search className="h-3 w-3 text-primary" />
+            </div>
+            <span className="flex-1 text-left font-normal">{t("spotlight.placeholder")}</span>
+            <kbd className="pointer-events-none hidden h-5 select-none items-center gap-0.5 rounded-md border border-border/50 bg-background px-1.5 font-mono text-[10px] font-medium text-muted-foreground/70 shadow-sm sm:flex">
+              <Command className="h-2.5 w-2.5" />K
+            </kbd>
+          </Button>
+        </div>
       )}
 
       <Dialog open={open} onOpenChange={setOpen}>

@@ -87,6 +87,8 @@ export async function PATCH(request: Request) {
   if (updates.endDate !== undefined) dbUpdates.end_date = updates.endDate
   if (updates.approvedBy !== undefined) dbUpdates.approved_by = updates.approvedBy
   if (updates.approvedAt !== undefined) dbUpdates.approved_at = updates.approvedAt
+  if (updates.impact_score !== undefined) dbUpdates.impact_score = updates.impact_score
+  if (updates.effort_score !== undefined) dbUpdates.effort_score = updates.effort_score
 
   const { error } = await supabase
     .from("roadmap_initiatives")
