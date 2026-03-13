@@ -42,9 +42,9 @@ export function CookieConsent() {
   const [showSettings, setShowSettings] = useState(false)
   const [preferences, setPreferences] = useState<CookiePreferences>({
     necessary: true, // Always required
-    analytics: false,
-    marketing: false,
-    functional: false,
+    analytics: true,  // Default ON
+    marketing: true,  // Default ON
+    functional: true, // Default ON
   })
 
   useEffect(() => {

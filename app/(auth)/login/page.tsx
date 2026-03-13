@@ -213,16 +213,16 @@ export default function LoginPage() {
               onClick={() => setShowMagicLink(true)}
             >
               <Sparkles className="mr-2 h-4 w-4" />
-              {t("auth.magicLinkOption") || "Sign in with magic link"}
+              Sign in with magic link
             </Button>
           ) : magicLinkSent ? (
             <div className="rounded-lg border border-emerald-200 bg-emerald-50 p-4 text-center dark:border-emerald-800 dark:bg-emerald-900/20">
               <CheckCircle className="mx-auto mb-2 h-8 w-8 text-emerald-600 dark:text-emerald-400" />
               <p className="text-sm font-medium text-emerald-800 dark:text-emerald-200">
-                {t("auth.magicLinkSent") || "Magic link sent!"}
+                Magic link sent!
               </p>
               <p className="mt-1 text-xs text-emerald-600 dark:text-emerald-400">
-                {t("auth.magicLinkSentDesc") || "Check your email and click the link to sign in."}
+                Check your email and click the link to sign in.
               </p>
               <Button
                 variant="ghost"
@@ -234,7 +234,7 @@ export default function LoginPage() {
                 }}
               >
                 <ArrowLeft className="mr-1.5 h-3 w-3" />
-                {t("auth.backToLogin") || "Back to login"}
+                Back to login
               </Button>
             </div>
           ) : (
@@ -252,11 +252,11 @@ export default function LoginPage() {
                     <span className="sr-only">Back</span>
                   </Button>
                   <p className="text-sm font-medium text-foreground">
-                    {t("auth.magicLinkTitle") || "Sign in with magic link"}
+                    Sign in with magic link
                   </p>
                 </div>
                 <p className="text-xs text-muted-foreground">
-                  {t("auth.magicLinkDesc") || "We'll email you a magic link for password-free sign in."}
+                  We&apos;ll email you a magic link for password-free sign in.
                 </p>
                 <div className="flex gap-2">
                   <Input
