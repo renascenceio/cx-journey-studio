@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useCallback } from "react"
+import { useState, useCallback, useRef } from "react"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -11,11 +11,10 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import Link from "next/link"
 import {
   Target, Clock, CheckCircle2, PauseCircle, AlertCircle,
   Lightbulb, Map as MapIcon, MoreHorizontal, Pencil, Trash2, GripVertical,
-  MessageSquare, TrendingUp, Zap, Calendar, User,
+  TrendingUp, Zap, Calendar, User, MessageSquare,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 
@@ -59,38 +58,61 @@ const STATUSES = ["planned", "in_progress", "pending_approval", "completed", "on
 export function KanbanBoard({ initiatives, onStatusChange, onEdit, onDelete, canEdit }: KanbanBoardProps) {
   const [draggedId, setDraggedId] = useState<string | null>(null)
   const [dragOverColumn, setDragOverColumn] = useState<string | null>(null)
+  const dragIdRef = useRef<string | null>(null)
 
   const handleDragStart = useCallback((e: React.DragEvent, id: string) => {
+    e.stopPropagation()
     setDraggedId(id)
+    dragIdRef.current = id
     e.dataTransfer.effectAllowed = "move"
     e.dataTransfer.setData("text/plain", id)
+    e.dataTransfer.setData("application/x-kanban-id", id)
   }, [])
 
   const handleDragOver = useCallback((e: React.DragEvent, status: string) => {
     e.preventDefault()
+    e.stopPropagation()
     e.dataTransfer.dropEffect = "move"
     setDragOverColumn(status)
   }, [])
 
-  const handleDragLeave = useCallback(() => {
-    setDragOverColumn(null)
+  const handleDragLeave = useCallback((e: React.DragEvent) => {
+    // Only clear if leaving the column entirely
+    const relatedTarget = e.relatedTarget as HTMLElement
+    if (!relatedTarget || !e.currentTarget.contains(relatedTarget)) {
+      setDragOverColumn(null)
+    }
   }, [])
 
   const handleDrop = useCallback(async (e: React.DragEvent, newStatus: string) => {
     e.preventDefault()
-    const id = e.dataTransfer.getData("text/plain")
+    e.stopPropagation()
+    
+    // Get ID from dataTransfer or ref
+    let id = e.dataTransfer.getData("application/x-kanban-id") || e.dataTransfer.getData("text/plain")
+    if (!id) id = dragIdRef.current
+    
+    // Clear drag state immediately
     setDraggedId(null)
     setDragOverColumn(null)
+    dragIdRef.current = null
+    
+    if (!id || !canEdit) return
     
     const initiative = initiatives.find(i => i.id === id)
-    if (initiative && initiative.status !== newStatus && canEdit) {
-      await onStatusChange(id, newStatus)
+    if (initiative && initiative.status !== newStatus) {
+      try {
+        await onStatusChange(id, newStatus)
+      } catch (error) {
+        console.error("Failed to update status:", error)
+      }
     }
   }, [initiatives, onStatusChange, canEdit])
 
   const handleDragEnd = useCallback(() => {
     setDraggedId(null)
     setDragOverColumn(null)
+    dragIdRef.current = null
   }, [])
 
   // Group initiatives by status
@@ -113,7 +135,7 @@ export function KanbanBoard({ initiatives, onStatusChange, onEdit, onDelete, can
             className={cn(
               "flex-shrink-0 w-72 rounded-lg border border-border/60 transition-all",
               config.bgColor,
-              isDropTarget && "ring-2 ring-primary ring-offset-2"
+              isDropTarget && "ring-2 ring-primary ring-offset-2 border-primary"
             )}
             onDragOver={(e) => handleDragOver(e, status)}
             onDragLeave={handleDragLeave}
@@ -146,7 +168,8 @@ export function KanbanBoard({ initiatives, onStatusChange, onEdit, onDelete, can
                     onDragStart={(e) => handleDragStart(e, initiative.id)}
                     onDragEnd={handleDragEnd}
                     className={cn(
-                      "cursor-grab active:cursor-grabbing border-border/60 transition-all hover:border-border hover:shadow-sm",
+                      "border-border/60 transition-all hover:border-border hover:shadow-sm",
+                      canEdit && "cursor-grab active:cursor-grabbing",
                       draggedId === initiative.id && "opacity-50 ring-2 ring-primary"
                     )}
                   >

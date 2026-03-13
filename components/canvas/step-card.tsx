@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { ChevronDown, ChevronRight, Plus, GripVertical, ArrowUp, ArrowDown, MessageSquare, Trash2 } from "lucide-react"
+import { ChevronDown, ChevronRight, Plus, GripVertical, MessageSquare, Trash2 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { TouchPointItem } from "@/components/canvas/touch-point-item"
 import { Button } from "@/components/ui/button"
@@ -24,6 +24,14 @@ interface StepCardProps {
   commentCount?: number
   onCommentClick?: () => void
   highlightedTouchpointId?: string | null
+  // Drag-and-drop props
+  isDragging?: boolean
+  isDragOver?: boolean
+  onDragStart?: (e: React.DragEvent) => void
+  onDragOver?: (e: React.DragEvent) => void
+  onDragLeave?: () => void
+  onDrop?: (e: React.DragEvent) => void
+  onDragEnd?: () => void
 }
 
 export function StepCard({
@@ -34,11 +42,17 @@ export function StepCard({
   onTouchPointClick,
   filterChannel,
   editMode,
-  onMoveUp,
-  onMoveDown,
   commentCount = 0,
   onCommentClick,
   highlightedTouchpointId,
+  // Drag-and-drop
+  isDragging,
+  isDragOver,
+  onDragStart,
+  onDragOver,
+  onDragLeave,
+  onDrop,
+  onDragEnd,
 }: StepCardProps) {
   const [expanded, setExpanded] = useState(true)
 
@@ -49,32 +63,25 @@ export function StepCard({
   const stepNumber = `${stageNumber}.${stepIndex + 1}`
 
   return (
-    <div className="rounded-lg border border-border/60 bg-background">
+    <div 
+      className={cn(
+        "rounded-lg border border-border/60 bg-background transition-all",
+        editMode && "cursor-grab active:cursor-grabbing",
+        isDragging && "opacity-50 ring-2 ring-primary",
+        isDragOver && "ring-2 ring-primary ring-offset-1 border-primary"
+      )}
+      draggable={editMode}
+      onDragStart={onDragStart}
+      onDragOver={onDragOver}
+      onDragLeave={onDragLeave}
+      onDrop={onDrop}
+      onDragEnd={onDragEnd}
+    >
       {/* Step header */}
       <div className="flex items-center gap-0">
         {editMode && (
-          <div className="flex flex-col items-center border-r border-border/40 px-0.5 py-1">
-            <Button
-              variant="ghost"
-              size="icon"
-              className="h-4 w-4"
-              onClick={onMoveUp}
-              disabled={!onMoveUp}
-            >
-              <ArrowUp className="h-2.5 w-2.5" />
-              <span className="sr-only">Move up</span>
-            </Button>
-            <GripVertical className="h-3 w-3 text-muted-foreground/50" />
-            <Button
-              variant="ghost"
-              size="icon"
-              className="h-4 w-4"
-              onClick={onMoveDown}
-              disabled={!onMoveDown}
-            >
-              <ArrowDown className="h-2.5 w-2.5" />
-              <span className="sr-only">Move down</span>
-            </Button>
+          <div className="flex items-center justify-center border-r border-border/40 px-1.5 py-2">
+            <GripVertical className="h-4 w-4 text-muted-foreground/50" />
           </div>
         )}
         <button
@@ -101,7 +108,7 @@ export function StepCard({
                 {step.description}
               </p>
             )}
-            {/* Badges row - always visible below content */}
+            {/* Badges row */}
             <div className="flex items-center gap-1.5 mt-1.5">
               <span className="rounded-full bg-muted px-1.5 py-0.5 text-[9px] font-medium text-muted-foreground">
                 {filteredTps.length} touchpoint{filteredTps.length !== 1 ? "s" : ""}
@@ -154,14 +161,12 @@ export function StepCard({
                 title="Delete Step"
                 description={`Delete "${step.name}" and all its touch points?`}
                 onConfirm={async () => {
-                  // Get full step data before deleting for undo
                   const stepData = await getStepWithChildren(step.id)
                   if (!stepData) return
                   
                   await deleteStep(step.id, journeyId)
                   mutate((key: string) => typeof key === "string" && key.includes("/api/journeys"))
                   
-                  // Show undo toast
                   showUndoToast({
                     message: "Step deleted",
                     description: `"${step.name}" has been removed.`,

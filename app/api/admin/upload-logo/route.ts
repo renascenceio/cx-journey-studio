@@ -7,8 +7,6 @@ const logoPathMap: Record<string, string> = {
   logoDark: "logo-dark",
   logoMarkLight: "logo-mark-light",
   logoMarkDark: "logo-mark-dark",
-  loginLogoLight: "login-logo-light",
-  loginLogoDark: "login-logo-dark",
 }
 
 const configKeyMap: Record<string, string> = {
@@ -16,8 +14,6 @@ const configKeyMap: Record<string, string> = {
   logoDark: "logo_dark_url",
   logoMarkLight: "logo_mark_light_url",
   logoMarkDark: "logo_mark_dark_url",
-  loginLogoLight: "login_logo_light_url",
-  loginLogoDark: "login_logo_dark_url",
 }
 
 export async function POST(request: NextRequest) {

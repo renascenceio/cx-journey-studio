@@ -1,17 +1,18 @@
 "use client"
 
-import { Plus, ArrowLeft, ArrowRight, MessageSquare, Trash2, Pencil, GripVertical } from "lucide-react"
+import { useState, useCallback } from "react"
+import { Plus, MessageSquare, Trash2, Pencil, GripVertical } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { StepCard } from "@/components/canvas/step-card"
 import { AddStepDialog, DeleteConfirmDialog } from "@/components/canvas/canvas-dialogs"
 import type { Stage, TouchPoint } from "@/lib/types"
 import { cn } from "@/lib/utils"
-import { deleteStage, updateStage, getStageWithChildren, restoreStage } from "@/lib/actions/data"
+import { deleteStage, updateStage, getStageWithChildren, restoreStage, reorderSteps } from "@/lib/actions/data"
 import { calculateTouchPointScore } from "@/lib/data-utils"
 import { mutate } from "swr"
-import { useState } from "react"
 import { Input } from "@/components/ui/input"
 import { showUndoToast } from "@/components/undo-toast"
+import { toast } from "sonner"
 
 function stageAvgScore(stage: Stage): number {
   const scores = stage.steps.flatMap((s) => s.touchPoints.map((tp) => calculateTouchPointScore(tp)))
@@ -50,7 +51,7 @@ interface StageColumnProps {
   getStepCommentCount?: (stepId: string) => number
   onStepCommentClick?: (stepId: string) => void
   highlightedTouchpointId?: string | null
-  // Drag-and-drop props
+  // Drag-and-drop props for stages
   isDragging?: boolean
   isDragOver?: boolean
   onDragStart?: (e: React.DragEvent) => void
@@ -67,17 +68,13 @@ export function StageColumn({
   onTouchPointClick,
   filterChannel,
   editMode,
-  onMoveStageLeft,
-  onMoveStageRight,
-  isFirst,
-  isLast,
   onReorderStep,
   commentCount = 0,
   onCommentClick,
   getStepCommentCount,
   onStepCommentClick,
   highlightedTouchpointId,
-  // Drag-and-drop
+  // Drag-and-drop for stages
   isDragging,
   isDragOver,
   onDragStart,
@@ -88,6 +85,11 @@ export function StageColumn({
 }: StageColumnProps) {
   const [isRenaming, setIsRenaming] = useState(false)
   const [renameValue, setRenameValue] = useState(stage.name)
+  
+  // Step drag-and-drop state
+  const [draggedStepIndex, setDraggedStepIndex] = useState<number | null>(null)
+  const [dragOverStepIndex, setDragOverStepIndex] = useState<number | null>(null)
+  
   const avg = stageAvgScore(stage)
   const totalTps = stage.steps.reduce(
     (sum, step) =>
@@ -99,6 +101,49 @@ export function StageColumn({
   )
 
   const stageNumber = stageIndex + 1
+
+  // Step drag-and-drop handlers
+  const handleStepDragStart = useCallback((e: React.DragEvent, stepIndex: number) => {
+    e.stopPropagation() // Don't trigger stage drag
+    setDraggedStepIndex(stepIndex)
+    e.dataTransfer.effectAllowed = "move"
+    e.dataTransfer.setData("text/plain", `step:${stepIndex}`)
+  }, [])
+
+  const handleStepDragOver = useCallback((e: React.DragEvent, stepIndex: number) => {
+    e.preventDefault()
+    e.stopPropagation()
+    const data = e.dataTransfer.types.includes("text/plain")
+    if (data) {
+      e.dataTransfer.dropEffect = "move"
+      setDragOverStepIndex(stepIndex)
+    }
+  }, [])
+
+  const handleStepDragLeave = useCallback(() => {
+    setDragOverStepIndex(null)
+  }, [])
+
+  const handleStepDrop = useCallback(async (e: React.DragEvent, toIndex: number) => {
+    e.preventDefault()
+    e.stopPropagation()
+    const data = e.dataTransfer.getData("text/plain")
+    
+    if (data.startsWith("step:")) {
+      const fromIndex = parseInt(data.split(":")[1], 10)
+      setDraggedStepIndex(null)
+      setDragOverStepIndex(null)
+      
+      if (fromIndex !== toIndex && onReorderStep) {
+        onReorderStep(fromIndex, toIndex)
+      }
+    }
+  }, [onReorderStep])
+
+  const handleStepDragEnd = useCallback(() => {
+    setDraggedStepIndex(null)
+    setDragOverStepIndex(null)
+  }, [])
 
   return (
     <div 
@@ -228,21 +273,37 @@ export function StageColumn({
             onTouchPointClick={onTouchPointClick}
             filterChannel={filterChannel}
             editMode={editMode}
-            onMoveUp={
-              editMode && stepIdx > 0 && onReorderStep
-                ? () => onReorderStep(stepIdx, stepIdx - 1)
-                : undefined
-            }
-            onMoveDown={
-              editMode && stepIdx < stage.steps.length - 1 && onReorderStep
-                ? () => onReorderStep(stepIdx, stepIdx + 1)
-                : undefined
-            }
             commentCount={getStepCommentCount?.(step.id) ?? 0}
             onCommentClick={() => onStepCommentClick?.(step.id)}
             highlightedTouchpointId={highlightedTouchpointId}
+            // Step drag-and-drop
+            isDragging={draggedStepIndex === stepIdx}
+            isDragOver={dragOverStepIndex === stepIdx}
+            onDragStart={(e) => handleStepDragStart(e, stepIdx)}
+            onDragOver={(e) => handleStepDragOver(e, stepIdx)}
+            onDragLeave={handleStepDragLeave}
+            onDrop={(e) => handleStepDrop(e, stepIdx)}
+            onDragEnd={handleStepDragEnd}
           />
         ))}
+        
+        {/* Drop zone at end of steps list */}
+        {editMode && draggedStepIndex !== null && (
+          <div 
+            className={cn(
+              "h-12 border-2 border-dashed rounded-lg flex items-center justify-center transition-colors",
+              dragOverStepIndex === stage.steps.length 
+                ? "border-primary bg-primary/5" 
+                : "border-border/40"
+            )}
+            onDragOver={(e) => handleStepDragOver(e, stage.steps.length)}
+            onDragLeave={handleStepDragLeave}
+            onDrop={(e) => handleStepDrop(e, stage.steps.length)}
+          >
+            <p className="text-[10px] text-muted-foreground">Drop here</p>
+          </div>
+        )}
+        
         {editMode && (
           <AddStepDialog stageId={stage.id} journeyId={journeyId} stageName={stage.name}>
             <Button

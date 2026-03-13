@@ -32,8 +32,6 @@ export async function GET() {
       if (row.logo_dark_url) config.logoDarkUrl = row.logo_dark_url
       if (row.logo_mark_light_url) config.logoMarkLightUrl = row.logo_mark_light_url
       if (row.logo_mark_dark_url) config.logoMarkDarkUrl = row.logo_mark_dark_url
-      if (row.login_logo_light_url) config.loginLogoLightUrl = row.login_logo_light_url
-      if (row.login_logo_dark_url) config.loginLogoDarkUrl = row.login_logo_dark_url
     }
   }
   return NextResponse.json(config)
