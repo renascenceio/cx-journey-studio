@@ -35,9 +35,34 @@ import { cn } from "@/lib/utils"
 import { Toaster } from "@/components/ui/sonner"
 import { useTheme } from "next-themes"
 import { Input } from "@/components/ui/input"
+import { useAdminPermissions, ADMIN_PERMISSIONS, type Permission } from "@/hooks/use-admin-permissions"
 
 // The only email with full admin access
 const SUPER_ADMIN_EMAIL = "aslan@renascence.io"
+
+// Map nav items to required permissions
+const NAV_PERMISSIONS: Record<string, Permission[]> = {
+  "/admin": [ADMIN_PERMISSIONS.VIEW_DASHBOARD],
+  "/admin/analytics": [ADMIN_PERMISSIONS.VIEW_ANALYTICS],
+  "/admin/finance": [ADMIN_PERMISSIONS.VIEW_FINANCE],
+  "/admin/users": [ADMIN_PERMISSIONS.MANAGE_USERS],
+  "/admin/billing": [ADMIN_PERMISSIONS.MANAGE_BILLING],
+  "/admin/credits-faq": [ADMIN_PERMISSIONS.MANAGE_BILLING],
+  "/admin/templates": [ADMIN_PERMISSIONS.MANAGE_TEMPLATES],
+  "/admin/solutions": [ADMIN_PERMISSIONS.MANAGE_SOLUTIONS],
+  "/admin/legal": [ADMIN_PERMISSIONS.MANAGE_LEGAL],
+  "/admin/lineage": [ADMIN_PERMISSIONS.MANAGE_LINEAGE],
+  "/admin/trends": [ADMIN_PERMISSIONS.MANAGE_TRENDS],
+  "/admin/crowdsource": [ADMIN_PERMISSIONS.MANAGE_CROWDSOURCE],
+  "/admin/brand": [ADMIN_PERMISSIONS.MANAGE_BRAND],
+  "/admin/notifications": [ADMIN_PERMISSIONS.MANAGE_NOTIFICATIONS],
+  "/admin/config": [ADMIN_PERMISSIONS.MANAGE_CONFIG],
+  "/admin/ai-prompts": [ADMIN_PERMISSIONS.MANAGE_AI_PROMPTS],
+  "/admin/translations": [ADMIN_PERMISSIONS.MANAGE_TRANSLATIONS],
+  "/admin/support": [ADMIN_PERMISSIONS.MANAGE_SUPPORT],
+  "/admin/status": [ADMIN_PERMISSIONS.VIEW_SYSTEM_STATUS],
+  "/admin/access": [ADMIN_PERMISSIONS.MANAGE_ADMIN_ACCESS],
+}
 
 interface NavItem {
   label: string
@@ -81,6 +106,8 @@ const adminNavSections: NavSectionConfig[] = [
     items: [
       { label: "Templates", href: "/admin/templates", icon: BookTemplate, segment: "templates" },
       { label: "Solutions", href: "/admin/solutions", icon: Lightbulb, segment: "solutions" },
+      { label: "Trends", href: "/admin/trends", icon: BarChart3, segment: "trends" },
+      { label: "Crowdsource", href: "/admin/crowdsource", icon: Users, segment: "crowdsource" },
       { label: "Legal", href: "/admin/legal", icon: FileText, segment: "legal" },
       { label: "Lineage", href: "/admin/lineage", icon: Fingerprint, segment: "lineage" },
     ],
@@ -189,16 +216,39 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   const { user, isAuthenticated, isLoading } = useAuth()
   const { getLogoMark, config } = useSiteConfig()
   const { resolvedTheme } = useTheme()
+  const { isSuperAdmin, hasAnyPermission, isAnyAdmin, isLoading: permissionsLoading } = useAdminPermissions()
   
-  // Filter nav items based on search
+  // Check if user can access a nav item
+  const canAccessNav = (href: string): boolean => {
+    if (isSuperAdmin) return true
+    const required = NAV_PERMISSIONS[href]
+    if (!required) return true
+    return hasAnyPermission(required)
+  }
+  
+  // Filter sections and items based on permissions
+  const filteredNavSections = useMemo(() => {
+    if (isSuperAdmin) return adminNavSections
+    
+    return adminNavSections
+      .map(section => ({
+        ...section,
+        items: section.items.filter(item => canAccessNav(item.href))
+      }))
+      .filter(section => section.items.length > 0)
+  }, [isSuperAdmin, hasAnyPermission])
+  
+  // Filter nav items based on search (with permission check)
   const filteredNavItems = useMemo(() => {
     if (!searchQuery) return []
     const query = searchQuery.toLowerCase()
-    return allNavItems.filter(item => 
-      item.label.toLowerCase().includes(query) ||
-      item.section.toLowerCase().includes(query)
-    )
-  }, [searchQuery])
+    return allNavItems
+      .filter(item => canAccessNav(item.href))
+      .filter(item => 
+        item.label.toLowerCase().includes(query) ||
+        item.section.toLowerCase().includes(query)
+      )
+  }, [searchQuery, isSuperAdmin, hasAnyPermission])
   
   const toggleSection = (title: string) => {
     setExpandedSections(prev => ({
@@ -254,9 +304,9 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     )
   }
 
-  // ONLY aslan@renascence.io has admin access - no other roles allowed
-  const isAdmin = user?.email === SUPER_ADMIN_EMAIL
-  if (!isAdmin) {
+  // Check admin access - super admin, site admin, or workspace admin
+  const hasAdminAccess = isSuperAdmin || isAnyAdmin
+  if (!hasAdminAccess && !permissionsLoading) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-background">
         <div className="flex flex-col items-center gap-4 text-center">
@@ -353,10 +403,10 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                 ))
               )}
             </div>
-          ) : (
-            // Sectioned navigation
-            adminNavSections.map((section) => (
-              <NavSectionItem
+) : (
+  // Sectioned navigation (filtered by permissions)
+  filteredNavSections.map((section) => (
+  <NavSectionItem
                 key={section.title}
                 section={section}
                 isActive={isActive}

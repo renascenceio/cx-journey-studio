@@ -1,616 +1,943 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { createClient } from "@/lib/supabase/client"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Badge } from "@/components/ui/badge"
-import { Switch } from "@/components/ui/switch"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Checkbox } from "@/components/ui/checkbox"
-import { 
-  Select, 
-  SelectContent, 
-  SelectItem, 
-  SelectTrigger, 
-  SelectValue 
-} from "@/components/ui/select"
+import { Textarea } from "@/components/ui/textarea"
 import {
   Dialog,
   DialogContent,
   DialogDescription,
-  DialogFooter,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
+  DialogFooter,
 } from "@/components/ui/dialog"
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table"
-import { 
-  Shield, 
-  ShieldCheck, 
-  UserPlus, 
-  Trash2, 
-  Save, 
-  Search,
-  Crown,
-  User,
-  Headphones,
-  Eye,
-  AlertTriangle,
-  Check,
-  X
-} from "lucide-react"
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog"
+import { Crown, Shield, Building2, UserPlus, Search, Trash2, Edit, Info } from "lucide-react"
 import { toast } from "sonner"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { useAuth } from "@/lib/auth-provider"
+import { useAdminPermissions, ADMIN_PERMISSIONS, SUPER_ADMIN_EMAIL, type Permission } from "@/hooks/use-admin-permissions"
+import { createClient } from "@/lib/supabase/client"
 
-// Available admin permissions
-const ADMIN_PERMISSIONS = [
-  { id: "analytics", label: "Analytics", description: "View analytics dashboard" },
-  { id: "finance", label: "Finance", description: "View financial data and reports" },
-  { id: "lineage", label: "Lineage", description: "Track asset lineage and AI usage" },
-  { id: "templates", label: "Templates", description: "Manage journey templates" },
-  { id: "users", label: "Users", description: "View and manage user accounts" },
-  { id: "solutions", label: "Solutions", description: "Manage solutions library" },
-  { id: "ai-prompts", label: "AI Prompts", description: "Configure AI prompts" },
-  { id: "notifications", label: "Notifications", description: "Manage notification settings" },
-  { id: "billing", label: "Billing", description: "Manage billing and plans" },
-  { id: "config", label: "Site Config", description: "System configuration" },
-  { id: "legal", label: "Legal Content", description: "Edit terms and privacy policy" },
-  { id: "translations", label: "Translations", description: "Manage translations" },
-  { id: "support", label: "Support", description: "Handle support tickets" },
-  { id: "status", label: "System Status", description: "View system status" },
+// Permission groups for easier assignment
+const PERMISSION_GROUPS = {
+  content_manager: {
+    label: "Content Manager",
+    description: "Manage templates, solutions, legal content",
+    permissions: [
+      ADMIN_PERMISSIONS.MANAGE_TEMPLATES,
+      ADMIN_PERMISSIONS.MANAGE_SOLUTIONS,
+      ADMIN_PERMISSIONS.MANAGE_LEGAL,
+      ADMIN_PERMISSIONS.MANAGE_LINEAGE,
+      ADMIN_PERMISSIONS.MANAGE_TRENDS,
+      ADMIN_PERMISSIONS.MANAGE_CROWDSOURCE,
+    ],
+  },
+  brand_manager: {
+    label: "Brand Manager",
+    description: "Manage branding and notifications",
+    permissions: [
+      ADMIN_PERMISSIONS.MANAGE_BRAND,
+      ADMIN_PERMISSIONS.MANAGE_NOTIFICATIONS,
+    ],
+  },
+  support_manager: {
+    label: "Support Manager",
+    description: "Handle support tickets and view status",
+    permissions: [
+      ADMIN_PERMISSIONS.MANAGE_SUPPORT,
+      ADMIN_PERMISSIONS.VIEW_SYSTEM_STATUS,
+    ],
+  },
+  analytics_viewer: {
+    label: "Analytics Viewer",
+    description: "View dashboard and analytics",
+    permissions: [
+      ADMIN_PERMISSIONS.VIEW_DASHBOARD,
+      ADMIN_PERMISSIONS.VIEW_ANALYTICS,
+      ADMIN_PERMISSIONS.VIEW_FINANCE,
+    ],
+  },
+  user_manager: {
+    label: "User Manager",
+    description: "Manage users and billing",
+    permissions: [
+      ADMIN_PERMISSIONS.MANAGE_USERS,
+      ADMIN_PERMISSIONS.MANAGE_BILLING,
+    ],
+  },
+  config_manager: {
+    label: "Config Manager",
+    description: "Manage site configuration",
+    permissions: [
+      ADMIN_PERMISSIONS.MANAGE_CONFIG,
+      ADMIN_PERMISSIONS.MANAGE_AI_PROMPTS,
+      ADMIN_PERMISSIONS.MANAGE_TRANSLATIONS,
+    ],
+  },
+}
+
+// All permissions with labels
+const ALL_PERMISSIONS: { id: Permission; label: string; category: string }[] = [
+  { id: ADMIN_PERMISSIONS.VIEW_DASHBOARD, label: "View Dashboard", category: "Dashboard" },
+  { id: ADMIN_PERMISSIONS.VIEW_ANALYTICS, label: "View Analytics", category: "Dashboard" },
+  { id: ADMIN_PERMISSIONS.VIEW_FINANCE, label: "View Finance", category: "Dashboard" },
+  { id: ADMIN_PERMISSIONS.MANAGE_USERS, label: "Manage Users", category: "Users" },
+  { id: ADMIN_PERMISSIONS.MANAGE_BILLING, label: "Manage Billing", category: "Users" },
+  { id: ADMIN_PERMISSIONS.MANAGE_TEMPLATES, label: "Manage Templates", category: "Content" },
+  { id: ADMIN_PERMISSIONS.MANAGE_SOLUTIONS, label: "Manage Solutions", category: "Content" },
+  { id: ADMIN_PERMISSIONS.MANAGE_LEGAL, label: "Manage Legal", category: "Content" },
+  { id: ADMIN_PERMISSIONS.MANAGE_LINEAGE, label: "Manage Lineage", category: "Content" },
+  { id: ADMIN_PERMISSIONS.MANAGE_TRENDS, label: "Manage Trends", category: "Content" },
+  { id: ADMIN_PERMISSIONS.MANAGE_CROWDSOURCE, label: "Manage Crowdsource", category: "Content" },
+  { id: ADMIN_PERMISSIONS.MANAGE_BRAND, label: "Manage Brand", category: "Brand" },
+  { id: ADMIN_PERMISSIONS.MANAGE_NOTIFICATIONS, label: "Manage Notifications", category: "Brand" },
+  { id: ADMIN_PERMISSIONS.MANAGE_CONFIG, label: "Manage Config", category: "Configuration" },
+  { id: ADMIN_PERMISSIONS.MANAGE_AI_PROMPTS, label: "Manage AI Prompts", category: "Configuration" },
+  { id: ADMIN_PERMISSIONS.MANAGE_TRANSLATIONS, label: "Manage Translations", category: "Configuration" },
+  { id: ADMIN_PERMISSIONS.MANAGE_SUPPORT, label: "Manage Support", category: "System" },
+  { id: ADMIN_PERMISSIONS.VIEW_SYSTEM_STATUS, label: "View System Status", category: "System" },
+  { id: ADMIN_PERMISSIONS.MANAGE_ADMIN_ACCESS, label: "Manage Admin Access", category: "System" },
 ]
 
-const ROLE_ICONS: Record<string, React.ReactNode> = {
-  super_admin: <Crown className="h-4 w-4 text-amber-500" />,
-  admin: <ShieldCheck className="h-4 w-4 text-blue-500" />,
-  support: <Headphones className="h-4 w-4 text-green-500" />,
-  moderator: <Eye className="h-4 w-4 text-purple-500" />,
-}
-
-const ROLE_LABELS: Record<string, string> = {
-  super_admin: "Super Admin",
-  admin: "Admin",
-  support: "Support",
-  moderator: "Moderator",
-}
-
-interface AdminRole {
+interface SiteAdmin {
   id: string
   user_id: string
-  role: string
-  permissions: string[]
+  permissions: Permission[]
   granted_by: string | null
   granted_at: string
   is_active: boolean
   notes: string | null
-  created_at: string
-  user?: {
+  user: {
     id: string
     email: string
     name: string
     avatar_url: string | null
   }
-  granter?: {
-    name: string
+}
+
+interface WorkspaceAdmin {
+  id: string
+  user_id: string
+  organization_id: string
+  permissions: Permission[]
+  granted_by: string | null
+  granted_at: string
+  is_active: boolean
+  notes: string | null
+  user: {
+    id: string
     email: string
+    name: string
+    avatar_url: string | null
+  }
+  organization: {
+    id: string
+    name: string
   }
 }
 
-interface UserProfile {
+interface User {
   id: string
   email: string
   name: string
   avatar_url: string | null
 }
 
+interface Organization {
+  id: string
+  name: string
+}
+
 export default function AdminAccessPage() {
-  const [adminRoles, setAdminRoles] = useState<AdminRole[]>([])
-  const [allUsers, setAllUsers] = useState<UserProfile[]>([])
-  const [loading, setLoading] = useState(true)
-  const [isSuperAdmin, setIsSuperAdmin] = useState(false)
-  const [currentUserId, setCurrentUserId] = useState<string | null>(null)
+  const { user } = useAuth()
+  const { isSuperAdmin } = useAdminPermissions()
+  const supabase = createClient()
+  
+  const [activeTab, setActiveTab] = useState("super")
   const [searchQuery, setSearchQuery] = useState("")
-  const [showAddDialog, setShowAddDialog] = useState(false)
-  const [selectedUser, setSelectedUser] = useState<string>("")
-  const [selectedRole, setSelectedRole] = useState<string>("admin")
-  const [selectedPermissions, setSelectedPermissions] = useState<string[]>([])
+  const [siteAdmins, setSiteAdmins] = useState<SiteAdmin[]>([])
+  const [workspaceAdmins, setWorkspaceAdmins] = useState<WorkspaceAdmin[]>([])
+  const [users, setUsers] = useState<User[]>([])
+  const [organizations, setOrganizations] = useState<Organization[]>([])
+  const [loading, setLoading] = useState(true)
+  
+  // Dialog states
+  const [showAddSiteAdmin, setShowAddSiteAdmin] = useState(false)
+  const [showAddWorkspaceAdmin, setShowAddWorkspaceAdmin] = useState(false)
+  const [showEditPermissions, setShowEditPermissions] = useState<SiteAdmin | WorkspaceAdmin | null>(null)
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState<{ type: "site" | "workspace"; id: string } | null>(null)
+  
+  // Form states
+  const [selectedUserId, setSelectedUserId] = useState("")
+  const [selectedOrgId, setSelectedOrgId] = useState("")
+  const [selectedPermissions, setSelectedPermissions] = useState<Permission[]>([])
   const [notes, setNotes] = useState("")
   const [saving, setSaving] = useState(false)
-
-  const supabase = createClient()
-
+  
   useEffect(() => {
     loadData()
   }, [])
-
+  
   async function loadData() {
+    setLoading(true)
     try {
-      // Get current user
-      const { data: { user } } = await supabase.auth.getUser()
-      if (!user) return
+      // Load site admins
+      const { data: siteAdminData } = await supabase
+        .from("site_admins")
+        .select("*")
+        .eq("is_active", true)
       
-      setCurrentUserId(user.id)
-
-      // Only aslan@renascence.io is the super admin - hardcoded for security
-      const isSuperAdminUser = user.email === "aslan@renascence.io"
-      setIsSuperAdmin(isSuperAdminUser)
-
-      // Load admin roles with user profiles
-      const { data: roles, error: rolesError } = await supabase
-        .from("admin_roles")
-        .select(`
-          *,
-          user:profiles!admin_roles_user_id_fkey(id, name, avatar_url),
-          granter:profiles!admin_roles_granted_by_fkey(name, email)
-        `)
-        .order("created_at", { ascending: false })
-
-      if (rolesError) {
-        console.error("Error loading admin roles:", rolesError)
-        // If table doesn't exist, we'll show empty state
-      } else {
-        // Add email from auth.users
-        const rolesWithEmail = await Promise.all((roles || []).map(async (role) => {
-          const { data: authUser } = await supabase.auth.admin.getUserById(role.user_id).catch(() => ({ data: null }))
-          return {
-            ...role,
-            user: {
-              ...role.user,
-              email: authUser?.user?.email || "Unknown"
-            }
-          }
+      // Load user profiles for site admins
+      if (siteAdminData && siteAdminData.length > 0) {
+        const userIds = siteAdminData.map(a => a.user_id)
+        const { data: profiles } = await supabase
+          .from("profiles")
+          .select("id, email, name, avatar_url")
+          .in("id", userIds)
+        
+        const adminsWithUsers = siteAdminData.map(admin => ({
+          ...admin,
+          user: profiles?.find(p => p.id === admin.user_id) || { id: admin.user_id, email: "", name: "Unknown", avatar_url: null }
         }))
-        setAdminRoles(rolesWithEmail as AdminRole[])
+        setSiteAdmins(adminsWithUsers)
+      } else {
+        setSiteAdmins([])
       }
-
-      // Load all users for the dropdown
-      const { data: profiles } = await supabase
+      
+      // Load workspace admins
+      const { data: workspaceAdminData } = await supabase
+        .from("workspace_admins")
+        .select("*")
+        .eq("is_active", true)
+      
+      if (workspaceAdminData && workspaceAdminData.length > 0) {
+        const userIds = workspaceAdminData.map(a => a.user_id)
+        const orgIds = workspaceAdminData.map(a => a.organization_id)
+        
+        const { data: profiles } = await supabase
+          .from("profiles")
+          .select("id, email, name, avatar_url")
+          .in("id", userIds)
+        
+        const { data: orgs } = await supabase
+          .from("organizations")
+          .select("id, name")
+          .in("id", orgIds)
+        
+        const adminsWithData = workspaceAdminData.map(admin => ({
+          ...admin,
+          user: profiles?.find(p => p.id === admin.user_id) || { id: admin.user_id, email: "", name: "Unknown", avatar_url: null },
+          organization: orgs?.find(o => o.id === admin.organization_id) || { id: admin.organization_id, name: "Unknown" }
+        }))
+        setWorkspaceAdmins(adminsWithData)
+      } else {
+        setWorkspaceAdmins([])
+      }
+      
+      // Load users for selection
+      const { data: usersData } = await supabase
         .from("profiles")
-        .select("id, name, avatar_url")
+        .select("id, email, name, avatar_url")
         .order("name")
-
-      // Get emails from a workaround (profiles table doesn't have email)
-      setAllUsers((profiles || []).map(p => ({
-        ...p,
-        email: "", // Will be filled when selecting
-        name: p.name || "Unknown User"
-      })))
-
+      
+      setUsers(usersData || [])
+      
+      // Load organizations for selection
+      const { data: orgsData } = await supabase
+        .from("organizations")
+        .select("id, name")
+        .order("name")
+      
+      setOrganizations(orgsData || [])
     } catch (error) {
-      console.error("Error loading data:", error)
+      console.error("Error loading admin data:", error)
+      toast.error("Failed to load admin data")
     } finally {
       setLoading(false)
     }
   }
-
-  async function handleAddAdmin() {
-    if (!selectedUser || !selectedRole) {
-      toast.error("Please select a user and role")
+  
+  function togglePermission(permission: Permission) {
+    setSelectedPermissions(prev => 
+      prev.includes(permission)
+        ? prev.filter(p => p !== permission)
+        : [...prev, permission]
+    )
+  }
+  
+  function applyPermissionGroup(groupKey: keyof typeof PERMISSION_GROUPS) {
+    const group = PERMISSION_GROUPS[groupKey]
+    setSelectedPermissions(prev => {
+      const newPerms = new Set(prev)
+      group.permissions.forEach(p => newPerms.add(p))
+      return Array.from(newPerms)
+    })
+  }
+  
+  async function handleAddSiteAdmin() {
+    if (!selectedUserId || selectedPermissions.length === 0) {
+      toast.error("Please select a user and at least one permission")
       return
     }
-
+    
     setSaving(true)
     try {
       const { error } = await supabase
-        .from("admin_roles")
+        .from("site_admins")
         .upsert({
-          user_id: selectedUser,
-          role: selectedRole,
-          permissions: selectedRole === "super_admin" ? ["all"] : selectedPermissions,
-          granted_by: currentUserId,
+          user_id: selectedUserId,
+          permissions: selectedPermissions,
+          granted_by: user?.id,
           granted_at: new Date().toISOString(),
           is_active: true,
           notes: notes || null,
-        }, { onConflict: "user_id" })
-
+          updated_at: new Date().toISOString(),
+        }, {
+          onConflict: "user_id",
+        })
+      
       if (error) throw error
-
-      toast.success("Admin access granted successfully")
-      setShowAddDialog(false)
-      setSelectedUser("")
-      setSelectedRole("admin")
-      setSelectedPermissions([])
-      setNotes("")
+      
+      toast.success("Site admin added successfully")
+      setShowAddSiteAdmin(false)
+      resetForm()
       loadData()
-    } catch (error: unknown) {
-      const errorMessage = error instanceof Error ? error.message : "Failed to grant access"
-      toast.error(errorMessage)
+    } catch (error) {
+      console.error("Error adding site admin:", error)
+      toast.error("Failed to add site admin")
     } finally {
       setSaving(false)
     }
   }
-
-  async function handleToggleActive(roleId: string, isActive: boolean) {
+  
+  async function handleAddWorkspaceAdmin() {
+    if (!selectedUserId || !selectedOrgId || selectedPermissions.length === 0) {
+      toast.error("Please select a user, organization, and at least one permission")
+      return
+    }
+    
+    setSaving(true)
     try {
       const { error } = await supabase
-        .from("admin_roles")
-        .update({ is_active: isActive })
-        .eq("id", roleId)
-
+        .from("workspace_admins")
+        .upsert({
+          user_id: selectedUserId,
+          organization_id: selectedOrgId,
+          permissions: selectedPermissions,
+          granted_by: user?.id,
+          granted_at: new Date().toISOString(),
+          is_active: true,
+          notes: notes || null,
+          updated_at: new Date().toISOString(),
+        }, {
+          onConflict: "user_id,organization_id",
+        })
+      
       if (error) throw error
-
-      toast.success(isActive ? "Access enabled" : "Access disabled")
+      
+      toast.success("Workspace admin added successfully")
+      setShowAddWorkspaceAdmin(false)
+      resetForm()
       loadData()
-    } catch (error: unknown) {
-      const errorMessage = error instanceof Error ? error.message : "Failed to update"
-      toast.error(errorMessage)
-    }
-  }
-
-  async function handleRemoveAdmin(roleId: string) {
-    if (!confirm("Are you sure you want to remove this admin access?")) return
-
-    try {
-      const { error } = await supabase
-        .from("admin_roles")
-        .delete()
-        .eq("id", roleId)
-
-      if (error) throw error
-
-      toast.success("Admin access removed")
-      loadData()
-    } catch (error: unknown) {
-      const errorMessage = error instanceof Error ? error.message : "Failed to remove"
-      toast.error(errorMessage)
-    }
-  }
-
-  function togglePermission(permissionId: string) {
-    setSelectedPermissions(prev => 
-      prev.includes(permissionId)
-        ? prev.filter(p => p !== permissionId)
-        : [...prev, permissionId]
-    )
-  }
-
-  // The only admin is aslan@renascence.io - hardcoded for security
-  const superAdminDisplay = {
-    id: "super-admin",
-    user_id: currentUserId || "",
-    role: "super_admin",
-    permissions: ADMIN_PERMISSIONS.map(p => p.id),
-    granted_by: null,
-    granted_at: "2024-01-01T00:00:00Z",
-    is_active: true,
-    notes: "System super administrator - hardcoded access",
-    created_at: "2024-01-01T00:00:00Z",
-    user: {
-      id: currentUserId || "",
-      email: "aslan@renascence.io",
-      name: "Aslan Patov",
-      avatar_url: null
+    } catch (error) {
+      console.error("Error adding workspace admin:", error)
+      toast.error("Failed to add workspace admin")
+    } finally {
+      setSaving(false)
     }
   }
   
-  const filteredRoles = [superAdminDisplay].filter(role => 
-    role.user?.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    role.user?.email?.toLowerCase().includes(searchQuery.toLowerCase())
-  )
-
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center min-h-[400px]">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
-      </div>
-    )
+  async function handleUpdatePermissions() {
+    if (!showEditPermissions || selectedPermissions.length === 0) return
+    
+    setSaving(true)
+    try {
+      const table = "organization_id" in showEditPermissions ? "workspace_admins" : "site_admins"
+      
+      const { error } = await supabase
+        .from(table)
+        .update({
+          permissions: selectedPermissions,
+          notes: notes || null,
+          updated_at: new Date().toISOString(),
+        })
+        .eq("id", showEditPermissions.id)
+      
+      if (error) throw error
+      
+      toast.success("Permissions updated successfully")
+      setShowEditPermissions(null)
+      resetForm()
+      loadData()
+    } catch (error) {
+      console.error("Error updating permissions:", error)
+      toast.error("Failed to update permissions")
+    } finally {
+      setSaving(false)
+    }
   }
-
-  if (!isSuperAdmin) {
-    return (
-      <div className="flex flex-col items-center justify-center min-h-[400px] gap-4">
-        <Shield className="h-16 w-16 text-muted-foreground" />
-        <h2 className="text-xl font-semibold">Access Restricted</h2>
-        <p className="text-muted-foreground text-center max-w-md">
-          Only super administrators can access this page. Contact your system administrator if you need access.
+  
+  async function handleDelete() {
+    if (!showDeleteConfirm) return
+    
+    setSaving(true)
+    try {
+      const table = showDeleteConfirm.type === "site" ? "site_admins" : "workspace_admins"
+      
+      const { error } = await supabase
+        .from(table)
+        .update({ is_active: false, updated_at: new Date().toISOString() })
+        .eq("id", showDeleteConfirm.id)
+      
+      if (error) throw error
+      
+      toast.success("Admin access revoked")
+      setShowDeleteConfirm(null)
+      loadData()
+    } catch (error) {
+      console.error("Error revoking access:", error)
+      toast.error("Failed to revoke access")
+    } finally {
+      setSaving(false)
+    }
+  }
+  
+  function resetForm() {
+    setSelectedUserId("")
+    setSelectedOrgId("")
+    setSelectedPermissions([])
+    setNotes("")
+  }
+  
+  function openEditDialog(admin: SiteAdmin | WorkspaceAdmin) {
+    setShowEditPermissions(admin)
+    setSelectedPermissions(admin.permissions)
+    setNotes(admin.notes || "")
+  }
+  
+  // Filter admins by search
+  const filteredSiteAdmins = siteAdmins.filter(admin =>
+    admin.user?.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    admin.user?.email?.toLowerCase().includes(searchQuery.toLowerCase())
+  )
+  
+  const filteredWorkspaceAdmins = workspaceAdmins.filter(admin =>
+    admin.user?.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    admin.user?.email?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    admin.organization?.name?.toLowerCase().includes(searchQuery.toLowerCase())
+  )
+  
+  // Group permissions by category
+  const permissionsByCategory = ALL_PERMISSIONS.reduce((acc, perm) => {
+    if (!acc[perm.category]) acc[perm.category] = []
+    acc[perm.category].push(perm)
+    return acc
+  }, {} as Record<string, typeof ALL_PERMISSIONS>)
+  
+  // Permission selector component
+  const PermissionSelector = () => (
+    <div className="space-y-6">
+      {/* Permission Groups */}
+      <div className="space-y-2">
+        <Label>Quick Permission Sets</Label>
+        <div className="flex flex-wrap gap-2">
+          {Object.entries(PERMISSION_GROUPS).map(([key, group]) => (
+            <Button
+              key={key}
+              variant="outline"
+              size="sm"
+              onClick={() => applyPermissionGroup(key as keyof typeof PERMISSION_GROUPS)}
+            >
+              {group.label}
+            </Button>
+          ))}
+        </div>
+      </div>
+      
+      {/* Individual Permissions */}
+      <div className="space-y-4">
+        <div className="flex items-center justify-between">
+          <Label>Permissions ({selectedPermissions.length} selected)</Label>
+          <Button variant="ghost" size="sm" onClick={() => setSelectedPermissions([])}>
+            Clear All
+          </Button>
+        </div>
+        {Object.entries(permissionsByCategory).map(([category, perms]) => (
+          <div key={category} className="space-y-2">
+            <p className="text-sm font-medium text-muted-foreground">{category}</p>
+            <div className="grid grid-cols-2 gap-2">
+              {perms.map(perm => (
+                <div key={perm.id} className="flex items-center gap-2">
+                  <Checkbox
+                    id={perm.id}
+                    checked={selectedPermissions.includes(perm.id)}
+                    onCheckedChange={() => togglePermission(perm.id)}
+                  />
+                  <Label htmlFor={perm.id} className="text-sm font-normal cursor-pointer">
+                    {perm.label}
+                  </Label>
+                </div>
+              ))}
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  )
+  
+  return (
+    <div className="flex flex-col gap-6 p-6">
+      {/* Header */}
+      <div>
+        <h1 className="text-2xl font-bold">Admin Access Management</h1>
+        <p className="text-muted-foreground">
+          Manage administrative access levels and permissions
         </p>
       </div>
-    )
-  }
-
-  return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold">Admin Access Management</h1>
-          <p className="text-muted-foreground">
-            Only aslan@renascence.io has admin access (hardcoded for security)
-          </p>
-        </div>
-        {/* Grant Access dialog hidden - only aslan@renascence.io is admin */}
-        <Dialog open={false} onOpenChange={setShowAddDialog}>
-          <DialogTrigger asChild>
-            <Button className="hidden">
-              <UserPlus className="h-4 w-4 mr-2" />
-              Grant Access
-            </Button>
-          </DialogTrigger>
-          <DialogContent className="max-w-2xl">
-            <DialogHeader>
-              <DialogTitle>Grant Admin Access</DialogTitle>
-              <DialogDescription>
-                Select a user and configure their admin permissions
-              </DialogDescription>
-            </DialogHeader>
-            <div className="space-y-6 py-4">
-              <div className="space-y-2">
-                <Label>Select User</Label>
-                <Select value={selectedUser} onValueChange={setSelectedUser}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Choose a user..." />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {allUsers
-                      .filter(u => !adminRoles.some(r => r.user_id === u.id))
-                      .map(user => (
-                        <SelectItem key={user.id} value={user.id}>
-                          <div className="flex items-center gap-2">
-                            <Avatar className="h-6 w-6">
-                              <AvatarImage src={user.avatar_url || undefined} />
-                              <AvatarFallback>{user.name?.charAt(0) || "U"}</AvatarFallback>
-                            </Avatar>
-                            {user.name}
-                          </div>
-                        </SelectItem>
-                      ))}
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div className="space-y-2">
-                <Label>Role</Label>
-                <Select value={selectedRole} onValueChange={setSelectedRole}>
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="admin">
-                      <div className="flex items-center gap-2">
-                        {ROLE_ICONS.admin}
-                        Admin - Custom permissions
-                      </div>
-                    </SelectItem>
-                    <SelectItem value="support">
-                      <div className="flex items-center gap-2">
-                        {ROLE_ICONS.support}
-                        Support - Handle support tickets
-                      </div>
-                    </SelectItem>
-                    <SelectItem value="moderator">
-                      <div className="flex items-center gap-2">
-                        {ROLE_ICONS.moderator}
-                        Moderator - View-only access
-                      </div>
-                    </SelectItem>
-                    <SelectItem value="super_admin">
-                      <div className="flex items-center gap-2">
-                        {ROLE_ICONS.super_admin}
-                        Super Admin - Full access
-                      </div>
-                    </SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-
-              {selectedRole !== "super_admin" && (
-                <div className="space-y-3">
-                  <Label>Permissions</Label>
-                  <div className="grid grid-cols-2 gap-3 p-4 rounded-lg border bg-muted/30">
-                    {ADMIN_PERMISSIONS.map(permission => (
-                      <div key={permission.id} className="flex items-start gap-3">
-                        <Checkbox
-                          id={permission.id}
-                          checked={selectedPermissions.includes(permission.id)}
-                          onCheckedChange={() => togglePermission(permission.id)}
-                        />
-                        <div className="grid gap-0.5">
-                          <Label htmlFor={permission.id} className="font-medium cursor-pointer">
-                            {permission.label}
-                          </Label>
-                          <p className="text-xs text-muted-foreground">
-                            {permission.description}
-                          </p>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              <div className="space-y-2">
-                <Label>Notes (optional)</Label>
-                <Input
-                  placeholder="Add a note about this access grant..."
-                  value={notes}
-                  onChange={(e) => setNotes(e.target.value)}
-                />
-              </div>
-            </div>
-            <DialogFooter>
-              <Button variant="outline" onClick={() => setShowAddDialog(false)}>
-                Cancel
-              </Button>
-              <Button onClick={handleAddAdmin} disabled={saving || !selectedUser}>
-                {saving ? "Granting..." : "Grant Access"}
-              </Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
-      </div>
-
-      {/* Warning Banner */}
-      <Card className="border-amber-200 bg-amber-50 dark:bg-amber-950/20 dark:border-amber-800">
-        <CardContent className="flex items-start gap-3 py-4">
-          <AlertTriangle className="h-5 w-5 text-amber-600 shrink-0 mt-0.5" />
-          <div>
-            <p className="font-medium text-amber-800 dark:text-amber-200">Super Admin Access</p>
-            <p className="text-sm text-amber-700 dark:text-amber-300">
-              You have full system access. Be careful when granting or modifying admin permissions.
-            </p>
+      
+      {/* Info Card */}
+      <Card className="bg-muted/50 border-dashed">
+        <CardContent className="flex items-start gap-4 pt-6">
+          <Info className="h-5 w-5 text-blue-500 mt-0.5 flex-shrink-0" />
+          <div className="text-sm space-y-2">
+            <p className="font-medium">Three-Tier Admin System:</p>
+            <ul className="list-disc pl-4 space-y-1 text-muted-foreground">
+              <li><strong>Super Admin</strong> ({SUPER_ADMIN_EMAIL}) - Full platform access, can manage all admins</li>
+              <li><strong>Site Admins</strong> - Platform-wide access with granular permissions</li>
+              <li><strong>Workspace Admins</strong> - Organization-scoped access with limited permissions</li>
+            </ul>
           </div>
         </CardContent>
       </Card>
-
-      {/* Current Admins */}
-      <Card>
-        <CardHeader>
+      
+      {/* Tabs */}
+      <Tabs value={activeTab} onValueChange={setActiveTab}>
+        <div className="flex items-center justify-between gap-4 flex-wrap">
+          <TabsList>
+            <TabsTrigger value="super" className="gap-2">
+              <Crown className="h-4 w-4" />
+              Super Admin
+            </TabsTrigger>
+            <TabsTrigger value="site" className="gap-2">
+              <Shield className="h-4 w-4" />
+              Site Admins
+              {siteAdmins.length > 0 && (
+                <Badge variant="secondary" className="ml-1">{siteAdmins.length}</Badge>
+              )}
+            </TabsTrigger>
+            <TabsTrigger value="workspace" className="gap-2">
+              <Building2 className="h-4 w-4" />
+              Workspace Admins
+              {workspaceAdmins.length > 0 && (
+                <Badge variant="secondary" className="ml-1">{workspaceAdmins.length}</Badge>
+              )}
+            </TabsTrigger>
+          </TabsList>
+          
+          <div className="relative">
+            <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Input
+              placeholder="Search admins..."
+              className="pl-9 w-64"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
+          </div>
+        </div>
+        
+        {/* Super Admin Tab */}
+        <TabsContent value="super" className="mt-6">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Crown className="h-5 w-5 text-yellow-500" />
+                Super Administrator
+              </CardTitle>
+              <CardDescription>
+                The super administrator has full access to all platform features
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="flex items-center gap-4 p-4 rounded-lg border bg-muted/30">
+                <Avatar className="h-12 w-12">
+                  <AvatarFallback className="bg-yellow-500/10 text-yellow-600">
+                    AP
+                  </AvatarFallback>
+                </Avatar>
+                <div className="flex-1">
+                  <p className="font-medium">Aslan Patov</p>
+                  <p className="text-sm text-muted-foreground">{SUPER_ADMIN_EMAIL}</p>
+                </div>
+                <Badge className="bg-yellow-500/10 text-yellow-600 border-yellow-500/20">
+                  <Crown className="h-3 w-3 mr-1" />
+                  Super Admin
+                </Badge>
+              </div>
+              <p className="text-xs text-muted-foreground mt-4">
+                Super admin access is hardcoded for security and cannot be changed through this interface.
+              </p>
+            </CardContent>
+          </Card>
+        </TabsContent>
+        
+        {/* Site Admins Tab */}
+        <TabsContent value="site" className="mt-6 space-y-4">
           <div className="flex items-center justify-between">
             <div>
-              <CardTitle>Current Administrators</CardTitle>
-              <CardDescription>
-                1 user with admin access (Super Admin only)
-              </CardDescription>
+              <h3 className="text-lg font-medium">Site Administrators</h3>
+              <p className="text-sm text-muted-foreground">
+                Platform-wide access with customizable permissions
+              </p>
             </div>
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              <Input
-                placeholder="Search admins..."
-                className="pl-9 w-64"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-              />
-            </div>
-          </div>
-        </CardHeader>
-        <CardContent>
-          {filteredRoles.length === 0 ? (
-            <div className="text-center py-8 text-muted-foreground">
-              <Shield className="h-12 w-12 mx-auto mb-3 opacity-50" />
-              <p>No admin users found</p>
-            </div>
-          ) : (
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>User</TableHead>
-                  <TableHead>Role</TableHead>
-                  <TableHead>Permissions</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead>Granted</TableHead>
-                  <TableHead className="text-right">Actions</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {filteredRoles.map((role) => (
-                  <TableRow key={role.id}>
-                    <TableCell>
-                      <div className="flex items-center gap-3">
-                        <Avatar className="h-8 w-8">
-                          <AvatarImage src={role.user?.avatar_url || undefined} />
-                          <AvatarFallback>
-                            {role.user?.name?.charAt(0) || "U"}
-                          </AvatarFallback>
-                        </Avatar>
-                        <div>
-                          <p className="font-medium">{role.user?.name || "Unknown"}</p>
-                          <p className="text-xs text-muted-foreground">
-                            {role.user?.email}
-                          </p>
-                        </div>
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex items-center gap-2">
-                        {ROLE_ICONS[role.role]}
-                        <span>{ROLE_LABELS[role.role]}</span>
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      {role.role === "super_admin" ? (
-                        <Badge variant="outline" className="text-amber-600 border-amber-300">
-                          Full Access
-                        </Badge>
-                      ) : (
-                        <div className="flex flex-wrap gap-1">
-                          {(role.permissions || []).slice(0, 3).map((p: string) => (
-                            <Badge key={p} variant="secondary" className="text-xs">
-                              {p}
-                            </Badge>
+            {isSuperAdmin && (
+              <Dialog open={showAddSiteAdmin} onOpenChange={setShowAddSiteAdmin}>
+                <DialogTrigger asChild>
+                  <Button onClick={() => resetForm()}>
+                    <UserPlus className="h-4 w-4 mr-2" />
+                    Add Site Admin
+                  </Button>
+                </DialogTrigger>
+                <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+                  <DialogHeader>
+                    <DialogTitle>Add Site Administrator</DialogTitle>
+                    <DialogDescription>
+                      Grant platform-wide admin access with specific permissions
+                    </DialogDescription>
+                  </DialogHeader>
+                  
+                  <div className="space-y-6 py-4">
+                    <div className="space-y-2">
+                      <Label>Select User</Label>
+                      <Select value={selectedUserId} onValueChange={setSelectedUserId}>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Choose a user..." />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {users.map(u => (
+                            <SelectItem key={u.id} value={u.id}>
+                              {u.name || u.email} ({u.email})
+                            </SelectItem>
                           ))}
-                          {(role.permissions || []).length > 3 && (
-                            <Badge variant="secondary" className="text-xs">
-                              +{(role.permissions || []).length - 3} more
-                            </Badge>
-                          )}
-                        </div>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    
+                    <PermissionSelector />
+                    
+                    <div className="space-y-2">
+                      <Label>Notes (optional)</Label>
+                      <Textarea
+                        value={notes}
+                        onChange={(e) => setNotes(e.target.value)}
+                        placeholder="Reason for granting access..."
+                        rows={2}
+                      />
+                    </div>
+                  </div>
+                  
+                  <DialogFooter>
+                    <Button variant="outline" onClick={() => setShowAddSiteAdmin(false)}>
+                      Cancel
+                    </Button>
+                    <Button onClick={handleAddSiteAdmin} disabled={saving}>
+                      {saving ? "Adding..." : "Add Site Admin"}
+                    </Button>
+                  </DialogFooter>
+                </DialogContent>
+              </Dialog>
+            )}
+          </div>
+          
+          {loading ? (
+            <Card>
+              <CardContent className="py-8 text-center text-muted-foreground">
+                Loading site admins...
+              </CardContent>
+            </Card>
+          ) : filteredSiteAdmins.length === 0 ? (
+            <Card>
+              <CardContent className="py-8 text-center text-muted-foreground">
+                {searchQuery ? "No site admins match your search" : "No site admins configured yet"}
+              </CardContent>
+            </Card>
+          ) : (
+            <div className="space-y-3">
+              {filteredSiteAdmins.map(admin => (
+                <Card key={admin.id}>
+                  <CardContent className="flex items-center gap-4 py-4">
+                    <Avatar className="h-10 w-10">
+                      <AvatarImage src={admin.user?.avatar_url || undefined} />
+                      <AvatarFallback>
+                        {admin.user?.name?.substring(0, 2).toUpperCase() || "??"}
+                      </AvatarFallback>
+                    </Avatar>
+                    <div className="flex-1 min-w-0">
+                      <p className="font-medium truncate">{admin.user?.name || "Unknown"}</p>
+                      <p className="text-sm text-muted-foreground truncate">{admin.user?.email}</p>
+                    </div>
+                    <div className="flex flex-wrap gap-1 max-w-md">
+                      {admin.permissions.slice(0, 3).map(perm => (
+                        <Badge key={perm} variant="secondary" className="text-xs">
+                          {perm.replace("manage_", "").replace("view_", "")}
+                        </Badge>
+                      ))}
+                      {admin.permissions.length > 3 && (
+                        <Badge variant="outline" className="text-xs">
+                          +{admin.permissions.length - 3} more
+                        </Badge>
                       )}
-                    </TableCell>
-                    <TableCell>
+                    </div>
+                    {isSuperAdmin && (
                       <div className="flex items-center gap-2">
-                        {role.is_active ? (
-                          <Badge className="bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400">
-                            <Check className="h-3 w-3 mr-1" />
-                            Active
-                          </Badge>
-                        ) : (
-                          <Badge variant="secondary" className="text-muted-foreground">
-                            <X className="h-3 w-3 mr-1" />
-                            Disabled
-                          </Badge>
-                        )}
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <div className="text-sm">
-                        {new Date(role.granted_at).toLocaleDateString()}
-                      </div>
-                      {role.granter && (
-                        <div className="text-xs text-muted-foreground">
-                          by {role.granter.name}
-                        </div>
-                      )}
-                    </TableCell>
-                    <TableCell className="text-right">
-                      <div className="flex items-center justify-end gap-2">
-                        <Switch
-                          checked={role.is_active}
-                          onCheckedChange={(checked) => handleToggleActive(role.id, checked)}
-                          disabled={role.user_id === currentUserId}
-                        />
+                        <Button variant="ghost" size="icon" onClick={() => openEditDialog(admin)}>
+                          <Edit className="h-4 w-4" />
+                        </Button>
                         <Button
                           variant="ghost"
                           size="icon"
                           className="text-destructive hover:text-destructive"
-                          onClick={() => handleRemoveAdmin(role.id)}
-                          disabled={role.user_id === currentUserId}
+                          onClick={() => setShowDeleteConfirm({ type: "site", id: admin.id })}
                         >
                           <Trash2 className="h-4 w-4" />
                         </Button>
                       </div>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+                    )}
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
           )}
-        </CardContent>
-      </Card>
-
-      {/* Permissions Legend */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-base">Permission Reference</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-            {ADMIN_PERMISSIONS.map(permission => (
-              <div key={permission.id} className="space-y-1">
-                <p className="font-medium text-sm">{permission.label}</p>
-                <p className="text-xs text-muted-foreground">{permission.description}</p>
-              </div>
-            ))}
+        </TabsContent>
+        
+        {/* Workspace Admins Tab */}
+        <TabsContent value="workspace" className="mt-6 space-y-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <h3 className="text-lg font-medium">Workspace Administrators</h3>
+              <p className="text-sm text-muted-foreground">
+                Organization-scoped access with limited permissions
+              </p>
+            </div>
+            {isSuperAdmin && (
+              <Dialog open={showAddWorkspaceAdmin} onOpenChange={setShowAddWorkspaceAdmin}>
+                <DialogTrigger asChild>
+                  <Button onClick={() => resetForm()}>
+                    <UserPlus className="h-4 w-4 mr-2" />
+                    Add Workspace Admin
+                  </Button>
+                </DialogTrigger>
+                <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+                  <DialogHeader>
+                    <DialogTitle>Add Workspace Administrator</DialogTitle>
+                    <DialogDescription>
+                      Grant organization-scoped admin access with specific permissions
+                    </DialogDescription>
+                  </DialogHeader>
+                  
+                  <div className="space-y-6 py-4">
+                    <div className="space-y-2">
+                      <Label>Select User</Label>
+                      <Select value={selectedUserId} onValueChange={setSelectedUserId}>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Choose a user..." />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {users.map(u => (
+                            <SelectItem key={u.id} value={u.id}>
+                              {u.name || u.email} ({u.email})
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    
+                    <div className="space-y-2">
+                      <Label>Select Organization</Label>
+                      <Select value={selectedOrgId} onValueChange={setSelectedOrgId}>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Choose an organization..." />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {organizations.map(org => (
+                            <SelectItem key={org.id} value={org.id}>
+                              {org.name}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    
+                    <PermissionSelector />
+                    
+                    <div className="space-y-2">
+                      <Label>Notes (optional)</Label>
+                      <Textarea
+                        value={notes}
+                        onChange={(e) => setNotes(e.target.value)}
+                        placeholder="Reason for granting access..."
+                        rows={2}
+                      />
+                    </div>
+                  </div>
+                  
+                  <DialogFooter>
+                    <Button variant="outline" onClick={() => setShowAddWorkspaceAdmin(false)}>
+                      Cancel
+                    </Button>
+                    <Button onClick={handleAddWorkspaceAdmin} disabled={saving}>
+                      {saving ? "Adding..." : "Add Workspace Admin"}
+                    </Button>
+                  </DialogFooter>
+                </DialogContent>
+              </Dialog>
+            )}
           </div>
-        </CardContent>
-      </Card>
+          
+          {loading ? (
+            <Card>
+              <CardContent className="py-8 text-center text-muted-foreground">
+                Loading workspace admins...
+              </CardContent>
+            </Card>
+          ) : filteredWorkspaceAdmins.length === 0 ? (
+            <Card>
+              <CardContent className="py-8 text-center text-muted-foreground">
+                {searchQuery ? "No workspace admins match your search" : "No workspace admins configured yet"}
+              </CardContent>
+            </Card>
+          ) : (
+            <div className="space-y-3">
+              {filteredWorkspaceAdmins.map(admin => (
+                <Card key={admin.id}>
+                  <CardContent className="flex items-center gap-4 py-4">
+                    <Avatar className="h-10 w-10">
+                      <AvatarImage src={admin.user?.avatar_url || undefined} />
+                      <AvatarFallback>
+                        {admin.user?.name?.substring(0, 2).toUpperCase() || "??"}
+                      </AvatarFallback>
+                    </Avatar>
+                    <div className="flex-1 min-w-0">
+                      <p className="font-medium truncate">{admin.user?.name || "Unknown"}</p>
+                      <p className="text-sm text-muted-foreground truncate">{admin.user?.email}</p>
+                    </div>
+                    <Badge variant="outline" className="flex items-center gap-1">
+                      <Building2 className="h-3 w-3" />
+                      {admin.organization?.name || "Unknown Org"}
+                    </Badge>
+                    <div className="flex flex-wrap gap-1 max-w-sm">
+                      {admin.permissions.slice(0, 2).map(perm => (
+                        <Badge key={perm} variant="secondary" className="text-xs">
+                          {perm.replace("manage_", "").replace("view_", "")}
+                        </Badge>
+                      ))}
+                      {admin.permissions.length > 2 && (
+                        <Badge variant="outline" className="text-xs">
+                          +{admin.permissions.length - 2} more
+                        </Badge>
+                      )}
+                    </div>
+                    {isSuperAdmin && (
+                      <div className="flex items-center gap-2">
+                        <Button variant="ghost" size="icon" onClick={() => openEditDialog(admin)}>
+                          <Edit className="h-4 w-4" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="text-destructive hover:text-destructive"
+                          onClick={() => setShowDeleteConfirm({ type: "workspace", id: admin.id })}
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          )}
+        </TabsContent>
+      </Tabs>
+      
+      {/* Edit Permissions Dialog */}
+      <Dialog open={!!showEditPermissions} onOpenChange={(open) => !open && setShowEditPermissions(null)}>
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Edit Permissions</DialogTitle>
+            <DialogDescription>
+              Update admin permissions for {showEditPermissions?.user?.name || "this user"}
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="space-y-6 py-4">
+            <PermissionSelector />
+            
+            <div className="space-y-2">
+              <Label>Notes (optional)</Label>
+              <Textarea
+                value={notes}
+                onChange={(e) => setNotes(e.target.value)}
+                placeholder="Notes about this admin..."
+                rows={2}
+              />
+            </div>
+          </div>
+          
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowEditPermissions(null)}>
+              Cancel
+            </Button>
+            <Button onClick={handleUpdatePermissions} disabled={saving}>
+              {saving ? "Saving..." : "Save Changes"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+      
+      {/* Delete Confirmation */}
+      <AlertDialog open={!!showDeleteConfirm} onOpenChange={(open) => !open && setShowDeleteConfirm(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Revoke Admin Access?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This will remove admin access for this user. They will no longer be able to access the admin panel with this role.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleDelete}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              {saving ? "Revoking..." : "Revoke Access"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   )
 }
