@@ -22,6 +22,7 @@ import {
   Activity,
   Fingerprint,
   Bell,
+  FileText,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Toaster } from "@/components/ui/sonner"
@@ -39,6 +40,7 @@ const adminNav = [
   { label: "Billing & Plans", href: "/admin/billing", icon: CreditCard, segment: "billing" },
   { label: "Credits FAQ", href: "/admin/credits-faq", icon: Calculator, segment: "credits-faq" },
   { label: "Site Config", href: "/admin/config", icon: Settings, segment: "config" },
+  { label: "Legal Content", href: "/admin/legal", icon: FileText, segment: "legal" },
   { label: "Translations", href: "/admin/translations", icon: Languages, segment: "translations" },
   { label: "Support", href: "/admin/support", icon: Headphones, segment: "support" },
   { label: "System Status", href: "/admin/status", icon: Activity, segment: "status" },

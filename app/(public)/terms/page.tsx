@@ -1,11 +1,62 @@
 import { Metadata } from "next"
+import { createClient } from "@/lib/supabase/server"
 
 export const metadata: Metadata = {
   title: "Terms of Service | Journey Studio",
   description: "Terms of Service for Journey Studio - Read our terms and conditions for using our customer journey mapping platform.",
 }
 
-export default function TermsOfServicePage() {
+interface LegalSection {
+  id: string
+  title: string
+  content: string
+}
+
+const DEFAULT_SECTIONS: LegalSection[] = [
+  { id: "1", title: "Acceptance of Terms", content: "By accessing or using Journey Studio (\"the Service\"), operated by Renascence (\"we,\" \"us,\" or \"our\"), you agree to be bound by these Terms of Service. If you do not agree to these terms, please do not use the Service.\n\nThese terms apply to all users of the Service, including individual users, team members, and organizations." },
+  { id: "2", title: "Description of Service", content: "Journey Studio is a customer experience journey mapping platform that enables organizations to:\n\n• Create and manage customer journey maps\n• Collaborate with team members on journey design\n• Analyze touchpoints and identify experience opportunities\n• Generate insights using AI-powered features\n• Share and publish journey maps" },
+  { id: "3", title: "Account Registration", content: "To use certain features of the Service, you must register for an account. When registering, you agree to:\n\n• Provide accurate, current, and complete information\n• Maintain and update your information as needed\n• Keep your password secure and confidential\n• Accept responsibility for all activities under your account\n• Notify us immediately of any unauthorized access" },
+  { id: "4", title: "Subscription and Billing", content: "Journey Studio offers various subscription plans including free and paid tiers. By subscribing to a paid plan, you agree to:\n\n• Pay all applicable fees as described at the time of purchase\n• Automatic renewal of subscriptions unless cancelled\n• Provide valid payment information\n• Accept that prices may change with reasonable notice\n\nRefunds are handled on a case-by-case basis. Contact our support team for refund requests." },
+  { id: "5", title: "User Content", content: "You retain ownership of all content you create, upload, or share through the Service (\"User Content\"). By using the Service, you grant us a limited license to:\n\n• Store and process your content to provide the Service\n• Display your content to authorized users you designate\n• Create backups for data protection purposes\n\nYou are responsible for ensuring you have the right to use and share any content you upload to the Service." },
+  { id: "6", title: "Acceptable Use", content: "You agree not to use the Service to:\n\n• Violate any applicable laws or regulations\n• Infringe on intellectual property rights of others\n• Upload malicious software or harmful content\n• Attempt to gain unauthorized access to the Service\n• Interfere with the proper functioning of the Service\n• Harass, abuse, or harm other users\n• Use the Service for competitive analysis without permission" },
+  { id: "7", title: "AI Features", content: "Journey Studio includes AI-powered features for content generation and analysis. By using these features, you acknowledge that:\n\n• AI-generated content may require human review and editing\n• We do not guarantee the accuracy of AI outputs\n• Your inputs may be processed by third-party AI providers\n• You are responsible for reviewing and validating AI-generated content" },
+  { id: "8", title: "Intellectual Property", content: "The Service, including its original content, features, and functionality, is owned by Renascence and is protected by international copyright, trademark, and other intellectual property laws. Our trademarks and trade dress may not be used without our prior written consent." },
+  { id: "9", title: "Termination", content: "We may terminate or suspend your account and access to the Service immediately, without prior notice, for conduct that we believe:\n\n• Violates these Terms of Service\n• Is harmful to other users or the Service\n• Is fraudulent or illegal\n\nUpon termination, your right to use the Service will cease immediately. You may request export of your data within 30 days of termination." },
+  { id: "10", title: "Disclaimer of Warranties", content: "THE SERVICE IS PROVIDED \"AS IS\" AND \"AS AVAILABLE\" WITHOUT WARRANTIES OF ANY KIND, EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, AND NON-INFRINGEMENT. WE DO NOT WARRANT THAT THE SERVICE WILL BE UNINTERRUPTED, SECURE, OR ERROR-FREE." },
+  { id: "11", title: "Limitation of Liability", content: "TO THE MAXIMUM EXTENT PERMITTED BY LAW, RENASCENCE SHALL NOT BE LIABLE FOR ANY INDIRECT, INCIDENTAL, SPECIAL, CONSEQUENTIAL, OR PUNITIVE DAMAGES, OR ANY LOSS OF PROFITS OR REVENUES, WHETHER INCURRED DIRECTLY OR INDIRECTLY, OR ANY LOSS OF DATA, USE, GOODWILL, OR OTHER INTANGIBLE LOSSES." },
+  { id: "12", title: "Governing Law", content: "These Terms shall be governed by and construed in accordance with the laws of the United Arab Emirates, without regard to its conflict of law provisions. Any disputes arising from these terms shall be resolved in the courts of Dubai, UAE." },
+  { id: "13", title: "Changes to Terms", content: "We reserve the right to modify these terms at any time. We will notify users of material changes via email or through the Service. Your continued use of the Service after changes become effective constitutes acceptance of the revised terms." },
+  { id: "14", title: "Contact Us", content: "If you have any questions about these Terms of Service, please contact us at:\n\nRenascence\nEmail: legal@renascence.io\nWebsite: https://renascence.io" },
+]
+
+async function getTermsContent() {
+  try {
+    const supabase = await createClient()
+    const { data } = await supabase
+      .from("site_config")
+      .select("value")
+      .eq("key", "legal_terms")
+      .single()
+
+    if (data?.value) {
+      const parsed = JSON.parse(data.value)
+      return {
+        sections: parsed.sections || DEFAULT_SECTIONS,
+        lastUpdated: parsed.lastUpdated || new Date().toISOString(),
+      }
+    }
+  } catch {
+    // Fall back to defaults
+  }
+  return {
+    sections: DEFAULT_SECTIONS,
+    lastUpdated: new Date().toISOString(),
+  }
+}
+
+export default async function TermsOfServicePage() {
+  const { sections, lastUpdated } = await getTermsContent()
+
   return (
     <div className="min-h-screen bg-background">
       <div className="mx-auto max-w-3xl px-6 py-16 sm:py-24">
@@ -14,170 +65,25 @@ export default function TermsOfServicePage() {
             Terms of Service
           </h1>
           <p className="mt-4 text-muted-foreground">
-            Last updated: March 13, 2026
+            Last updated: {new Date(lastUpdated).toLocaleDateString("en-US", { 
+              year: "numeric", 
+              month: "long", 
+              day: "numeric" 
+            })}
           </p>
         </header>
 
         <div className="prose prose-neutral dark:prose-invert max-w-none">
-          <section className="mb-10">
-            <h2 className="text-xl font-semibold text-foreground mb-4">1. Acceptance of Terms</h2>
-            <p className="text-muted-foreground leading-relaxed mb-4">
-              By accessing or using Journey Studio (&quot;the Service&quot;), operated by Renascence (&quot;we,&quot; &quot;us,&quot; or &quot;our&quot;), you agree to be bound by these Terms of Service. If you do not agree to these terms, please do not use the Service.
-            </p>
-            <p className="text-muted-foreground leading-relaxed">
-              These terms apply to all users of the Service, including individual users, team members, and organizations.
-            </p>
-          </section>
-
-          <section className="mb-10">
-            <h2 className="text-xl font-semibold text-foreground mb-4">2. Description of Service</h2>
-            <p className="text-muted-foreground leading-relaxed mb-4">
-              Journey Studio is a customer experience journey mapping platform that enables organizations to:
-            </p>
-            <ul className="list-disc pl-6 text-muted-foreground space-y-2 mb-4">
-              <li>Create and manage customer journey maps</li>
-              <li>Collaborate with team members on journey design</li>
-              <li>Analyze touchpoints and identify experience opportunities</li>
-              <li>Generate insights using AI-powered features</li>
-              <li>Share and publish journey maps</li>
-            </ul>
-          </section>
-
-          <section className="mb-10">
-            <h2 className="text-xl font-semibold text-foreground mb-4">3. Account Registration</h2>
-            <p className="text-muted-foreground leading-relaxed mb-4">
-              To use certain features of the Service, you must register for an account. When registering, you agree to:
-            </p>
-            <ul className="list-disc pl-6 text-muted-foreground space-y-2">
-              <li>Provide accurate, current, and complete information</li>
-              <li>Maintain and update your information as needed</li>
-              <li>Keep your password secure and confidential</li>
-              <li>Accept responsibility for all activities under your account</li>
-              <li>Notify us immediately of any unauthorized access</li>
-            </ul>
-          </section>
-
-          <section className="mb-10">
-            <h2 className="text-xl font-semibold text-foreground mb-4">4. Subscription and Billing</h2>
-            <p className="text-muted-foreground leading-relaxed mb-4">
-              Journey Studio offers various subscription plans including free and paid tiers. By subscribing to a paid plan, you agree to:
-            </p>
-            <ul className="list-disc pl-6 text-muted-foreground space-y-2 mb-4">
-              <li>Pay all applicable fees as described at the time of purchase</li>
-              <li>Automatic renewal of subscriptions unless cancelled</li>
-              <li>Provide valid payment information</li>
-              <li>Accept that prices may change with reasonable notice</li>
-            </ul>
-            <p className="text-muted-foreground leading-relaxed">
-              Refunds are handled on a case-by-case basis. Contact our support team for refund requests.
-            </p>
-          </section>
-
-          <section className="mb-10">
-            <h2 className="text-xl font-semibold text-foreground mb-4">5. User Content</h2>
-            <p className="text-muted-foreground leading-relaxed mb-4">
-              You retain ownership of all content you create, upload, or share through the Service (&quot;User Content&quot;). By using the Service, you grant us a limited license to:
-            </p>
-            <ul className="list-disc pl-6 text-muted-foreground space-y-2 mb-4">
-              <li>Store and process your content to provide the Service</li>
-              <li>Display your content to authorized users you designate</li>
-              <li>Create backups for data protection purposes</li>
-            </ul>
-            <p className="text-muted-foreground leading-relaxed">
-              You are responsible for ensuring you have the right to use and share any content you upload to the Service.
-            </p>
-          </section>
-
-          <section className="mb-10">
-            <h2 className="text-xl font-semibold text-foreground mb-4">6. Acceptable Use</h2>
-            <p className="text-muted-foreground leading-relaxed mb-4">
-              You agree not to use the Service to:
-            </p>
-            <ul className="list-disc pl-6 text-muted-foreground space-y-2">
-              <li>Violate any applicable laws or regulations</li>
-              <li>Infringe on intellectual property rights of others</li>
-              <li>Upload malicious software or harmful content</li>
-              <li>Attempt to gain unauthorized access to the Service</li>
-              <li>Interfere with the proper functioning of the Service</li>
-              <li>Harass, abuse, or harm other users</li>
-              <li>Use the Service for competitive analysis without permission</li>
-            </ul>
-          </section>
-
-          <section className="mb-10">
-            <h2 className="text-xl font-semibold text-foreground mb-4">7. AI Features</h2>
-            <p className="text-muted-foreground leading-relaxed mb-4">
-              Journey Studio includes AI-powered features for content generation and analysis. By using these features, you acknowledge that:
-            </p>
-            <ul className="list-disc pl-6 text-muted-foreground space-y-2">
-              <li>AI-generated content may require human review and editing</li>
-              <li>We do not guarantee the accuracy of AI outputs</li>
-              <li>Your inputs may be processed by third-party AI providers</li>
-              <li>You are responsible for reviewing and validating AI-generated content</li>
-            </ul>
-          </section>
-
-          <section className="mb-10">
-            <h2 className="text-xl font-semibold text-foreground mb-4">8. Intellectual Property</h2>
-            <p className="text-muted-foreground leading-relaxed">
-              The Service, including its original content, features, and functionality, is owned by Renascence and is protected by international copyright, trademark, and other intellectual property laws. Our trademarks and trade dress may not be used without our prior written consent.
-            </p>
-          </section>
-
-          <section className="mb-10">
-            <h2 className="text-xl font-semibold text-foreground mb-4">9. Termination</h2>
-            <p className="text-muted-foreground leading-relaxed mb-4">
-              We may terminate or suspend your account and access to the Service immediately, without prior notice, for conduct that we believe:
-            </p>
-            <ul className="list-disc pl-6 text-muted-foreground space-y-2 mb-4">
-              <li>Violates these Terms of Service</li>
-              <li>Is harmful to other users or the Service</li>
-              <li>Is fraudulent or illegal</li>
-            </ul>
-            <p className="text-muted-foreground leading-relaxed">
-              Upon termination, your right to use the Service will cease immediately. You may request export of your data within 30 days of termination.
-            </p>
-          </section>
-
-          <section className="mb-10">
-            <h2 className="text-xl font-semibold text-foreground mb-4">10. Disclaimer of Warranties</h2>
-            <p className="text-muted-foreground leading-relaxed">
-              THE SERVICE IS PROVIDED &quot;AS IS&quot; AND &quot;AS AVAILABLE&quot; WITHOUT WARRANTIES OF ANY KIND, EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, AND NON-INFRINGEMENT. WE DO NOT WARRANT THAT THE SERVICE WILL BE UNINTERRUPTED, SECURE, OR ERROR-FREE.
-            </p>
-          </section>
-
-          <section className="mb-10">
-            <h2 className="text-xl font-semibold text-foreground mb-4">11. Limitation of Liability</h2>
-            <p className="text-muted-foreground leading-relaxed">
-              TO THE MAXIMUM EXTENT PERMITTED BY LAW, RENASCENCE SHALL NOT BE LIABLE FOR ANY INDIRECT, INCIDENTAL, SPECIAL, CONSEQUENTIAL, OR PUNITIVE DAMAGES, OR ANY LOSS OF PROFITS OR REVENUES, WHETHER INCURRED DIRECTLY OR INDIRECTLY, OR ANY LOSS OF DATA, USE, GOODWILL, OR OTHER INTANGIBLE LOSSES.
-            </p>
-          </section>
-
-          <section className="mb-10">
-            <h2 className="text-xl font-semibold text-foreground mb-4">12. Governing Law</h2>
-            <p className="text-muted-foreground leading-relaxed">
-              These Terms shall be governed by and construed in accordance with the laws of the United Arab Emirates, without regard to its conflict of law provisions. Any disputes arising from these terms shall be resolved in the courts of Dubai, UAE.
-            </p>
-          </section>
-
-          <section className="mb-10">
-            <h2 className="text-xl font-semibold text-foreground mb-4">13. Changes to Terms</h2>
-            <p className="text-muted-foreground leading-relaxed">
-              We reserve the right to modify these terms at any time. We will notify users of material changes via email or through the Service. Your continued use of the Service after changes become effective constitutes acceptance of the revised terms.
-            </p>
-          </section>
-
-          <section className="mb-10">
-            <h2 className="text-xl font-semibold text-foreground mb-4">14. Contact Us</h2>
-            <p className="text-muted-foreground leading-relaxed">
-              If you have any questions about these Terms of Service, please contact us at:
-            </p>
-            <div className="mt-4 p-4 bg-muted/50 rounded-lg">
-              <p className="text-foreground font-medium">Renascence</p>
-              <p className="text-muted-foreground">Email: legal@renascence.io</p>
-              <p className="text-muted-foreground">Website: https://renascence.io</p>
-            </div>
-          </section>
+          {sections.map((section: LegalSection, index: number) => (
+            <section key={section.id} className="mb-10">
+              <h2 className="text-xl font-semibold text-foreground mb-4">
+                {index + 1}. {section.title}
+              </h2>
+              <div className="text-muted-foreground leading-relaxed whitespace-pre-line">
+                {section.content}
+              </div>
+            </section>
+          ))}
         </div>
       </div>
     </div>

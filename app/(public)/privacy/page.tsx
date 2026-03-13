@@ -1,11 +1,61 @@
 import { Metadata } from "next"
+import { createClient } from "@/lib/supabase/server"
 
 export const metadata: Metadata = {
   title: "Privacy Policy | Journey Studio",
   description: "Privacy Policy for Journey Studio - Learn how we collect, use, and protect your personal information.",
 }
 
-export default function PrivacyPolicyPage() {
+interface LegalSection {
+  id: string
+  title: string
+  content: string
+}
+
+const DEFAULT_SECTIONS: LegalSection[] = [
+  { id: "1", title: "Introduction", content: "This Privacy Policy describes how Renascence (\"we,\" \"us,\" or \"our\") collects, uses, and shares information about you when you use our Journey Studio platform (\"the Service\"). We are committed to protecting your privacy and handling your data with transparency." },
+  { id: "2", title: "Information We Collect", content: "Account Information: When you create an account, we collect your name, email address, organization name, and password.\n\nUsage Data: We automatically collect information about how you interact with the Service, including pages visited, features used, and time spent.\n\nJourney Content: We store the customer journey maps, touchpoints, and related content you create.\n\nDevice Information: We collect device type, browser type, IP address, and operating system.\n\nCommunications: We keep records of your communications with our support team." },
+  { id: "3", title: "How We Use Your Information", content: "We use the information we collect to:\n\n• Provide and maintain the Service\n• Process transactions and send related information\n• Send technical notices and support messages\n• Respond to your comments and questions\n• Analyze usage patterns to improve the Service\n• Protect against fraudulent or illegal activity\n• Comply with legal obligations" },
+  { id: "4", title: "AI Data Processing", content: "Journey Studio includes AI-powered features that process your content. When you use AI features:\n\n• Your journey content may be sent to third-party AI providers (OpenAI, Anthropic)\n• AI providers process data according to their privacy policies\n• We do not use your content to train AI models\n• AI-generated outputs are stored in your account\n• You can opt out of AI features in your settings" },
+  { id: "5", title: "Information Sharing", content: "We may share your information with:\n\nService Providers: Third parties who help us operate the Service:\n• Supabase (database and authentication)\n• Vercel (hosting and infrastructure)\n• Stripe (payment processing)\n• Resend (email communications)\n\nLegal Requirements: When required by law or to protect our rights.\n\nBusiness Transfers: In connection with a merger, acquisition, or sale of assets.\n\nWith Your Consent: When you explicitly authorize sharing." },
+  { id: "6", title: "Data Security", content: "We implement appropriate security measures to protect your information:\n\n• Encryption in transit (TLS 1.3) and at rest (AES-256)\n• Regular security audits and penetration testing\n• Access controls and authentication requirements\n• Secure data centers with SOC 2 compliance\n• Regular backups and disaster recovery procedures\n\nHowever, no method of transmission over the Internet is 100% secure." },
+  { id: "7", title: "Data Retention", content: "We retain your information for as long as your account is active or as needed to provide services. After account deletion:\n\n• Account data is deleted within 30 days\n• Backups are purged within 90 days\n• Anonymized analytics data may be retained\n• Legal hold data is retained as required" },
+  { id: "8", title: "Your Rights", content: "Depending on your location, you may have the following rights:\n\n• Access: Request a copy of your personal data\n• Rectification: Correct inaccurate information\n• Erasure: Request deletion of your data\n• Portability: Export your data in a portable format\n• Restriction: Limit how we process your data\n• Objection: Object to certain processing activities\n• Withdraw Consent: Revoke previously given consent\n\nTo exercise these rights, contact privacy@renascence.io" },
+  { id: "9", title: "Cookies and Tracking", content: "We use cookies and similar technologies to:\n\n• Keep you logged in\n• Remember your preferences\n• Analyze how you use the Service\n• Improve performance\n\nYou can control cookies through your browser settings. Disabling cookies may affect Service functionality." },
+  { id: "10", title: "International Transfers", content: "Your information may be transferred to and processed in countries other than your own. We ensure appropriate safeguards are in place:\n\n• Standard contractual clauses\n• Data processing agreements\n• Compliance with applicable transfer mechanisms" },
+  { id: "11", title: "Children's Privacy", content: "The Service is not intended for users under 16 years of age. We do not knowingly collect information from children. If we learn we have collected data from a child, we will delete it promptly." },
+  { id: "12", title: "Changes to This Policy", content: "We may update this Privacy Policy from time to time. We will notify you of material changes by email or through the Service. Your continued use after changes become effective constitutes acceptance." },
+  { id: "13", title: "Contact Us", content: "For privacy-related inquiries:\n\nEmail: privacy@renascence.io\nData Protection Officer: dpo@renascence.io\n\nRenascence\nDubai, United Arab Emirates" },
+]
+
+async function getPrivacyContent() {
+  try {
+    const supabase = await createClient()
+    const { data } = await supabase
+      .from("site_config")
+      .select("value")
+      .eq("key", "legal_privacy")
+      .single()
+
+    if (data?.value) {
+      const parsed = JSON.parse(data.value)
+      return {
+        sections: parsed.sections || DEFAULT_SECTIONS,
+        lastUpdated: parsed.lastUpdated || new Date().toISOString(),
+      }
+    }
+  } catch {
+    // Fall back to defaults
+  }
+  return {
+    sections: DEFAULT_SECTIONS,
+    lastUpdated: new Date().toISOString(),
+  }
+}
+
+export default async function PrivacyPolicyPage() {
+  const { sections, lastUpdated } = await getPrivacyContent()
+
   return (
     <div className="min-h-screen bg-background">
       <div className="mx-auto max-w-3xl px-6 py-16 sm:py-24">
@@ -14,206 +64,25 @@ export default function PrivacyPolicyPage() {
             Privacy Policy
           </h1>
           <p className="mt-4 text-muted-foreground">
-            Last updated: March 13, 2026
+            Last updated: {new Date(lastUpdated).toLocaleDateString("en-US", { 
+              year: "numeric", 
+              month: "long", 
+              day: "numeric" 
+            })}
           </p>
         </header>
 
         <div className="prose prose-neutral dark:prose-invert max-w-none">
-          <section className="mb-10">
-            <h2 className="text-xl font-semibold text-foreground mb-4">1. Introduction</h2>
-            <p className="text-muted-foreground leading-relaxed mb-4">
-              Renascence (&quot;we,&quot; &quot;us,&quot; or &quot;our&quot;) operates Journey Studio. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you use our service.
-            </p>
-            <p className="text-muted-foreground leading-relaxed">
-              We are committed to protecting your privacy and ensuring the security of your personal information. Please read this policy carefully to understand our practices.
-            </p>
-          </section>
-
-          <section className="mb-10">
-            <h2 className="text-xl font-semibold text-foreground mb-4">2. Information We Collect</h2>
-            
-            <h3 className="text-lg font-medium text-foreground mt-6 mb-3">2.1 Information You Provide</h3>
-            <ul className="list-disc pl-6 text-muted-foreground space-y-2 mb-4">
-              <li><strong>Account Information:</strong> Name, email address, password, organization name, and role</li>
-              <li><strong>Profile Information:</strong> Avatar, bio, timezone, and preferences</li>
-              <li><strong>Payment Information:</strong> Billing address, payment method details (processed securely by Stripe)</li>
-              <li><strong>User Content:</strong> Journey maps, touchpoints, notes, and other content you create</li>
-              <li><strong>Communications:</strong> Messages to our support team and feedback you provide</li>
-            </ul>
-
-            <h3 className="text-lg font-medium text-foreground mt-6 mb-3">2.2 Information Collected Automatically</h3>
-            <ul className="list-disc pl-6 text-muted-foreground space-y-2 mb-4">
-              <li><strong>Usage Data:</strong> Pages visited, features used, time spent, and interaction patterns</li>
-              <li><strong>Device Information:</strong> Browser type, operating system, device type, and screen resolution</li>
-              <li><strong>Log Data:</strong> IP address, access times, and referring URLs</li>
-              <li><strong>Cookies:</strong> Session cookies, preference cookies, and analytics cookies</li>
-            </ul>
-
-            <h3 className="text-lg font-medium text-foreground mt-6 mb-3">2.3 Information from Third Parties</h3>
-            <ul className="list-disc pl-6 text-muted-foreground space-y-2">
-              <li><strong>OAuth Providers:</strong> When you sign in with Google or Microsoft, we receive your name, email, and profile picture</li>
-              <li><strong>Team Invitations:</strong> When someone invites you to a team, we receive your email address</li>
-            </ul>
-          </section>
-
-          <section className="mb-10">
-            <h2 className="text-xl font-semibold text-foreground mb-4">3. How We Use Your Information</h2>
-            <p className="text-muted-foreground leading-relaxed mb-4">
-              We use the information we collect to:
-            </p>
-            <ul className="list-disc pl-6 text-muted-foreground space-y-2">
-              <li>Provide, maintain, and improve the Service</li>
-              <li>Process transactions and send related information</li>
-              <li>Send administrative messages, updates, and security alerts</li>
-              <li>Respond to your comments, questions, and support requests</li>
-              <li>Analyze usage patterns to improve user experience</li>
-              <li>Detect, prevent, and address technical issues and fraud</li>
-              <li>Personalize your experience and provide relevant content</li>
-              <li>Comply with legal obligations</li>
-            </ul>
-          </section>
-
-          <section className="mb-10">
-            <h2 className="text-xl font-semibold text-foreground mb-4">4. AI Features and Data Processing</h2>
-            <p className="text-muted-foreground leading-relaxed mb-4">
-              Journey Studio includes AI-powered features. When you use these features:
-            </p>
-            <ul className="list-disc pl-6 text-muted-foreground space-y-2">
-              <li>Your inputs may be processed by third-party AI providers (e.g., OpenAI, Anthropic)</li>
-              <li>We do not use your content to train AI models</li>
-              <li>AI processing is subject to our data processing agreements with providers</li>
-              <li>You can opt out of AI features in your account settings</li>
-            </ul>
-          </section>
-
-          <section className="mb-10">
-            <h2 className="text-xl font-semibold text-foreground mb-4">5. Information Sharing</h2>
-            <p className="text-muted-foreground leading-relaxed mb-4">
-              We may share your information in the following circumstances:
-            </p>
-            
-            <h3 className="text-lg font-medium text-foreground mt-6 mb-3">5.1 With Your Consent</h3>
-            <p className="text-muted-foreground leading-relaxed mb-4">
-              We share information when you give us explicit consent, such as when you share a journey publicly or invite collaborators.
-            </p>
-
-            <h3 className="text-lg font-medium text-foreground mt-6 mb-3">5.2 Service Providers</h3>
-            <p className="text-muted-foreground leading-relaxed mb-4">
-              We work with trusted third-party service providers who help us operate the Service:
-            </p>
-            <ul className="list-disc pl-6 text-muted-foreground space-y-2 mb-4">
-              <li><strong>Supabase:</strong> Database and authentication</li>
-              <li><strong>Stripe:</strong> Payment processing</li>
-              <li><strong>Vercel:</strong> Hosting and deployment</li>
-              <li><strong>Resend:</strong> Email delivery</li>
-              <li><strong>OpenAI/Anthropic:</strong> AI features</li>
-            </ul>
-
-            <h3 className="text-lg font-medium text-foreground mt-6 mb-3">5.3 Legal Requirements</h3>
-            <p className="text-muted-foreground leading-relaxed">
-              We may disclose information if required by law, court order, or government request, or to protect our rights, privacy, safety, or property.
-            </p>
-          </section>
-
-          <section className="mb-10">
-            <h2 className="text-xl font-semibold text-foreground mb-4">6. Data Security</h2>
-            <p className="text-muted-foreground leading-relaxed mb-4">
-              We implement industry-standard security measures to protect your information:
-            </p>
-            <ul className="list-disc pl-6 text-muted-foreground space-y-2">
-              <li>Encryption in transit (TLS/SSL) and at rest</li>
-              <li>Secure authentication with password hashing</li>
-              <li>Regular security audits and vulnerability assessments</li>
-              <li>Access controls and employee training</li>
-              <li>Incident response procedures</li>
-            </ul>
-          </section>
-
-          <section className="mb-10">
-            <h2 className="text-xl font-semibold text-foreground mb-4">7. Data Retention</h2>
-            <p className="text-muted-foreground leading-relaxed mb-4">
-              We retain your information for as long as your account is active or as needed to provide the Service. After account deletion:
-            </p>
-            <ul className="list-disc pl-6 text-muted-foreground space-y-2">
-              <li>Personal data is deleted within 30 days</li>
-              <li>Backups are purged within 90 days</li>
-              <li>Anonymized analytics data may be retained indefinitely</li>
-              <li>Legal compliance data is retained as required by law</li>
-            </ul>
-          </section>
-
-          <section className="mb-10">
-            <h2 className="text-xl font-semibold text-foreground mb-4">8. Your Rights</h2>
-            <p className="text-muted-foreground leading-relaxed mb-4">
-              Depending on your location, you may have the following rights:
-            </p>
-            <ul className="list-disc pl-6 text-muted-foreground space-y-2">
-              <li><strong>Access:</strong> Request a copy of your personal data</li>
-              <li><strong>Correction:</strong> Request correction of inaccurate data</li>
-              <li><strong>Deletion:</strong> Request deletion of your data</li>
-              <li><strong>Portability:</strong> Request your data in a portable format</li>
-              <li><strong>Objection:</strong> Object to certain processing activities</li>
-              <li><strong>Restriction:</strong> Request restriction of processing</li>
-            </ul>
-            <p className="text-muted-foreground leading-relaxed mt-4">
-              To exercise these rights, contact us at privacy@renascence.io or use the account settings in the Service.
-            </p>
-          </section>
-
-          <section className="mb-10">
-            <h2 className="text-xl font-semibold text-foreground mb-4">9. Cookies and Tracking</h2>
-            <p className="text-muted-foreground leading-relaxed mb-4">
-              We use cookies and similar technologies for:
-            </p>
-            <ul className="list-disc pl-6 text-muted-foreground space-y-2 mb-4">
-              <li><strong>Essential Cookies:</strong> Required for the Service to function</li>
-              <li><strong>Preference Cookies:</strong> Remember your settings and preferences</li>
-              <li><strong>Analytics Cookies:</strong> Help us understand how you use the Service</li>
-            </ul>
-            <p className="text-muted-foreground leading-relaxed">
-              You can manage cookie preferences in your browser settings. Note that disabling certain cookies may affect functionality.
-            </p>
-          </section>
-
-          <section className="mb-10">
-            <h2 className="text-xl font-semibold text-foreground mb-4">10. International Transfers</h2>
-            <p className="text-muted-foreground leading-relaxed">
-              Your information may be transferred to and processed in countries other than your own. We ensure appropriate safeguards are in place, including Standard Contractual Clauses where required, to protect your information in accordance with this Privacy Policy.
-            </p>
-          </section>
-
-          <section className="mb-10">
-            <h2 className="text-xl font-semibold text-foreground mb-4">11. Children&apos;s Privacy</h2>
-            <p className="text-muted-foreground leading-relaxed">
-              Journey Studio is not intended for users under 16 years of age. We do not knowingly collect personal information from children. If we learn we have collected information from a child under 16, we will delete it promptly.
-            </p>
-          </section>
-
-          <section className="mb-10">
-            <h2 className="text-xl font-semibold text-foreground mb-4">12. Changes to This Policy</h2>
-            <p className="text-muted-foreground leading-relaxed">
-              We may update this Privacy Policy from time to time. We will notify you of material changes by email or through the Service before they become effective. Your continued use of the Service after changes indicates acceptance of the updated policy.
-            </p>
-          </section>
-
-          <section className="mb-10">
-            <h2 className="text-xl font-semibold text-foreground mb-4">13. Contact Us</h2>
-            <p className="text-muted-foreground leading-relaxed">
-              If you have questions about this Privacy Policy or our data practices, please contact us:
-            </p>
-            <div className="mt-4 p-4 bg-muted/50 rounded-lg">
-              <p className="text-foreground font-medium">Renascence - Privacy Team</p>
-              <p className="text-muted-foreground">Email: privacy@renascence.io</p>
-              <p className="text-muted-foreground">Website: https://renascence.io</p>
-            </div>
-          </section>
-
-          <section className="mb-10">
-            <h2 className="text-xl font-semibold text-foreground mb-4">14. Data Protection Officer</h2>
-            <p className="text-muted-foreground leading-relaxed">
-              For data protection inquiries, you may also contact our Data Protection Officer at dpo@renascence.io.
-            </p>
-          </section>
+          {sections.map((section: LegalSection, index: number) => (
+            <section key={section.id} className="mb-10">
+              <h2 className="text-xl font-semibold text-foreground mb-4">
+                {index + 1}. {section.title}
+              </h2>
+              <div className="text-muted-foreground leading-relaxed whitespace-pre-line">
+                {section.content}
+              </div>
+            </section>
+          ))}
         </div>
       </div>
     </div>

@@ -70,6 +70,15 @@ const NOTIFICATION_EVENTS = [
     inAppEnabled: false,
   },
   {
+    id: "magic_link",
+    name: "Magic Link Login",
+    description: "Passwordless sign-in link",
+    category: "security",
+    icon: Key,
+    emailEnabled: true,
+    inAppEnabled: false,
+  },
+  {
     id: "password_changed",
     name: "Password Changed",
     description: "Confirmation when password is updated",
@@ -198,19 +207,37 @@ const CATEGORIES = [
   { id: "digest", name: "Digests" },
 ]
 
+// Rene Logo SVG Component for emails
+function ReneLogo({ className = "" }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 120 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M8 4H24C26.2091 4 28 5.79086 28 8V24C28 26.2091 26.2091 28 24 28H8C5.79086 28 4 26.2091 4 24V8C4 5.79086 5.79086 4 8 4Z" fill="currentColor"/>
+      <path d="M10 12H14V20H10V12Z" fill="white"/>
+      <path d="M16 10H20V20H16V10Z" fill="white"/>
+      <text x="36" y="22" fontFamily="system-ui, -apple-system, sans-serif" fontSize="18" fontWeight="600" fill="currentColor">
+        Rene
+      </text>
+    </svg>
+  )
+}
+
 // Email template preview component
 function EmailPreview({ event }: { event: typeof NOTIFICATION_EVENTS[0] }) {
   return (
-    <div className="rounded-lg border border-border bg-white overflow-hidden">
-      {/* Email Header */}
-      <div className="bg-gradient-to-r from-indigo-600 to-indigo-700 px-6 py-8 text-center">
-        <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-white/20">
-          <event.icon className="h-6 w-6 text-white" />
+    <div className="rounded-lg border border-border bg-white overflow-hidden shadow-sm">
+      {/* Email Header with Logo */}
+      <div className="bg-[#18181B] px-6 py-6">
+        <div className="flex items-center justify-center gap-3 mb-6">
+          <ReneLogo className="h-8 w-auto text-white" />
         </div>
-        <h2 className="text-xl font-semibold text-white">
-          {event.name === "Welcome Email" && "Welcome to CX Journey Studio"}
+        <div className="mx-auto mb-3 flex h-14 w-14 items-center justify-center rounded-2xl bg-white/10 backdrop-blur">
+          <event.icon className="h-7 w-7 text-white" />
+        </div>
+        <h2 className="text-xl font-semibold text-white text-center">
+          {event.name === "Welcome Email" && "Welcome to Rene"}
           {event.name === "Email Verification" && "Verify Your Email"}
           {event.name === "Password Reset" && "Reset Your Password"}
+          {event.name === "Magic Link Login" && "Sign In to Rene"}
           {event.name === "Password Changed" && "Password Updated"}
           {event.name === "Journey Shared" && "A Journey Was Shared With You"}
           {event.name === "Collaborator Joined" && "New Collaborator Joined"}
@@ -225,25 +252,25 @@ function EmailPreview({ event }: { event: typeof NOTIFICATION_EVENTS[0] }) {
           {event.name === "Trial Ending Soon" && "Your Trial Ends Soon"}
           {event.name === "Weekly Digest" && "Your Weekly Summary"}
         </h2>
+        <p className="text-center text-zinc-400 text-sm mt-2">{event.description}</p>
       </div>
 
       {/* Email Body */}
-      <div className="px-6 py-6">
-        <p className="text-gray-700 mb-4">
-          Hi <span className="font-medium">{"{{user_name}}"}</span>,
+      <div className="px-8 py-8">
+        <p className="text-zinc-800 mb-5 text-[15px]">
+          Hi <span className="font-semibold">{"{{user_name}}"}</span>,
         </p>
         
         {event.id === "welcome" && (
           <>
-            <p className="text-gray-600 mb-4">
-              Thank you for joining CX Journey Studio! We're excited to have you on board.
+            <p className="text-zinc-600 mb-4 text-[15px] leading-relaxed">
+              Welcome to Rene! We are thrilled to have you join our community of customer experience professionals.
             </p>
-            <p className="text-gray-600 mb-4">
-              With CX Journey Studio, you can map customer journeys, identify pain points, 
-              and discover solutions to improve your customer experience.
+            <p className="text-zinc-600 mb-4 text-[15px] leading-relaxed">
+              With Rene, you can map customer journeys, identify pain points, and discover powerful solutions to transform your customer experience.
             </p>
-            <div className="my-6 text-center">
-              <a href="#" className="inline-block rounded-lg bg-indigo-600 px-6 py-3 text-sm font-medium text-white hover:bg-indigo-700">
+            <div className="my-8 text-center">
+              <a href="#" className="inline-block rounded-lg bg-[#18181B] px-8 py-3 text-sm font-semibold text-white hover:bg-zinc-800 transition-colors">
                 Get Started
               </a>
             </div>
@@ -252,44 +279,60 @@ function EmailPreview({ event }: { event: typeof NOTIFICATION_EVENTS[0] }) {
 
         {event.id === "email_verification" && (
           <>
-            <p className="text-gray-600 mb-4">
+            <p className="text-zinc-600 mb-4 text-[15px] leading-relaxed">
               Please verify your email address by clicking the button below.
             </p>
-            <div className="my-6 text-center">
-              <a href="#" className="inline-block rounded-lg bg-indigo-600 px-6 py-3 text-sm font-medium text-white hover:bg-indigo-700">
+            <div className="my-8 text-center">
+              <a href="#" className="inline-block rounded-lg bg-[#18181B] px-8 py-3 text-sm font-semibold text-white hover:bg-zinc-800 transition-colors">
                 Verify Email
               </a>
             </div>
-            <p className="text-gray-500 text-sm">
-              This link will expire in 24 hours. If you didn't create an account, you can safely ignore this email.
+            <p className="text-zinc-400 text-sm">
+              This link will expire in 24 hours. If you did not create an account, you can safely ignore this email.
             </p>
           </>
         )}
 
         {event.id === "password_reset" && (
           <>
-            <p className="text-gray-600 mb-4">
+            <p className="text-zinc-600 mb-4 text-[15px] leading-relaxed">
               We received a request to reset your password. Click the button below to create a new password.
             </p>
-            <div className="my-6 text-center">
-              <a href="#" className="inline-block rounded-lg bg-indigo-600 px-6 py-3 text-sm font-medium text-white hover:bg-indigo-700">
+            <div className="my-8 text-center">
+              <a href="#" className="inline-block rounded-lg bg-[#18181B] px-8 py-3 text-sm font-semibold text-white hover:bg-zinc-800 transition-colors">
                 Reset Password
               </a>
             </div>
-            <p className="text-gray-500 text-sm">
-              This link will expire in 1 hour. If you didn't request this, please ignore this email or contact support.
+            <p className="text-zinc-400 text-sm">
+              This link will expire in 1 hour. If you did not request this, please ignore this email or contact support.
+            </p>
+          </>
+        )}
+
+        {event.id === "magic_link" && (
+          <>
+            <p className="text-zinc-600 mb-4 text-[15px] leading-relaxed">
+              Click the button below to securely sign in to your Rene account. No password needed.
+            </p>
+            <div className="my-8 text-center">
+              <a href="#" className="inline-block rounded-lg bg-[#18181B] px-8 py-3 text-sm font-semibold text-white hover:bg-zinc-800 transition-colors">
+                Sign In to Rene
+              </a>
+            </div>
+            <p className="text-zinc-400 text-sm">
+              This link will expire in 15 minutes and can only be used once. If you did not request this, you can safely ignore this email.
             </p>
           </>
         )}
 
         {event.id === "password_changed" && (
           <>
-            <p className="text-gray-600 mb-4">
+            <p className="text-zinc-600 mb-4 text-[15px] leading-relaxed">
               Your password was successfully changed. If you did not make this change, please contact support immediately.
             </p>
-            <div className="mt-4 rounded-lg bg-amber-50 border border-amber-200 p-4">
+            <div className="mt-4 rounded-xl bg-amber-50 border border-amber-200 p-4">
               <p className="text-amber-800 text-sm">
-                <strong>Security tip:</strong> If you didn't change your password, secure your account immediately.
+                <strong>Security tip:</strong> If you did not change your password, secure your account immediately.
               </p>
             </div>
           </>
@@ -297,15 +340,15 @@ function EmailPreview({ event }: { event: typeof NOTIFICATION_EVENTS[0] }) {
 
         {event.id === "journey_shared" && (
           <>
-            <p className="text-gray-600 mb-4">
-              <span className="font-medium">{"{{sharer_name}}"}</span> has shared a journey with you:
+            <p className="text-zinc-600 mb-4 text-[15px] leading-relaxed">
+              <span className="font-semibold text-zinc-800">{"{{sharer_name}}"}</span> has shared a journey with you:
             </p>
-            <div className="my-4 rounded-lg bg-gray-50 border border-gray-200 p-4">
-              <p className="font-medium text-gray-900">{"{{journey_title}}"}</p>
-              <p className="text-sm text-gray-500 mt-1">{"{{journey_description}}"}</p>
+            <div className="my-5 rounded-xl bg-zinc-50 border border-zinc-200 p-5">
+              <p className="font-semibold text-zinc-900">{"{{journey_title}}"}</p>
+              <p className="text-sm text-zinc-500 mt-1.5">{"{{journey_description}}"}</p>
             </div>
-            <div className="my-6 text-center">
-              <a href="#" className="inline-block rounded-lg bg-indigo-600 px-6 py-3 text-sm font-medium text-white hover:bg-indigo-700">
+            <div className="my-8 text-center">
+              <a href="#" className="inline-block rounded-lg bg-[#18181B] px-8 py-3 text-sm font-semibold text-white hover:bg-zinc-800 transition-colors">
                 View Journey
               </a>
             </div>
@@ -314,14 +357,14 @@ function EmailPreview({ event }: { event: typeof NOTIFICATION_EVENTS[0] }) {
 
         {event.id === "collaborator_joined" && (
           <>
-            <p className="text-gray-600 mb-4">
-              <span className="font-medium">{"{{collaborator_name}}"}</span> has joined your journey:
+            <p className="text-zinc-600 mb-4 text-[15px] leading-relaxed">
+              <span className="font-semibold text-zinc-800">{"{{collaborator_name}}"}</span> has joined your journey:
             </p>
-            <div className="my-4 rounded-lg bg-gray-50 border border-gray-200 p-4">
-              <p className="font-medium text-gray-900">{"{{journey_title}}"}</p>
+            <div className="my-5 rounded-xl bg-zinc-50 border border-zinc-200 p-5">
+              <p className="font-semibold text-zinc-900">{"{{journey_title}}"}</p>
             </div>
-            <div className="my-6 text-center">
-              <a href="#" className="inline-block rounded-lg bg-indigo-600 px-6 py-3 text-sm font-medium text-white hover:bg-indigo-700">
+            <div className="my-8 text-center">
+              <a href="#" className="inline-block rounded-lg bg-[#18181B] px-8 py-3 text-sm font-semibold text-white hover:bg-zinc-800 transition-colors">
                 View Journey
               </a>
             </div>
@@ -330,15 +373,15 @@ function EmailPreview({ event }: { event: typeof NOTIFICATION_EVENTS[0] }) {
 
         {event.id === "comment_received" && (
           <>
-            <p className="text-gray-600 mb-4">
-              <span className="font-medium">{"{{commenter_name}}"}</span> commented on your journey:
+            <p className="text-zinc-600 mb-4 text-[15px] leading-relaxed">
+              <span className="font-semibold text-zinc-800">{"{{commenter_name}}"}</span> commented on your journey:
             </p>
-            <div className="my-4 rounded-lg bg-gray-50 border border-gray-200 p-4">
-              <p className="text-gray-700 italic">"{`{{comment_text}}`}"</p>
-              <p className="text-sm text-gray-500 mt-2">On: {"{{element_name}}"}</p>
+            <div className="my-5 rounded-xl bg-zinc-50 border border-zinc-200 p-5">
+              <p className="text-zinc-700 italic leading-relaxed">"{`{{comment_text}}`}"</p>
+              <p className="text-sm text-zinc-500 mt-3">On: {"{{element_name}}"}</p>
             </div>
-            <div className="my-6 text-center">
-              <a href="#" className="inline-block rounded-lg bg-indigo-600 px-6 py-3 text-sm font-medium text-white hover:bg-indigo-700">
+            <div className="my-8 text-center">
+              <a href="#" className="inline-block rounded-lg bg-[#18181B] px-8 py-3 text-sm font-semibold text-white hover:bg-zinc-800 transition-colors">
                 View Comment
               </a>
             </div>
@@ -347,14 +390,14 @@ function EmailPreview({ event }: { event: typeof NOTIFICATION_EVENTS[0] }) {
 
         {event.id === "mention" && (
           <>
-            <p className="text-gray-600 mb-4">
-              <span className="font-medium">{"{{mentioner_name}}"}</span> mentioned you in a comment:
+            <p className="text-zinc-600 mb-4 text-[15px] leading-relaxed">
+              <span className="font-semibold text-zinc-800">{"{{mentioner_name}}"}</span> mentioned you in a comment:
             </p>
-            <div className="my-4 rounded-lg bg-gray-50 border border-gray-200 p-4">
-              <p className="text-gray-700 italic">"{`{{comment_text}}`}"</p>
+            <div className="my-5 rounded-xl bg-zinc-50 border border-zinc-200 p-5">
+              <p className="text-zinc-700 italic leading-relaxed">"{`{{comment_text}}`}"</p>
             </div>
-            <div className="my-6 text-center">
-              <a href="#" className="inline-block rounded-lg bg-indigo-600 px-6 py-3 text-sm font-medium text-white hover:bg-indigo-700">
+            <div className="my-8 text-center">
+              <a href="#" className="inline-block rounded-lg bg-[#18181B] px-8 py-3 text-sm font-semibold text-white hover:bg-zinc-800 transition-colors">
                 View & Reply
               </a>
             </div>
@@ -363,15 +406,15 @@ function EmailPreview({ event }: { event: typeof NOTIFICATION_EVENTS[0] }) {
 
         {event.id === "workspace_invite" && (
           <>
-            <p className="text-gray-600 mb-4">
-              <span className="font-medium">{"{{inviter_name}}"}</span> has invited you to join:
+            <p className="text-zinc-600 mb-4 text-[15px] leading-relaxed">
+              <span className="font-semibold text-zinc-800">{"{{inviter_name}}"}</span> has invited you to join:
             </p>
-            <div className="my-4 rounded-lg bg-gray-50 border border-gray-200 p-4">
-              <p className="font-medium text-gray-900">{"{{workspace_name}}"}</p>
-              <p className="text-sm text-gray-500 mt-1">Role: {"{{role}}"}</p>
+            <div className="my-5 rounded-xl bg-zinc-50 border border-zinc-200 p-5">
+              <p className="font-semibold text-zinc-900">{"{{workspace_name}}"}</p>
+              <p className="text-sm text-zinc-500 mt-1.5">Role: {"{{role}}"}</p>
             </div>
-            <div className="my-6 text-center">
-              <a href="#" className="inline-block rounded-lg bg-indigo-600 px-6 py-3 text-sm font-medium text-white hover:bg-indigo-700">
+            <div className="my-8 text-center">
+              <a href="#" className="inline-block rounded-lg bg-[#18181B] px-8 py-3 text-sm font-semibold text-white hover:bg-zinc-800 transition-colors">
                 Accept Invitation
               </a>
             </div>
@@ -380,29 +423,29 @@ function EmailPreview({ event }: { event: typeof NOTIFICATION_EVENTS[0] }) {
 
         {event.id === "subscription_created" && (
           <>
-            <p className="text-gray-600 mb-4">
-              Your subscription to <span className="font-medium">{"{{plan_name}}"}</span> is now active!
+            <p className="text-zinc-600 mb-4 text-[15px] leading-relaxed">
+              Your subscription to <span className="font-semibold text-zinc-800">{"{{plan_name}}"}</span> is now active!
             </p>
-            <div className="my-4 rounded-lg bg-green-50 border border-green-200 p-4">
-              <div className="flex items-center gap-2 text-green-700">
+            <div className="my-5 rounded-xl bg-emerald-50 border border-emerald-200 p-5">
+              <div className="flex items-center gap-2.5 text-emerald-700">
                 <CheckCircle className="h-5 w-5" />
-                <span className="font-medium">Payment Successful</span>
+                <span className="font-semibold">Payment Successful</span>
               </div>
-              <p className="text-sm text-green-600 mt-1">Amount: {"{{amount}}"}</p>
+              <p className="text-sm text-emerald-600 mt-2">Amount: {"{{amount}}"}</p>
             </div>
           </>
         )}
 
         {event.id === "subscription_cancelled" && (
           <>
-            <p className="text-gray-600 mb-4">
-              Your subscription has been cancelled. You'll continue to have access until {"{{end_date}}"}.
+            <p className="text-zinc-600 mb-4 text-[15px] leading-relaxed">
+              Your subscription has been cancelled. You will continue to have access until {"{{end_date}}"}.
             </p>
-            <p className="text-gray-600 mb-4">
-              We're sorry to see you go. If there's anything we can do to improve, please let us know.
+            <p className="text-zinc-600 mb-4 text-[15px] leading-relaxed">
+              We are sorry to see you go. If there is anything we can do to improve, please let us know.
             </p>
-            <div className="my-6 text-center">
-              <a href="#" className="inline-block rounded-lg bg-indigo-600 px-6 py-3 text-sm font-medium text-white hover:bg-indigo-700">
+            <div className="my-8 text-center">
+              <a href="#" className="inline-block rounded-lg bg-[#18181B] px-8 py-3 text-sm font-semibold text-white hover:bg-zinc-800 transition-colors">
                 Reactivate Subscription
               </a>
             </div>
@@ -411,16 +454,16 @@ function EmailPreview({ event }: { event: typeof NOTIFICATION_EVENTS[0] }) {
 
         {event.id === "payment_failed" && (
           <>
-            <p className="text-gray-600 mb-4">
+            <p className="text-zinc-600 mb-4 text-[15px] leading-relaxed">
               We were unable to process your payment. Please update your payment method to avoid service interruption.
             </p>
-            <div className="my-4 rounded-lg bg-red-50 border border-red-200 p-4">
-              <p className="text-red-700 text-sm">
-                <strong>Action required:</strong> Update your payment method within 7 days.
+            <div className="my-5 rounded-xl bg-red-50 border border-red-200 p-4">
+              <p className="text-red-700 text-sm font-medium">
+                Action required: Update your payment method within 7 days.
               </p>
             </div>
-            <div className="my-6 text-center">
-              <a href="#" className="inline-block rounded-lg bg-indigo-600 px-6 py-3 text-sm font-medium text-white hover:bg-indigo-700">
+            <div className="my-8 text-center">
+              <a href="#" className="inline-block rounded-lg bg-[#18181B] px-8 py-3 text-sm font-semibold text-white hover:bg-zinc-800 transition-colors">
                 Update Payment Method
               </a>
             </div>
@@ -429,12 +472,12 @@ function EmailPreview({ event }: { event: typeof NOTIFICATION_EVENTS[0] }) {
 
         {event.id === "trial_ending" && (
           <>
-            <p className="text-gray-600 mb-4">
-              Your free trial ends in <span className="font-medium">{"{{days_remaining}}"} days</span>. 
+            <p className="text-zinc-600 mb-4 text-[15px] leading-relaxed">
+              Your free trial ends in <span className="font-semibold text-zinc-800">{"{{days_remaining}}"} days</span>. 
               Subscribe now to keep access to all features.
             </p>
-            <div className="my-6 text-center">
-              <a href="#" className="inline-block rounded-lg bg-indigo-600 px-6 py-3 text-sm font-medium text-white hover:bg-indigo-700">
+            <div className="my-8 text-center">
+              <a href="#" className="inline-block rounded-lg bg-[#18181B] px-8 py-3 text-sm font-semibold text-white hover:bg-zinc-800 transition-colors">
                 Choose a Plan
               </a>
             </div>
@@ -443,25 +486,25 @@ function EmailPreview({ event }: { event: typeof NOTIFICATION_EVENTS[0] }) {
 
         {event.id === "weekly_digest" && (
           <>
-            <p className="text-gray-600 mb-4">
-              Here's what happened this week:
+            <p className="text-zinc-600 mb-4 text-[15px] leading-relaxed">
+              Here is what happened this week:
             </p>
-            <div className="my-4 space-y-3">
-              <div className="flex items-center justify-between rounded-lg bg-gray-50 p-3">
-                <span className="text-gray-700">Journeys created</span>
-                <span className="font-medium text-indigo-600">{"{{journeys_created}}"}</span>
+            <div className="my-5 space-y-2.5">
+              <div className="flex items-center justify-between rounded-xl bg-zinc-50 border border-zinc-200 p-4">
+                <span className="text-zinc-700">Journeys created</span>
+                <span className="font-semibold text-zinc-900">{"{{journeys_created}}"}</span>
               </div>
-              <div className="flex items-center justify-between rounded-lg bg-gray-50 p-3">
-                <span className="text-gray-700">Solutions applied</span>
-                <span className="font-medium text-indigo-600">{"{{solutions_applied}}"}</span>
+              <div className="flex items-center justify-between rounded-xl bg-zinc-50 border border-zinc-200 p-4">
+                <span className="text-zinc-700">Solutions applied</span>
+                <span className="font-semibold text-zinc-900">{"{{solutions_applied}}"}</span>
               </div>
-              <div className="flex items-center justify-between rounded-lg bg-gray-50 p-3">
-                <span className="text-gray-700">Team activity</span>
-                <span className="font-medium text-indigo-600">{"{{team_activity}}"}</span>
+              <div className="flex items-center justify-between rounded-xl bg-zinc-50 border border-zinc-200 p-4">
+                <span className="text-zinc-700">Team activity</span>
+                <span className="font-semibold text-zinc-900">{"{{team_activity}}"}</span>
               </div>
             </div>
-            <div className="my-6 text-center">
-              <a href="#" className="inline-block rounded-lg bg-indigo-600 px-6 py-3 text-sm font-medium text-white hover:bg-indigo-700">
+            <div className="my-8 text-center">
+              <a href="#" className="inline-block rounded-lg bg-[#18181B] px-8 py-3 text-sm font-semibold text-white hover:bg-zinc-800 transition-colors">
                 View Dashboard
               </a>
             </div>
@@ -470,13 +513,13 @@ function EmailPreview({ event }: { event: typeof NOTIFICATION_EVENTS[0] }) {
 
         {(event.id === "ai_complete" || event.id === "export_ready") && (
           <>
-            <p className="text-gray-600 mb-4">
+            <p className="text-zinc-600 mb-4 text-[15px] leading-relaxed">
               {event.id === "ai_complete" 
                 ? "Your AI-generated content is ready to review."
                 : "Your export has been processed and is ready for download."}
             </p>
-            <div className="my-6 text-center">
-              <a href="#" className="inline-block rounded-lg bg-indigo-600 px-6 py-3 text-sm font-medium text-white hover:bg-indigo-700">
+            <div className="my-8 text-center">
+              <a href="#" className="inline-block rounded-lg bg-[#18181B] px-8 py-3 text-sm font-semibold text-white hover:bg-zinc-800 transition-colors">
                 {event.id === "ai_complete" ? "View Results" : "Download Export"}
               </a>
             </div>
@@ -485,18 +528,18 @@ function EmailPreview({ event }: { event: typeof NOTIFICATION_EVENTS[0] }) {
       </div>
 
       {/* Email Footer */}
-      <div className="border-t border-gray-200 bg-gray-50 px-6 py-4">
-        <div className="text-center text-xs text-gray-500">
-          <p>CX Journey Studio</p>
-          <p className="mt-1">
-            <a href="#" className="text-indigo-600 hover:underline">Unsubscribe</a>
+      <div className="border-t border-zinc-200 bg-zinc-50 px-8 py-6">
+        <div className="text-center">
+          <ReneLogo className="h-6 w-auto text-zinc-400 mx-auto mb-3" />
+          <p className="text-xs text-zinc-500">
+            <a href="#" className="text-zinc-600 hover:text-zinc-900 transition-colors">Unsubscribe</a>
             {" · "}
-            <a href="#" className="text-indigo-600 hover:underline">Preferences</a>
+            <a href="#" className="text-zinc-600 hover:text-zinc-900 transition-colors">Preferences</a>
             {" · "}
-            <a href="#" className="text-indigo-600 hover:underline">Help</a>
+            <a href="#" className="text-zinc-600 hover:text-zinc-900 transition-colors">Help</a>
           </p>
-          <p className="mt-2 text-gray-400">
-            {"{{company_address}}"}
+          <p className="mt-3 text-[11px] text-zinc-400">
+            Renascence · Dubai, United Arab Emirates
           </p>
         </div>
       </div>

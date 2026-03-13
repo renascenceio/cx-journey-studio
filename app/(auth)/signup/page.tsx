@@ -60,26 +60,60 @@ export default function SignupPage() {
         return
       }
 
-      // If auto-confirmed (dev mode), set up the user's org and redirect
-      if (data.user && data.session) {
-        await supabase
-          .from("profiles")
-          .update({
-            name,
-            organization_id: "a0000000-0000-0000-0000-000000000001",
-            role,
-          })
-          .eq("id", data.user.id)
-
-        await supabase.from("team_members").insert({
-          team_id: "b0000000-0000-0000-0000-000000000001",
-          user_id: data.user.id,
-        })
-
-        router.push("/dashboard")
-        router.refresh()
-        return
-      }
+// If auto-confirmed (dev mode), create a personal workspace and redirect to onboarding
+  if (data.user && data.session) {
+  const workspaceName = orgName || `${name}'s Workspace`
+  const baseSlug = workspaceName.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "")
+  const uniqueSlug = `${baseSlug}-${Date.now().toString(36)}`
+  
+  // Create a personal workspace
+  const { data: newOrg } = await supabase
+  .from("organizations")
+  .insert({
+  name: workspaceName,
+  slug: uniqueSlug,
+  plan: "free",
+  })
+  .select("id")
+  .single()
+  
+  if (newOrg) {
+  // Update profile with the new organization
+  await supabase
+  .from("profiles")
+  .update({
+  name,
+  organization_id: newOrg.id,
+  role,
+  })
+  .eq("id", data.user.id)
+  
+  // Add user as admin of their workspace
+  await supabase.from("organization_members").insert({
+  organization_id: newOrg.id,
+  user_id: data.user.id,
+  role: "admin",
+  })
+  
+  // Create a default team
+  const { data: team } = await supabase.from("teams").insert({
+  name: "My Team",
+  description: `Default team for ${workspaceName}`,
+  organization_id: newOrg.id,
+  }).select("id").single()
+  
+  if (team) {
+  await supabase.from("team_members").insert({
+  team_id: team.id,
+  user_id: data.user.id,
+  })
+  }
+  }
+  
+  router.push("/onboarding")
+  router.refresh()
+  return
+  }
 
       // Email confirmation required
       setSuccess("Check your email to confirm your account, then you can sign in.")
