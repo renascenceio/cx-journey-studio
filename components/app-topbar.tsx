@@ -35,6 +35,8 @@ import {
   X,
   Menu,
   Building2,
+  Sparkles,
+  Zap,
 } from "lucide-react"
 import type { NotificationType, Workspace } from "@/lib/types"
 
@@ -102,6 +104,12 @@ export function AppTopbar() {
     refreshInterval: 30000, // Refresh every 30 seconds
   })
   const unreadCount = notifications.filter((n) => !n.read).length
+  
+  // Fetch AI credits
+  const { data: creditsData } = useSWR<{ used: number; total: number; purchased: number }>("/api/credits", fetcher, {
+    refreshInterval: 60000, // Refresh every minute
+  })
+  const creditsRemaining = creditsData ? (creditsData.total + creditsData.purchased - creditsData.used) : null
   
   // Mark notification as read and navigate
   async function handleNotificationClick(notif: Notification) {
@@ -302,6 +310,20 @@ export function AppTopbar() {
             <Moon className="absolute h-4 w-4 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
             <span className="sr-only">Toggle theme</span>
           </Button>
+
+          {/* AI Credits Display */}
+          {creditsRemaining !== null && (
+            <Link 
+              href="/settings?tab=billing" 
+              className="hidden sm:flex items-center gap-1.5 px-2.5 py-1.5 rounded-md bg-gradient-to-r from-violet-500/10 to-purple-500/10 hover:from-violet-500/20 hover:to-purple-500/20 border border-violet-500/20 transition-all group"
+            >
+              <Sparkles className="h-3.5 w-3.5 text-violet-500" />
+              <span className="text-xs font-medium text-foreground">
+                {creditsRemaining}
+              </span>
+              <span className="text-[10px] text-muted-foreground group-hover:text-foreground transition-colors">credits</span>
+            </Link>
+          )}
 
           {/* Notifications */}
           <DropdownMenu>
