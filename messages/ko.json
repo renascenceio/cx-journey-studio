@@ -189,6 +189,7 @@
   },
   "dashboard": {
     "title": "대시보드",
+    "overview": "개요",
     "welcome": "다시 오신 것을 환영합니다",
     "welcomeName": "다시 오신 것을 환영합니다, {name}님",
     "recentJourneys": "최근 여정",

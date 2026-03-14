@@ -196,6 +196,7 @@
   },
   "dashboard": {
     "title": "ダッシュボード",
+    "overview": "概要",
     "welcome": "おかえりなさい",
     "welcomeName": "おかえりなさい、{name}さん",
     "recentJourneys": "最近のジャーニー",

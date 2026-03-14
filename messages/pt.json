@@ -189,6 +189,7 @@
   },
   "dashboard": {
     "title": "Painel",
+    "overview": "Visão geral",
     "welcome": "Bem-vindo de volta",
     "welcomeName": "Bem-vindo de volta, {name}",
     "recentJourneys": "Jornadas recentes",

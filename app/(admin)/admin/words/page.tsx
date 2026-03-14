@@ -50,9 +50,15 @@ const AVAILABLE_LANGUAGES = [
   { code: "es", name: "Spanish" },
   { code: "fr", name: "French" },
   { code: "de", name: "German" },
+  { code: "it", name: "Italian" },
   { code: "pt", name: "Portuguese" },
   { code: "zh", name: "Chinese" },
   { code: "ja", name: "Japanese" },
+  { code: "ko", name: "Korean" },
+  { code: "ru", name: "Russian" },
+  { code: "hi", name: "Hindi" },
+  { code: "tr", name: "Turkish" },
+  { code: "vi", name: "Vietnamese" },
 ]
 
 const BLOG_CATEGORIES = [
@@ -107,9 +113,23 @@ export default function AdminWordsPage() {
   // Dialog states
   const [showCreateDialog, setShowCreateDialog] = useState(false)
   const [showAIGenerateDialog, setShowAIGenerateDialog] = useState(false)
+  const [showEditDialog, setShowEditDialog] = useState(false)
   const [selectedPost, setSelectedPost] = useState<BlogPost | null>(null)
   const [isGenerating, setIsGenerating] = useState(false)
   const [isSaving, setIsSaving] = useState(false)
+  
+  // Edit form state
+  const [editForm, setEditForm] = useState({
+    title: "",
+    excerpt: "",
+    content: "",
+    category: "",
+    tags: "",
+    author_name: "",
+    seo_title: "",
+    seo_description: "",
+    seo_keywords: ""
+  })
   
   // Form states
   const [newPost, setNewPost] = useState({
@@ -256,6 +276,56 @@ export default function AdminWordsPage() {
       mutate()
     } catch (error) {
       toast.error("Failed to delete post")
+    }
+  }
+
+  const openEditDialog = (post: BlogPost) => {
+    setSelectedPost(post)
+    setEditForm({
+      title: post.title,
+      excerpt: post.excerpt || "",
+      content: post.content || "",
+      category: post.category,
+      tags: post.tags?.join(", ") || "",
+      author_name: post.author_name,
+      seo_title: post.seo_title || "",
+      seo_description: post.seo_description || "",
+      seo_keywords: post.seo_keywords?.join(", ") || ""
+    })
+    setShowEditDialog(true)
+  }
+  
+  const handleSaveEdit = async () => {
+    if (!selectedPost) return
+    
+    setIsSaving(true)
+    try {
+      const res = await fetch(`/api/admin/words/${selectedPost.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          title: editForm.title,
+          excerpt: editForm.excerpt,
+          content: editForm.content,
+          category: editForm.category,
+          tags: editForm.tags.split(",").map(t => t.trim()).filter(Boolean),
+          author_name: editForm.author_name,
+          seo_title: editForm.seo_title,
+          seo_description: editForm.seo_description,
+          seo_keywords: editForm.seo_keywords.split(",").map(k => k.trim()).filter(Boolean)
+        })
+      })
+      
+      if (!res.ok) throw new Error("Failed to save")
+      
+      toast.success("Article updated")
+      setShowEditDialog(false)
+      setSelectedPost(null)
+      mutate()
+    } catch (error) {
+      toast.error("Failed to save article")
+    } finally {
+      setIsSaving(false)
     }
   }
 
@@ -622,173 +692,152 @@ export default function AdminWordsPage() {
               >
                 <List className="h-4 w-4" />
               </Button>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Content */}
-      {isLoading ? (
-        <div className="flex items-center justify-center py-12">
-          <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
-        </div>
-      ) : filteredPosts.length === 0 ? (
-        <Card>
-          <CardContent className="flex flex-col items-center justify-center py-12">
-            <PenLine className="h-12 w-12 text-muted-foreground/50 mb-4" />
-            <h3 className="text-lg font-medium mb-2">No articles yet</h3>
-            <p className="text-muted-foreground text-center mb-4">
-              Create your first blog post or generate one with AI
-            </p>
-            <div className="flex gap-2">
-              <Button variant="outline" onClick={() => setShowAIGenerateDialog(true)}>
-                <Sparkles className="h-4 w-4 mr-2" />
-                AI Generate
-              </Button>
-              <Button onClick={() => setShowCreateDialog(true)}>
-                <Plus className="h-4 w-4 mr-2" />
-                New Article
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
-      ) : viewMode === "grid" ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {filteredPosts.map(post => (
-            <Card key={post.id} className="group hover:shadow-md transition-shadow">
-              {post.featured_image && (
-                <div className="aspect-video bg-muted relative overflow-hidden rounded-t-lg">
-                  <img 
-                    src={post.featured_image} 
-                    alt={post.title}
-                    className="w-full h-full object-cover"
-                  />
-                </div>
-              )}
-              <CardHeader className="pb-2">
-                <div className="flex items-start justify-between gap-2">
-                  <div className="flex-1 min-w-0">
-                    <CardTitle className="text-base line-clamp-2">{post.title}</CardTitle>
-                    <CardDescription className="line-clamp-2 mt-1">{post.excerpt}</CardDescription>
-                  </div>
-                  <Badge variant={post.status === "published" ? "default" : "secondary"}>
-                    {post.status}
-                  </Badge>
-                </div>
-              </CardHeader>
-              <CardContent className="pb-2">
-                <div className="flex flex-wrap gap-2 mb-3">
-                  <Badge variant="outline">{post.category}</Badge>
-                  <Badge variant="outline" className="gap-1">
-                    <Globe className="h-3 w-3" />
-                    {AVAILABLE_LANGUAGES.find(l => l.code === post.language)?.name || post.language}
-                  </Badge>
-                  {post.is_ai_generated && (
-                    <Badge variant="outline" className="gap-1 text-violet-600 border-violet-200">
-                      <Sparkles className="h-3 w-3" />
-                      AI
-                    </Badge>
-                  )}
-                </div>
-                <div className="flex items-center gap-4 text-xs text-muted-foreground">
-                  <span className="flex items-center gap-1">
-                    <User className="h-3 w-3" />
-                    {post.author_name}
-                  </span>
-                  <span className="flex items-center gap-1">
-                    <Eye className="h-3 w-3" />
-                    {post.views}
-                  </span>
-                  <span className="flex items-center gap-1">
-                    <Clock className="h-3 w-3" />
-                    {post.reading_time || 5} min
-                  </span>
-                </div>
-              </CardContent>
-              <CardFooter className="pt-2">
-                <div className="flex items-center gap-2 w-full">
-                  <Button 
-                    variant="outline" 
-                    size="sm" 
-                    className="flex-1"
-                    onClick={() => setSelectedPost(post)}
-                  >
-                    <Edit className="h-4 w-4 mr-1" />
-                    Edit
-                  </Button>
-                  <Button
-                    variant={post.status === "published" ? "secondary" : "default"}
-                    size="sm"
-                    className="flex-1"
-                    onClick={() => handlePublish(post.id, post.status !== "published")}
-                  >
-                    {post.status === "published" ? "Unpublish" : "Publish"}
-                  </Button>
-                  <Button 
-                    variant="ghost" 
-                    size="sm" 
-                    className="text-destructive"
-                    onClick={() => handleDeletePost(post.id)}
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
-                </div>
-              </CardFooter>
-            </Card>
-          ))}
-        </div>
-      ) : (
-        <Card>
-          <CardContent className="p-0">
-            <div className="divide-y">
-              {filteredPosts.map(post => (
-                <div key={post.id} className="flex items-center gap-4 p-4 hover:bg-muted/50">
-                  {post.featured_image && (
-                    <div className="w-20 h-14 bg-muted rounded overflow-hidden flex-shrink-0">
-                      <img 
-                        src={post.featured_image} 
-                        alt={post.title}
-                        className="w-full h-full object-cover"
-                      />
-                    </div>
-                  )}
-                  <div className="flex-1 min-w-0">
-                    <h3 className="font-medium truncate">{post.title}</h3>
-                    <div className="flex items-center gap-2 mt-1">
-                      <Badge variant="outline" className="text-xs">{post.category}</Badge>
-                      <span className="text-xs text-muted-foreground">{post.author_name}</span>
-                      <span className="text-xs text-muted-foreground">{post.views} views</span>
-                    </div>
-                  </div>
-                  <Badge variant={post.status === "published" ? "default" : "secondary"}>
-                    {post.status}
-                  </Badge>
-                  <div className="flex items-center gap-1">
-                    <Button variant="ghost" size="sm" onClick={() => setSelectedPost(post)}>
-                      <Edit className="h-4 w-4" />
-                    </Button>
-                    <Button 
-                      variant="ghost" 
-                      size="sm"
-                      onClick={() => handlePublish(post.id, post.status !== "published")}
-                    >
-                      {post.status === "published" ? <XCircle className="h-4 w-4" /> : <CheckCircle2 className="h-4 w-4" />}
-                    </Button>
-                    <Button 
-                      variant="ghost" 
-                      size="sm" 
-                      className="text-destructive"
-                      onClick={() => handleDeletePost(post.id)}
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
-                  </div>
-                </div>
-              ))}
+              </div>
             </div>
           </CardContent>
         </Card>
       )}
+
+      {/* Edit Dialog */}
+      <Dialog open={showEditDialog} onOpenChange={setShowEditDialog}>
+        <DialogContent className="sm:max-w-4xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Edit Article</DialogTitle>
+            <DialogDescription>
+              Update your article content, SEO settings, and metadata
+            </DialogDescription>
+          </DialogHeader>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 py-4">
+            {/* Left Column - Content */}
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="edit-title">Title</Label>
+                <Input
+                  id="edit-title"
+                  value={editForm.title}
+                  onChange={(e) => setEditForm(f => ({ ...f, title: e.target.value }))}
+                  placeholder="Article title"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="edit-excerpt">Excerpt</Label>
+                <Textarea
+                  id="edit-excerpt"
+                  value={editForm.excerpt}
+                  onChange={(e) => setEditForm(f => ({ ...f, excerpt: e.target.value }))}
+                  placeholder="Brief summary of the article"
+                  rows={2}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="edit-content">Content (Markdown)</Label>
+                <Textarea
+                  id="edit-content"
+                  value={editForm.content}
+                  onChange={(e) => setEditForm(f => ({ ...f, content: e.target.value }))}
+                  placeholder="Full article content in Markdown format"
+                  rows={12}
+                  className="font-mono text-sm"
+                />
+              </div>
+            </div>
+            
+            {/* Right Column - Metadata & SEO */}
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="edit-category">Category</Label>
+                <Select 
+                  value={editForm.category} 
+                  onValueChange={(v) => setEditForm(f => ({ ...f, category: v }))}
+                >
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {BLOG_CATEGORIES.map(cat => (
+                      <SelectItem key={cat} value={cat}>{cat}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="edit-author">Author</Label>
+                <Input
+                  id="edit-author"
+                  value={editForm.author_name}
+                  onChange={(e) => setEditForm(f => ({ ...f, author_name: e.target.value }))}
+                  placeholder="Author name"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="edit-tags">Tags (comma-separated)</Label>
+                <Input
+                  id="edit-tags"
+                  value={editForm.tags}
+                  onChange={(e) => setEditForm(f => ({ ...f, tags: e.target.value }))}
+                  placeholder="cx, journey-mapping, best-practices"
+                />
+              </div>
+              
+              <Separator />
+              
+              <div className="space-y-2">
+                <Label className="flex items-center gap-2">
+                  <LinkIcon className="h-4 w-4" />
+                  SEO Settings
+                </Label>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="edit-seo-title">SEO Title</Label>
+                <Input
+                  id="edit-seo-title"
+                  value={editForm.seo_title}
+                  onChange={(e) => setEditForm(f => ({ ...f, seo_title: e.target.value }))}
+                  placeholder="SEO optimized title (50-60 chars)"
+                  maxLength={60}
+                />
+                <p className="text-xs text-muted-foreground">{editForm.seo_title.length}/60 characters</p>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="edit-seo-desc">Meta Description</Label>
+                <Textarea
+                  id="edit-seo-desc"
+                  value={editForm.seo_description}
+                  onChange={(e) => setEditForm(f => ({ ...f, seo_description: e.target.value }))}
+                  placeholder="Meta description for search results (150-160 chars)"
+                  rows={2}
+                  maxLength={160}
+                />
+                <p className="text-xs text-muted-foreground">{editForm.seo_description.length}/160 characters</p>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="edit-seo-keywords">SEO Keywords</Label>
+                <Input
+                  id="edit-seo-keywords"
+                  value={editForm.seo_keywords}
+                  onChange={(e) => setEditForm(f => ({ ...f, seo_keywords: e.target.value }))}
+                  placeholder="keyword1, keyword2, keyword3"
+                />
+              </div>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowEditDialog(false)}>
+              Cancel
+            </Button>
+            <Button onClick={handleSaveEdit} disabled={isSaving || !editForm.title.trim()}>
+              {isSaving ? (
+                <>
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  Saving...
+                </>
+              ) : (
+                "Save Changes"
+              )}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }

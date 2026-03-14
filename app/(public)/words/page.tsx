@@ -115,47 +115,45 @@ export default async function WordsPage({
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
       <div className="min-h-screen bg-background">
-        {/* Hero Section */}
-        <section className="relative py-20 md:py-28 bg-gradient-to-b from-primary/5 to-background">
-          <div className="container mx-auto px-4">
-            <div className="max-w-3xl mx-auto text-center">
-              <h1 className="text-4xl md:text-5xl font-bold tracking-tight mb-4">
-                Words
-              </h1>
-              <p className="text-xl text-muted-foreground">
-                Insights, trends, and best practices in customer experience and journey mapping
-              </p>
+        {/* Compact Header */}
+        <section className="border-b bg-muted/30">
+          <div className="container mx-auto px-4 py-8 md:py-12">
+            <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+              <div>
+                <h1 className="text-2xl md:text-3xl font-bold tracking-tight">
+                  Words
+                </h1>
+                <p className="text-muted-foreground mt-1">
+                  Insights and best practices in customer experience
+                </p>
+              </div>
+              
+              {/* Categories inline */}
+              {categories.length > 0 && (
+                <div className="flex flex-wrap items-center gap-2">
+                  <Link href="/words">
+                    <Badge 
+                      variant={!selectedCategory ? "default" : "outline"}
+                      className="cursor-pointer"
+                    >
+                      All
+                    </Badge>
+                  </Link>
+                  {categories.map(cat => (
+                    <Link key={cat} href={`/words?category=${encodeURIComponent(cat)}`}>
+                      <Badge 
+                        variant={selectedCategory === cat ? "default" : "outline"}
+                        className="cursor-pointer"
+                      >
+                        {cat}
+                      </Badge>
+                    </Link>
+                  ))}
+                </div>
+              )}
             </div>
           </div>
         </section>
-
-        {/* Categories */}
-        {categories.length > 0 && (
-          <section className="border-b">
-            <div className="container mx-auto px-4 py-4">
-              <div className="flex flex-wrap items-center gap-2">
-                <Link href="/words">
-                  <Badge 
-                    variant={!selectedCategory ? "default" : "outline"}
-                    className="cursor-pointer"
-                  >
-                    All
-                  </Badge>
-                </Link>
-                {categories.map(cat => (
-                  <Link key={cat} href={`/words?category=${encodeURIComponent(cat)}`}>
-                    <Badge 
-                      variant={selectedCategory === cat ? "default" : "outline"}
-                      className="cursor-pointer"
-                    >
-                      {cat}
-                    </Badge>
-                  </Link>
-                ))}
-              </div>
-            </div>
-          </section>
-        )}
 
         {/* Posts Grid */}
         <section className="py-12 md:py-16">
