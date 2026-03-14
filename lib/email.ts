@@ -29,8 +29,12 @@ export async function sendEmail(options: EmailOptions): Promise<{ success: boole
   }
 
   try {
+    // Use Resend's testing domain if custom domain not verified
+    // Once rene.cx domain is verified in Resend, switch to: "René Studio <noreply@rene.cx>"
+    const fromAddress = options.from || "René Studio <onboarding@resend.dev>"
+    
     const { data, error } = await resend.emails.send({
-      from: options.from || "René Studio <noreply@rene.cx>",
+      from: fromAddress,
       to: Array.isArray(options.to) ? options.to : [options.to],
       subject: options.subject,
       html: options.html,

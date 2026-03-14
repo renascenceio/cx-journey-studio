@@ -2,27 +2,34 @@ import { createClient } from "@/lib/supabase/server"
 import { NextResponse } from "next/server"
 
 export async function GET() {
-  const supabase = await createClient()
-  
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
-  }
-
-  const { data, error } = await supabase
-    .from("cx_trends")
-    .select("*")
-    .order("created_at", { ascending: false })
-
-  if (error) {
-    // If table doesn't exist yet, return empty array
-    if (error.code === "42P01") {
+  try {
+    const supabase = await createClient()
+    
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) {
+      // Return empty array instead of error to prevent UI crash
       return NextResponse.json([])
     }
-    return NextResponse.json({ error: error.message }, { status: 500 })
-  }
 
-  return NextResponse.json(data || [])
+    const { data, error } = await supabase
+      .from("cx_trends")
+      .select("*")
+      .order("created_at", { ascending: false })
+
+    if (error) {
+      // If table doesn't exist yet, return empty array
+      if (error.code === "42P01" || error.message?.includes("does not exist")) {
+        return NextResponse.json([])
+      }
+      console.error("[Trends API] Error:", error)
+      return NextResponse.json([])
+    }
+
+    return NextResponse.json(data || [])
+  } catch (err) {
+    console.error("[Trends API] Unexpected error:", err)
+    return NextResponse.json([])
+  }
 }
 
 export async function POST(request: Request) {

@@ -32,6 +32,7 @@ import {
   FolderOpen,
   Building2,
   FolderKanban,
+  PenLine,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Toaster } from "@/components/ui/sonner"
@@ -112,6 +113,7 @@ const adminNavSections: NavSectionConfig[] = [
       { label: "Solutions", href: "/admin/solutions", icon: Lightbulb, segment: "solutions" },
       { label: "Trends", href: "/admin/trends", icon: BarChart3, segment: "trends" },
       { label: "Crowdsource", href: "/admin/crowdsource", icon: Users, segment: "crowdsource" },
+      { label: "Words", href: "/admin/words", icon: PenLine, segment: "words" },
       { label: "Legal", href: "/admin/legal", icon: FileText, segment: "legal" },
       { label: "Lineage", href: "/admin/lineage", icon: Fingerprint, segment: "lineage" },
     ],

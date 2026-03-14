@@ -8,6 +8,8 @@ import { Badge } from "@/components/ui/badge"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Progress } from "@/components/ui/progress"
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog"
+import { Separator } from "@/components/ui/separator"
 import { 
   Users, 
   Search, 
@@ -77,6 +79,7 @@ export default function CrowdsourcePage() {
   const [filterCategory, setFilterCategory] = useState("All Categories")
   const [sortBy, setSortBy] = useState<"frequency" | "recent" | "sentiment">("frequency")
   const [refreshing, setRefreshing] = useState(false)
+  const [selectedElement, setSelectedElement] = useState<CrowdsourceElement | null>(null)
 
   // Fetch crowdsource data
   const { data, isLoading, mutate } = useSWR<{ 
@@ -395,7 +398,12 @@ export default function CrowdsourcePage() {
                     <Badge variant="secondary" className="text-[10px]">
                       {element.category}
                     </Badge>
-                    <Button variant="ghost" size="sm" className="h-7 text-xs">
+<Button 
+                      variant="ghost" 
+                      size="sm" 
+                      className="h-7 text-xs"
+                      onClick={() => setSelectedElement(element)}
+                    >
                       View Details
                       <ArrowRight className="ml-1 h-3 w-3" />
                     </Button>
@@ -406,6 +414,106 @@ export default function CrowdsourcePage() {
           })}
         </div>
       )}
+
+      {/* Element Detail Dialog */}
+      <Dialog open={!!selectedElement} onOpenChange={(open) => !open && setSelectedElement(null)}>
+        <DialogContent className="sm:max-w-2xl">
+          {selectedElement && (() => {
+            const typeConfig = ELEMENT_TYPES.find(t => t.value === selectedElement.type) || ELEMENT_TYPES[0]
+            const Icon = typeConfig.icon
+            return (
+              <>
+                <DialogHeader>
+                  <div className="flex items-center gap-3">
+                    <div className={cn("p-2 rounded-lg", typeConfig.color, "bg-opacity-20")}>
+                      <Icon className="h-5 w-5 text-white" />
+                    </div>
+                    <div>
+                      <DialogTitle>{selectedElement.name}</DialogTitle>
+                      <DialogDescription>{typeConfig.label.slice(0, -1)} in {selectedElement.category}</DialogDescription>
+                    </div>
+                  </div>
+                </DialogHeader>
+                
+                <div className="space-y-6 py-4">
+                  <div>
+                    <h4 className="text-sm font-medium mb-2">Description</h4>
+                    <p className="text-sm text-muted-foreground">{selectedElement.description || "No description available."}</p>
+                  </div>
+                  
+                  <Separator />
+                  
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                    <div className="space-y-1">
+                      <p className="text-xs text-muted-foreground">Frequency</p>
+                      <p className="text-lg font-semibold">{selectedElement.frequency}</p>
+                    </div>
+                    <div className="space-y-1">
+                      <p className="text-xs text-muted-foreground">Journeys Used</p>
+                      <p className="text-lg font-semibold">{selectedElement.journeys_used}</p>
+                    </div>
+                    <div className="space-y-1">
+                      <p className="text-xs text-muted-foreground">Organizations</p>
+                      <p className="text-lg font-semibold">{selectedElement.organizations_used}</p>
+                    </div>
+                    {selectedElement.sentiment_score !== undefined && (
+                      <div className="space-y-1">
+                        <p className="text-xs text-muted-foreground">Sentiment</p>
+                        <div className="flex items-center gap-1">
+                          {selectedElement.sentiment_score > 0 ? (
+                            <ThumbsUp className="h-4 w-4 text-emerald-500" />
+                          ) : (
+                            <ThumbsDown className="h-4 w-4 text-red-500" />
+                          )}
+                          <span className="text-lg font-semibold">
+                            {selectedElement.sentiment_score > 0 ? "Positive" : "Negative"}
+                          </span>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                  
+                  <Separator />
+                  
+                  {selectedElement.geographies && selectedElement.geographies.length > 0 && (
+                    <div>
+                      <h4 className="text-sm font-medium mb-2">Geographic Distribution</h4>
+                      <div className="flex flex-wrap gap-2">
+                        {selectedElement.geographies.map((geo: string) => (
+                          <Badge key={geo} variant="secondary" className="gap-1">
+                            <MapPin className="h-3 w-3" />
+                            {geo}
+                          </Badge>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                  
+                  {selectedElement.example_context && (
+                    <div>
+                      <h4 className="text-sm font-medium mb-2">Example Usage</h4>
+                      <div className="rounded-lg bg-muted/50 p-4">
+                        <p className="text-sm text-muted-foreground">{selectedElement.example_context}</p>
+                      </div>
+                    </div>
+                  )}
+                  
+                  <div className="flex items-center gap-6 text-xs text-muted-foreground">
+                    <div className="flex items-center gap-1.5">
+                      <Clock className="h-3.5 w-3.5" />
+                      First seen: {new Date(selectedElement.first_seen).toLocaleDateString()}
+                    </div>
+                    <div className="flex items-center gap-1.5">
+                      <Clock className="h-3.5 w-3.5" />
+                      Last seen: {new Date(selectedElement.last_seen).toLocaleDateString()}
+                    </div>
+                  </div>
+                </div>
+              </>
+            )
+          })()}
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }
