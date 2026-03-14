@@ -15,6 +15,13 @@ export async function POST(request: Request) {
     const body = await request.json()
     const { prompt, languages = ["en"], category = "Customer Experience" } = body
 
+    // Fetch the Words generation prompt from database
+    const { data: aiPrompt } = await supabase
+      .from("ai_prompts")
+      .select("system_prompt")
+      .eq("category", "words_generation")
+      .single()
+
     const createdPosts: any[] = []
 
     for (const lang of languages) {
@@ -35,15 +42,14 @@ export async function POST(request: Request) {
         vi: "Vietnamese"
       }[lang] || "English"
 
-      const systemPrompt = `You are an expert content writer specializing in customer experience, journey mapping, and CX strategy. Write a comprehensive, SEO-optimized blog article in ${languageName}.
+      // Use database prompt if available, with language-specific additions
+      const basePrompt = aiPrompt?.system_prompt || `You are an expert content writer specializing in customer experience, journey mapping, and CX strategy.`
+      
+      const systemPrompt = `${basePrompt}
 
-Your article should:
-- Be 800-1200 words
-- Include practical insights and actionable advice
-- Use headers (##) to structure the content
-- Include relevant examples
-- Be engaging and professional
-- Focus on the category: ${category}
+IMPORTANT: Write this article in ${languageName}.
+
+Article category: ${category}
 
 Respond in JSON format with these fields:
 {

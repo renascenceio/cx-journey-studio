@@ -21,7 +21,7 @@ export async function sendEmail(options: EmailOptions): Promise<{ success: boole
       console.log("[Email] Would send email:", {
         to: options.to,
         subject: options.subject,
-        from: options.from || "René Studio <noreply@rene.cx>",
+        from: options.from || "René Studio <noreply@updates.rene.cx>",
       })
       return { success: true, id: "dev-mock-id" }
     }
@@ -29,9 +29,8 @@ export async function sendEmail(options: EmailOptions): Promise<{ success: boole
   }
 
   try {
-    // Use Resend's testing domain if custom domain not verified
-    // Once rene.cx domain is verified in Resend, switch to: "René Studio <noreply@rene.cx>"
-    const fromAddress = options.from || "René Studio <onboarding@resend.dev>"
+    // Using verified domain updates.rene.cx
+    const fromAddress = options.from || "René Studio <noreply@updates.rene.cx>"
     
     const { data, error } = await resend.emails.send({
       from: fromAddress,

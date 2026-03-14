@@ -81,7 +81,6 @@ const mainNavItems = [
   { key: "templates", href: "/templates", icon: LayoutTemplate },
   { key: "solutions", href: "/solutions", icon: Lightbulb },
   { key: "roadmap", href: "/roadmap", icon: Milestone },
-  { key: "analytics", href: "/analytics", icon: BarChart3 },
 ]
 
 

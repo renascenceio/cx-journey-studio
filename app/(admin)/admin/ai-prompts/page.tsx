@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Badge } from "@/components/ui/badge"
-import { Sparkles, Save, RotateCcw, BookOpen, Users, Lightbulb, ChevronDown, ChevronUp, Map, UserPlus } from "lucide-react"
+import { Sparkles, Save, RotateCcw, BookOpen, Users, Lightbulb, ChevronDown, ChevronUp, Map, UserPlus, PenLine } from "lucide-react"
 import { toast } from "sonner"
 import useSWR from "swr"
 import { cn } from "@/lib/utils"
@@ -31,6 +31,7 @@ const categoryConfig: Record<string, { icon: typeof Sparkles; color: string; lab
   journey_solutions: { icon: BookOpen, color: "text-blue-500", label: "Journey Solutions" },
   archetype_solutions: { icon: Users, color: "text-violet-500", label: "Archetype Solutions" },
   general_solutions: { icon: Lightbulb, color: "text-amber-500", label: "General Solutions" },
+  words_generation: { icon: PenLine, color: "text-rose-500", label: "Words / Blog Generation" },
 }
 
 export default function AIPromptsPage() {

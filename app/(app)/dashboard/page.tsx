@@ -11,7 +11,14 @@ export const metadata: Metadata = {
   title: "Dashboard",
 }
 
-export default async function DashboardPage() {
+export default async function DashboardPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ tab?: string }>
+}) {
+  const params = await searchParams
+  const activeTab = params.tab || "overview"
+  
   const supabase = await createClient()
   const {
     data: { user: authUser },
@@ -41,12 +48,50 @@ export default async function DashboardPage() {
     )
     .slice(0, 3)
 
+  // Prepare analytics data
+  const journeyPerformance = allJourneys
+    .filter(j => j.type !== "template")
+    .slice(0, 10)
+    .map(journey => {
+      const touchPoints = journey.stages.flatMap(s => 
+        s.steps.flatMap(st => st.touchPoints)
+      )
+      const avgScore = touchPoints.length > 0 
+        ? touchPoints.reduce((sum, tp) => sum + tp.emotionalScore, 0) / touchPoints.length 
+        : 0
+      const painPoints = journey.stages.flatMap(s => 
+        s.steps.flatMap(st => st.touchPoints.flatMap(tp => tp.painPoints))
+      ).length
+      
+      return {
+        id: journey.id,
+        name: journey.title,
+        score: avgScore,
+        touchPoints: touchPoints.length,
+        painPoints,
+        status: journey.status,
+      }
+    })
+
+  const totalTouchPoints = allJourneys.reduce((sum, j) => 
+    sum + j.stages.flatMap(s => s.steps.flatMap(st => st.touchPoints)).length, 0
+  )
+  const totalPainPoints = allJourneys.reduce((sum, j) => 
+    sum + j.stages.flatMap(s => s.steps.flatMap(st => st.touchPoints.flatMap(tp => tp.painPoints))).length, 0
+  )
+
   return (
     <DashboardClient
       currentUserName={currentUserName}
       recentJourneys={recentJourneys}
       activityLog={activityLog}
       dashboardStats={dashboardStats}
+      activeTab={activeTab}
+      analyticsData={{
+        journeyPerformance,
+        totalTouchPoints,
+        totalPainPoints,
+      }}
     />
   )
 }
