@@ -24,9 +24,15 @@ export async function POST(request: Request) {
         es: "Spanish",
         fr: "French",
         de: "German",
+        it: "Italian",
         pt: "Portuguese",
         zh: "Chinese",
-        ja: "Japanese"
+        ja: "Japanese",
+        ko: "Korean",
+        ru: "Russian",
+        hi: "Hindi",
+        tr: "Turkish",
+        vi: "Vietnamese"
       }[lang] || "English"
 
       const systemPrompt = `You are an expert content writer specializing in customer experience, journey mapping, and CX strategy. Write a comprehensive, SEO-optimized blog article in ${languageName}.

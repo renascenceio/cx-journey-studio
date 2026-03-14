@@ -1,5 +1,5 @@
 // Supported locales configuration
-export const locales = ['en', 'zh', 'es', 'hi', 'pt', 'ru', 'fr', 'ar', 'tr', 'vi', 'ja', 'ko'] as const
+export const locales = ['en', 'zh', 'es', 'hi', 'pt', 'ru', 'fr', 'ar', 'tr', 'vi', 'ja', 'ko', 'de', 'it'] as const
 export type Locale = (typeof locales)[number]
 
 export const defaultLocale: Locale = 'en'
@@ -25,6 +25,8 @@ export const languageNames: Record<Locale, string> = {
   vi: 'Tiếng Việt',
   ja: '日本語',
   ko: '한국어',
+  de: 'Deutsch',
+  it: 'Italiano',
 }
 
 // Language flags/icons (using country codes for common flag emoji mappings)
@@ -41,6 +43,8 @@ export const languageFlags: Record<Locale, string> = {
   vi: '🇻🇳',
   ja: '🇯🇵',
   ko: '🇰🇷',
+  de: '🇩🇪',
+  it: '🇮🇹',
 }
 
 // Cookie name for storing locale preference
