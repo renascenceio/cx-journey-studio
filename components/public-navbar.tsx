@@ -37,6 +37,7 @@ export function PublicNavbar() {
     { href: "/home#features", label: t("publicNav.features") },
     { href: "/pricing", label: t("publicNav.pricing") },
     { href: "/home#how-it-works", label: t("publicNav.howItWorks") },
+    { href: "/words", label: "Words" },
   ]
   
   // Use "light" as server-side default, then switch to resolved theme after mount
