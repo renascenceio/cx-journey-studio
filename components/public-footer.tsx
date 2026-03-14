@@ -19,7 +19,7 @@ const footerSections = [
     title: "Resources",
     links: [
       { label: "Documentation", href: "#" },
-      { label: "Blog", href: "#" },
+      { label: "Words", href: "/words" },
       { label: "Guides", href: "#" },
       { label: "API Reference", href: "#" },
     ],
