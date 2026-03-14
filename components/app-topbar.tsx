@@ -311,20 +311,6 @@ export function AppTopbar() {
             <span className="sr-only">Toggle theme</span>
           </Button>
 
-          {/* AI Credits Display */}
-          {creditsRemaining !== null && (
-            <Link 
-              href="/settings?tab=billing" 
-              className="hidden sm:flex items-center gap-1.5 px-2.5 py-1.5 rounded-md bg-gradient-to-r from-violet-500/10 to-purple-500/10 hover:from-violet-500/20 hover:to-purple-500/20 border border-violet-500/20 transition-all group"
-            >
-              <Sparkles className="h-3.5 w-3.5 text-violet-500" />
-              <span className="text-xs font-medium text-foreground">
-                {creditsRemaining}
-              </span>
-              <span className="text-[10px] text-muted-foreground group-hover:text-foreground transition-colors">credits</span>
-            </Link>
-          )}
-
           {/* Notifications */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -431,6 +417,23 @@ export function AppTopbar() {
                   <span className="text-xs text-muted-foreground">{displayEmail}</span>
                 </div>
               </DropdownMenuLabel>
+              {/* AI Credits */}
+              {creditsRemaining !== null && (
+                <DropdownMenuItem asChild>
+                  <Link 
+                    href="/settings?tab=billing" 
+                    className="flex items-center justify-between w-full"
+                  >
+                    <div className="flex items-center">
+                      <Sparkles className="mr-2 h-4 w-4 text-violet-500" />
+                      <span>AI Credits</span>
+                    </div>
+                    <Badge variant="secondary" className="bg-violet-500/10 text-violet-600 border-violet-200">
+                      {creditsRemaining}
+                    </Badge>
+                  </Link>
+                </DropdownMenuItem>
+              )}
               <DropdownMenuSeparator />
               <DropdownMenuItem asChild>
                 <Link href="/settings"><Settings className="mr-2 h-4 w-4" />{t("nav.settings")}</Link>

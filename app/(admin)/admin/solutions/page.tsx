@@ -22,8 +22,9 @@ import {
 import { 
   Plus, Pencil, Trash2, Search, Lightbulb, ExternalLink, MoreHorizontal,
   LayoutGrid, List, TableIcon, Download, Filter, SortAsc, SortDesc,
-  TrendingUp, Users as UsersIcon, Star, Globe
+  TrendingUp, Users as UsersIcon, Star, Globe, Sparkles, Loader2
 } from "lucide-react"
+import { INDUSTRIES } from "@/lib/industries"
 import useSWR, { mutate } from "swr"
 import { toast } from "sonner"
 
@@ -88,6 +89,12 @@ export default function AdminSolutionsPage() {
   const [bulkEditOpen, setBulkEditOpen] = useState(false)
   const [bulkCategory, setBulkCategory] = useState("")
   const [bulkRelevance, setBulkRelevance] = useState("")
+  
+  // AI Generate dialog
+  const [aiDialogOpen, setAiDialogOpen] = useState(false)
+  const [aiDescription, setAiDescription] = useState("")
+  const [aiIndustry, setAiIndustry] = useState("any")
+  const [aiGenerating, setAiGenerating] = useState(false)
 
   // Filter and sort
   const filtered = useMemo(() => {
@@ -202,12 +209,20 @@ export default function AdminSolutionsPage() {
   async function handleBulkDelete() {
     if (selectedIds.size === 0) return
     if (!confirm(`Delete ${selectedIds.size} selected solution(s)?`)) return
-    for (const id of selectedIds) {
-      await fetch(`/api/admin/solutions/${id}`, { method: "DELETE" })
+    try {
+      // Use batch delete endpoint for reliability
+      const res = await fetch("/api/admin/solutions/batch-delete", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ids: Array.from(selectedIds) })
+      })
+      if (!res.ok) throw new Error("Batch delete failed")
+      mutate("/api/admin/solutions")
+      setSelectedIds(new Set())
+      toast.success(`${selectedIds.size} solutions deleted`)
+    } catch (error) {
+      toast.error("Failed to delete solutions")
     }
-    mutate("/api/admin/solutions")
-    setSelectedIds(new Set())
-    toast.success(`${selectedIds.size} solutions deleted`)
   }
 
   async function handleBulkEdit() {
@@ -226,6 +241,35 @@ export default function AdminSolutionsPage() {
     setBulkRelevance("")
     setSelectedIds(new Set())
     toast.success(`${selectedIds.size} solutions updated`)
+  }
+
+  async function handleAIGenerate() {
+    if (!aiDescription.trim()) {
+      toast.error("Please enter a description")
+      return
+    }
+    setAiGenerating(true)
+    try {
+      const res = await fetch("/api/admin/solutions/generate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          description: aiDescription,
+          industry: aiIndustry === "any" ? null : aiIndustry
+        })
+      })
+      if (!res.ok) throw new Error("Generation failed")
+      const result = await res.json()
+      mutate("/api/admin/solutions")
+      setAiDialogOpen(false)
+      setAiDescription("")
+      setAiIndustry("any")
+      toast.success(`Generated solution: ${result.title || "New solution"}`)
+    } catch (error) {
+      toast.error("Failed to generate solution")
+    } finally {
+      setAiGenerating(false)
+    }
   }
 
   function exportSolutions() {
@@ -266,11 +310,15 @@ export default function AdminSolutionsPage() {
             <Download className="h-4 w-4 mr-1.5" />
             Export
           </Button>
-          <Button onClick={openCreate} className="gap-1.5">
-            <Plus className="h-4 w-4" />
-            Add Solution
-          </Button>
-        </div>
+<Button variant="outline" onClick={() => setAiDialogOpen(true)} className="gap-1.5">
+                <Sparkles className="h-4 w-4" />
+                AI Generate
+              </Button>
+              <Button onClick={openCreate} className="gap-1.5">
+                <Plus className="h-4 w-4" />
+                Add Solution
+              </Button>
+            </div>
       </div>
 
       {/* Stats Cards */}
@@ -683,6 +731,67 @@ export default function AdminSolutionsPage() {
           <DialogFooter>
             <Button variant="outline" onClick={() => setBulkEditOpen(false)}>Cancel</Button>
             <Button onClick={handleBulkEdit}>Update {selectedIds.size} Solutions</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* AI Generate Dialog */}
+      <Dialog open={aiDialogOpen} onOpenChange={setAiDialogOpen}>
+        <DialogContent className="sm:max-w-lg">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Sparkles className="h-5 w-5 text-violet-500" />
+              AI Generate Solution
+            </DialogTitle>
+            <DialogDescription>
+              Describe the solution you need and AI will create a catalog entry for you.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="flex flex-col gap-4 py-2">
+            <div className="flex flex-col gap-2">
+              <Label>Description / Topic</Label>
+              <Textarea
+                placeholder="e.g., A tool that helps analyze customer feedback sentiment in real-time..."
+                value={aiDescription}
+                onChange={(e) => setAiDescription(e.target.value)}
+                rows={3}
+              />
+            </div>
+            <div className="flex flex-col gap-2">
+              <Label>Industry Focus</Label>
+              <Select value={aiIndustry} onValueChange={setAiIndustry}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select industry" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="any">Any Industry</SelectItem>
+                  {INDUSTRIES.map(ind => (
+                    <SelectItem key={ind.value} value={ind.value}>
+                      {ind.value.replace(/_/g, " ").replace(/\b\w/g, l => l.toUpperCase())}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <p className="text-xs text-muted-foreground">
+                Select an industry to tailor the solution, or leave as "Any" for general solutions.
+              </p>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setAiDialogOpen(false)}>Cancel</Button>
+            <Button onClick={handleAIGenerate} disabled={!aiDescription.trim() || aiGenerating} className="gap-1.5">
+              {aiGenerating ? (
+                <>
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  Generating...
+                </>
+              ) : (
+                <>
+                  <Sparkles className="h-4 w-4" />
+                  Generate
+                </>
+              )}
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
