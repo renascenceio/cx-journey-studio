@@ -4,8 +4,6 @@ import Link from "next/link"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card"
 import { Clock, User, Eye, Calendar, ArrowRight } from "lucide-react"
-import { PublicNavbar } from "@/components/public-navbar"
-import { PublicFooter } from "@/components/public-footer"
 
 export const metadata: Metadata = {
   title: "Words - CX Journey Studio Blog",
@@ -116,8 +114,7 @@ export default async function WordsPage({
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
-      <PublicNavbar />
-      <main className="min-h-screen bg-background">
+      <div className="min-h-screen bg-background">
         {/* Hero Section */}
         <section className="relative py-20 md:py-28 bg-gradient-to-b from-primary/5 to-background">
           <div className="container mx-auto px-4">
@@ -216,8 +213,7 @@ export default async function WordsPage({
             )}
           </div>
         </section>
-      </main>
-      <PublicFooter />
+      </div>
     </>
   )
 }

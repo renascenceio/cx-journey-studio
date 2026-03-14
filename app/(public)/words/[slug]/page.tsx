@@ -6,8 +6,6 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Separator } from "@/components/ui/separator"
 import { Clock, User, Calendar, ArrowLeft, Share2, Globe } from "lucide-react"
-import { PublicNavbar } from "@/components/public-navbar"
-import { PublicFooter } from "@/components/public-footer"
 
 // Language names for display
 const LANGUAGE_NAMES: Record<string, string> = {
@@ -193,8 +191,7 @@ export default async function WordsArticlePage({
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
-      <PublicNavbar />
-      <main className="min-h-screen bg-background">
+      <div className="min-h-screen bg-background">
         <article className="max-w-4xl mx-auto px-4 py-8 md:py-12">
           {/* Back link */}
           <Link 
@@ -349,9 +346,8 @@ export default async function WordsArticlePage({
               </div>
             </div>
           </section>
-        )}
-      </main>
-      <PublicFooter />
-    </>
+)}
+      </div>
+      </>
   )
 }

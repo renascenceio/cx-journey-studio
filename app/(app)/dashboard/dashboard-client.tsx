@@ -2,23 +2,40 @@
 
 import Link from "next/link"
 import { useTranslations } from "next-intl"
+import { useRouter, useSearchParams } from "next/navigation"
 import {
   Route,
   Users,
   TrendingUp,
+  TrendingDown,
   Activity,
   Plus,
   BookTemplate,
   ArrowRight,
+  BarChart3,
+  Target,
+  FileQuestion,
+  LayoutDashboard,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent } from "@/components/ui/card"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
+import { Badge } from "@/components/ui/badge"
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { StatCard } from "@/components/stat-card"
 import { JourneyCard } from "@/components/journey-card"
 import { CreateJourneyDialog } from "@/components/create-journey-dialog"
-import { getInitials } from "@/lib/utils"
+import { getInitials, cn } from "@/lib/utils"
 import type { Journey } from "@/lib/types"
+
+interface JourneyPerformance {
+  id: string
+  name: string
+  score: number
+  touchPoints: number
+  painPoints: number
+  status: string
+}
 
 interface DashboardClientProps {
   currentUserName: string
@@ -37,6 +54,19 @@ interface DashboardClientProps {
     deployedJourneys: number
     healthyDeployed: number
   }
+  activeTab: string
+  analyticsData: {
+    journeyPerformance: JourneyPerformance[]
+    totalTouchPoints: number
+    totalPainPoints: number
+  }
+}
+
+function scoreColor(score: number) {
+  if (score >= 2) return "text-green-600 dark:text-green-400"
+  if (score >= 0) return "text-emerald-600 dark:text-emerald-400"
+  if (score >= -1) return "text-yellow-600 dark:text-yellow-400"
+  return "text-red-600 dark:text-red-400"
 }
 
 export function DashboardClient({
@@ -44,8 +74,11 @@ export function DashboardClient({
   recentJourneys,
   activityLog,
   dashboardStats,
+  activeTab,
+  analyticsData,
 }: DashboardClientProps) {
   const t = useTranslations()
+  const router = useRouter()
 
   const today = new Date().toLocaleDateString(undefined, {
     weekday: "long",
@@ -53,24 +86,45 @@ export function DashboardClient({
     month: "long",
     day: "numeric",
   })
+  
+  const handleTabChange = (value: string) => {
+    router.push(`/dashboard${value === "overview" ? "" : `?tab=${value}`}`)
+  }
 
   return (
-    <div className="mx-auto flex max-w-6xl flex-col gap-8 px-4 py-6 lg:px-6">
-      {/* Welcome Header */}
-      <div className="flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between">
+    <div className="mx-auto flex max-w-6xl flex-col gap-6 px-4 py-6 lg:px-6">
+      {/* Header with Tabs */}
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="text-2xl font-bold tracking-tight text-foreground">
             {t("dashboard.welcome")}, {currentUserName.split(" ")[0]}
           </h1>
           <p className="text-sm text-muted-foreground">{today}</p>
         </div>
-        <CreateJourneyDialog>
-          <Button>
-            <Plus className="mr-2 h-4 w-4" />
-            {t("dashboard.newJourney")}
-          </Button>
-        </CreateJourneyDialog>
+        <div className="flex items-center gap-3">
+          <Tabs value={activeTab} onValueChange={handleTabChange}>
+            <TabsList>
+              <TabsTrigger value="overview" className="gap-1.5">
+                <LayoutDashboard className="h-4 w-4" />
+                {t("dashboard.overview")}
+              </TabsTrigger>
+              <TabsTrigger value="analytics" className="gap-1.5">
+                <BarChart3 className="h-4 w-4" />
+                {t("analytics.title")}
+              </TabsTrigger>
+            </TabsList>
+          </Tabs>
+          <CreateJourneyDialog>
+            <Button>
+              <Plus className="mr-2 h-4 w-4" />
+              {t("dashboard.newJourney")}
+            </Button>
+          </CreateJourneyDialog>
+        </div>
       </div>
+
+      {activeTab === "overview" ? (
+        <>
 
       {/* Stats Row */}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
@@ -225,6 +279,120 @@ export function DashboardClient({
           </Button>
         </div>
       </div>
+      </>
+      ) : (
+        /* Analytics Tab */
+        <>
+          {/* Analytics Stats row */}
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            <StatCard
+              title={t("analytics.totalJourneys")}
+              value={dashboardStats.totalJourneys}
+              icon={Route}
+            />
+            <StatCard
+              title={t("analytics.activeUsers")}
+              value={dashboardStats.activeCollaborators}
+              icon={Users}
+            />
+            <StatCard
+              title={t("analytics.avgEmotionalScore")}
+              value={dashboardStats.avgEmotionalScore > 0 ? `+${dashboardStats.avgEmotionalScore.toFixed(1)}` : dashboardStats.avgEmotionalScore.toFixed(1)}
+              icon={TrendingUp}
+            />
+            <StatCard
+              title={t("analytics.painPointsIdentified")}
+              value={analyticsData.totalPainPoints}
+              icon={Target}
+            />
+          </div>
+
+          {/* Journey Performance Table */}
+          <Card className="border-border/60">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm font-medium flex items-center gap-2">
+                <BarChart3 className="h-4 w-4 text-muted-foreground" />
+                {t("analytics.journeyPerformance")}
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              {analyticsData.journeyPerformance.length > 0 ? (
+                <div className="overflow-x-auto">
+                  <table className="w-full text-left text-sm">
+                    <thead>
+                      <tr className="border-b border-border text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                        <th className="py-3 pr-4">{t("analytics.journey")}</th>
+                        <th className="py-3 pr-4 text-right">{t("analytics.score")}</th>
+                        <th className="py-3 pr-4 text-right">{t("analytics.touchpoints")}</th>
+                        <th className="py-3 pr-4 text-right">{t("analytics.painPoints")}</th>
+                        <th className="py-3">{t("analytics.status")}</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {analyticsData.journeyPerformance.map((jp) => (
+                        <tr key={jp.id} className="border-b border-border/40">
+                          <td className="py-3 pr-4">
+                            <Link href={`/journeys/${jp.id}/canvas`} className="font-medium text-foreground hover:text-primary transition-colors">
+                              {jp.name}
+                            </Link>
+                          </td>
+                          <td className={cn("py-3 pr-4 text-right font-mono font-bold", scoreColor(jp.score))}>
+                            {jp.score > 0 ? "+" : ""}{jp.score.toFixed(1)}
+                          </td>
+                          <td className="py-3 pr-4 text-right text-muted-foreground">{jp.touchPoints}</td>
+                          <td className="py-3 pr-4 text-right text-red-500">{jp.painPoints}</td>
+                          <td className="py-3">
+                            <Badge variant="secondary" className="text-[10px] capitalize">
+                              {jp.status.replace("_", " ")}
+                            </Badge>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              ) : (
+                <div className="flex flex-col items-center justify-center py-12 text-center">
+                  <FileQuestion className="h-12 w-12 text-muted-foreground/40 mb-4" />
+                  <h3 className="text-lg font-medium text-foreground mb-1">{t("analytics.noJourneys")}</h3>
+                  <p className="text-sm text-muted-foreground mb-4">
+                    {t("analytics.noJourneysDesc")}
+                  </p>
+                  <CreateJourneyDialog>
+                    <Button>{t("dashboard.createJourney")}</Button>
+                  </CreateJourneyDialog>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+
+          {/* Placeholder Charts */}
+          <div className="grid gap-4 lg:grid-cols-2">
+            <Card className="border-border/60 border-dashed">
+              <CardContent className="flex flex-col items-center justify-center py-16">
+                <Activity className="h-10 w-10 text-muted-foreground/40 mb-3" />
+                <p className="text-sm font-medium text-muted-foreground">
+                  {t("analytics.emotionalScoreTrends")}
+                </p>
+                <p className="text-xs text-muted-foreground/70 mt-1">
+                  {t("analytics.emotionalScoreTrendsDesc")}
+                </p>
+              </CardContent>
+            </Card>
+            <Card className="border-border/60 border-dashed">
+              <CardContent className="flex flex-col items-center justify-center py-16">
+                <BarChart3 className="h-10 w-10 text-muted-foreground/40 mb-3" />
+                <p className="text-sm font-medium text-muted-foreground">
+                  {t("analytics.channelDistribution")}
+                </p>
+                <p className="text-xs text-muted-foreground/70 mt-1">
+                  {t("analytics.channelDistributionDesc")}
+                </p>
+              </CardContent>
+            </Card>
+          </div>
+        </>
+      )}
     </div>
   )
 }
