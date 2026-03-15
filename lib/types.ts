@@ -254,10 +254,30 @@ export interface JourneyVersion {
 
 // --- Workspace (extends Organization) ---
 
+export interface WorkspaceCredits {
+  used: number
+  total: number
+  purchased: number
+}
+
+export interface WorkspacePaymentStatus {
+  paymentFailed: boolean
+  paymentFailedAt?: string
+  gracePeriodEndsAt?: string
+  previousPlan?: string
+}
+
 export interface Workspace extends Organization {
   memberCount: number
   journeyCount: number
   archetypeCount: number
+  // Workspace-scoped credits
+  credits?: WorkspaceCredits
+  // AI settings (set by workspace owner)
+  preferredAiModel?: string
+  aiSettings?: Record<string, unknown>
+  // Payment status
+  paymentStatus?: WorkspacePaymentStatus
 }
 
 // --- Emotional Arc ---

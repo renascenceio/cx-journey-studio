@@ -72,6 +72,7 @@ interface NavItem {
   href: string
   icon: React.ComponentType<{ className?: string }>
   segment: string | null
+  alert?: boolean // Show alert dot (e.g., for payment issues)
 }
 
 interface NavSectionConfig {
@@ -100,7 +101,7 @@ const adminNavSections: NavSectionConfig[] = [
       { label: "Individuals", href: "/admin/users", icon: Users, segment: "users" },
       { label: "Organizations", href: "/admin/organizations", icon: Building2, segment: "organizations" },
       { label: "Workspaces", href: "/admin/workspaces", icon: FolderKanban, segment: "workspaces" },
-      { label: "Billing & Plans", href: "/admin/billing", icon: CreditCard, segment: "billing" },
+      { label: "Billing & Plans", href: "/admin/billing", icon: CreditCard, segment: "billing", alert: true },
       { label: "Credits FAQ", href: "/admin/credits-faq", icon: Calculator, segment: "credits-faq" },
     ],
   },
@@ -159,12 +160,14 @@ function NavSectionItem({
   section, 
   isActive, 
   expandedSections, 
-  toggleSection 
+  toggleSection,
+  hasPaymentIssue,
 }: { 
   section: NavSectionConfig
   isActive: (nav: NavItem) => boolean
   expandedSections: Record<string, boolean>
   toggleSection: (title: string) => void
+  hasPaymentIssue?: boolean
 }) {
   const isExpanded = expandedSections[section.title] ?? section.defaultOpen
   const hasActiveItem = section.items.some(isActive)
@@ -186,21 +189,24 @@ function NavSectionItem({
       </button>
       {isExpanded && (
         <div className="mt-1 space-y-0.5 pl-2">
-          {section.items.map((nav) => (
-            <Link
-              key={nav.href}
-              href={nav.href}
-              className={cn(
-                "flex items-center gap-2 rounded-md px-3 py-1.5 text-sm transition-colors",
-                isActive(nav)
-                  ? "bg-primary/10 font-medium text-primary"
-                  : "text-muted-foreground hover:bg-accent hover:text-foreground"
-              )}
-            >
-              <nav.icon className="h-3.5 w-3.5" />
-              {nav.label}
-            </Link>
-          ))}
+{section.items.map((nav) => (
+  <Link
+  key={nav.href}
+  href={nav.href}
+  className={cn(
+  "flex items-center gap-2 rounded-md px-3 py-1.5 text-sm transition-colors",
+  isActive(nav)
+  ? "bg-primary/10 font-medium text-primary"
+  : "text-muted-foreground hover:bg-accent hover:text-foreground"
+  )}
+  >
+  <nav.icon className="h-3.5 w-3.5" />
+  <span className="flex-1">{nav.label}</span>
+  {nav.alert && hasPaymentIssue && (
+    <span className="h-2 w-2 rounded-full bg-red-500 animate-pulse" />
+  )}
+  </Link>
+  ))}
         </div>
       )}
     </div>
@@ -219,7 +225,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     })
     return initial
   })
-  const { user, isAuthenticated, isLoading } = useAuth()
+  const { user, isAuthenticated, isLoading, workspace } = useAuth()
   const { getLogoMark, config } = useSiteConfig()
   const { resolvedTheme } = useTheme()
   const { isSuperAdmin, hasAnyPermission, isAnyAdmin, isLoading: permissionsLoading } = useAdminPermissions()
@@ -414,11 +420,12 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 ) : (
   // Sectioned navigation (filtered by permissions)
   filteredNavSections.map((section) => (
-  <NavSectionItem
-                key={section.title}
-                section={section}
-                isActive={isActive}
-                expandedSections={expandedSections}
+<NavSectionItem
+  key={section.title}
+  section={section}
+  isActive={isActive}
+  expandedSections={expandedSections}
+  hasPaymentIssue={workspace?.paymentStatus?.paymentFailed}
                 toggleSection={toggleSection}
               />
             ))

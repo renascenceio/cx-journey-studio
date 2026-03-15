@@ -37,23 +37,40 @@ export async function GET() {
     return NextResponse.json({ workspaces: [], activeWorkspaceId: null })
   }
 
-  // Get all organizations
+  // Get all organizations with payment and AI settings
   const { data: orgs } = await adminClient
     .from("organizations")
-    .select("id, name, slug, plan, logo, created_at")
+    .select("id, name, slug, plan, logo, created_at, preferred_ai_model, ai_settings, payment_failed_at, grace_period_ends_at, previous_plan_id")
     .in("id", orgIds)
 
   if (!orgs || orgs.length === 0) {
     return NextResponse.json({ workspaces: [], activeWorkspaceId: null })
   }
 
-  // Get counts for each org
+  // Get counts, credits, and other data for each org
   const workspaces = await Promise.all(
     orgs.map(async (org) => {
-      const [journeyCount, memberCount] = await Promise.all([
+      const [journeyCount, memberCount, creditsData] = await Promise.all([
         adminClient.from("journeys").select("id", { count: "exact", head: true }).eq("organization_id", org.id),
         adminClient.from("organization_members").select("id", { count: "exact", head: true }).eq("organization_id", org.id),
+        adminClient.from("ai_credits").select("credits_used, credits_monthly_allowance, credits_purchased").eq("organization_id", org.id).single(),
       ])
+      
+      // Build credits object
+      const credits = creditsData.data ? {
+        used: creditsData.data.credits_used || 0,
+        total: creditsData.data.credits_monthly_allowance || 50,
+        purchased: creditsData.data.credits_purchased || 0,
+      } : { used: 0, total: 50, purchased: 0 }
+      
+      // Build payment status object
+      const paymentStatus = org.payment_failed_at ? {
+        paymentFailed: true,
+        paymentFailedAt: org.payment_failed_at,
+        gracePeriodEndsAt: org.grace_period_ends_at,
+        previousPlan: org.previous_plan_id,
+      } : { paymentFailed: false }
+      
       return {
         id: org.id,
         name: org.name,
@@ -63,6 +80,11 @@ export async function GET() {
         createdAt: org.created_at,
         memberCount: memberCount.count || 1,
         journeyCount: journeyCount.count || 0,
+        // Workspace-scoped credits and settings
+        credits,
+        preferredAiModel: org.preferred_ai_model || "openai/gpt-4o-mini",
+        aiSettings: org.ai_settings || {},
+        paymentStatus,
       }
     })
   )

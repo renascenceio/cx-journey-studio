@@ -358,7 +358,121 @@ export const emailTemplates = {
     </div>
   `, { headerTitle: "You Were Mentioned", headerIcon: "@", showPreferencesLink: true }),
 
-  // Billing emails - always show preferences link
+  // Billing emails - Payment failure sequence (Day 0, 3, 5, 7)
+  
+  // Day 0: Initial payment failure notification
+  paymentFailedDay0: (name: string, amount: string, retryUrl: string) => wrapEmailTemplate(`
+    <p style="margin: 0 0 24px; font-size: 16px; line-height: 1.6; color: #52525b;">
+      Hi ${name},
+    </p>
+    <p style="margin: 0 0 24px; font-size: 16px; line-height: 1.6; color: #52525b;">
+      We were unable to process your payment of <strong>${amount}</strong> for your René Studio subscription.
+    </p>
+    <div style="margin: 24px 0; padding: 16px; background: #fef2f2; border-radius: 8px; border-left: 4px solid #ef4444;">
+      <p style="margin: 0; font-size: 13px; color: #991b1b;">
+        <strong>You have 7 days</strong> to update your payment method before your account is downgraded to Free.
+      </p>
+    </div>
+    <p style="margin: 0 0 24px; font-size: 16px; line-height: 1.6; color: #52525b;">
+      Don't worry - your content will remain safe. However, you may lose access to premium features if your plan changes.
+    </p>
+    <div style="text-align: center; margin: 32px 0;">
+      <a href="${retryUrl}" style="display: inline-block; padding: 14px 32px; background: #18181b; color: #ffffff; text-decoration: none; border-radius: 8px; font-weight: 500; font-size: 14px;">
+        Update Payment Method
+      </a>
+    </div>
+  `, { headerTitle: "Payment Failed", headerIcon: "⚠️", showPreferencesLink: false }),
+
+  // Day 3: First reminder
+  paymentFailedDay3: (name: string, retryUrl: string) => wrapEmailTemplate(`
+    <p style="margin: 0 0 24px; font-size: 16px; line-height: 1.6; color: #52525b;">
+      Hi ${name},
+    </p>
+    <p style="margin: 0 0 24px; font-size: 16px; line-height: 1.6; color: #52525b;">
+      This is a friendly reminder that your René Studio payment is still pending.
+    </p>
+    <div style="margin: 24px 0; padding: 16px; background: #fef3c7; border-radius: 8px; border-left: 4px solid #f59e0b;">
+      <p style="margin: 0; font-size: 13px; color: #92400e;">
+        <strong>4 days remaining</strong> to update your payment method before your account is downgraded.
+      </p>
+    </div>
+    <p style="margin: 0 0 24px; font-size: 16px; line-height: 1.6; color: #52525b;">
+      Please update your payment details to continue enjoying all your current features without interruption.
+    </p>
+    <div style="text-align: center; margin: 32px 0;">
+      <a href="${retryUrl}" style="display: inline-block; padding: 14px 32px; background: #18181b; color: #ffffff; text-decoration: none; border-radius: 8px; font-weight: 500; font-size: 14px;">
+        Update Payment Method
+      </a>
+    </div>
+  `, { headerTitle: "Payment Reminder", headerIcon: "⏰", showPreferencesLink: false }),
+
+  // Day 5: Final warning
+  paymentFailedDay5: (name: string, retryUrl: string) => wrapEmailTemplate(`
+    <p style="margin: 0 0 24px; font-size: 16px; line-height: 1.6; color: #52525b;">
+      Hi ${name},
+    </p>
+    <p style="margin: 0 0 24px; font-size: 16px; line-height: 1.6; color: #52525b;">
+      <strong>Urgent:</strong> Your René Studio payment is still outstanding.
+    </p>
+    <div style="margin: 24px 0; padding: 16px; background: #fef2f2; border-radius: 8px; border-left: 4px solid #ef4444;">
+      <p style="margin: 0; font-size: 13px; color: #991b1b;">
+        <strong>Only 2 days left!</strong> Your account will be downgraded to Free on the 7th day if payment is not received.
+      </p>
+    </div>
+    <p style="margin: 0 0 16px; font-size: 16px; line-height: 1.6; color: #52525b;">
+      After downgrade, you'll be limited to:
+    </p>
+    <ul style="margin: 0 0 24px; padding-left: 24px; font-size: 14px; line-height: 1.8; color: #52525b;">
+      <li>3 journeys maximum</li>
+      <li>1 team member</li>
+      <li>50 AI credits per month</li>
+      <li>No premium features</li>
+    </ul>
+    <p style="margin: 0 0 24px; font-size: 14px; color: #71717a;">
+      Your content will remain safe and accessible, but some features may be restricted.
+    </p>
+    <div style="text-align: center; margin: 32px 0;">
+      <a href="${retryUrl}" style="display: inline-block; padding: 14px 32px; background: #ef4444; color: #ffffff; text-decoration: none; border-radius: 8px; font-weight: 500; font-size: 14px;">
+        Update Payment Now
+      </a>
+    </div>
+  `, { headerTitle: "Final Payment Warning", headerIcon: "🚨", showPreferencesLink: false }),
+
+  // Day 7: Account downgraded to Free
+  accountDowngraded: (name: string, previousPlan: string, upgradeUrl: string) => wrapEmailTemplate(`
+    <p style="margin: 0 0 24px; font-size: 16px; line-height: 1.6; color: #52525b;">
+      Hi ${name},
+    </p>
+    <p style="margin: 0 0 24px; font-size: 16px; line-height: 1.6; color: #52525b;">
+      Your René Studio account has been downgraded from <strong>${previousPlan}</strong> to the <strong>Free</strong> plan due to payment issues.
+    </p>
+    <div style="margin: 24px 0; padding: 20px; background: #f4f4f5; border-radius: 12px; border: 1px solid #e4e4e7;">
+      <p style="margin: 0 0 12px; font-size: 14px; font-weight: 600; color: #18181b;">What this means:</p>
+      <ul style="margin: 0; padding-left: 20px; font-size: 14px; line-height: 1.8; color: #52525b;">
+        <li><strong>Your content is safe</strong> - All your journeys, archetypes, and data remain intact</li>
+        <li><strong>Limited features</strong> - You now have access to Free plan features only</li>
+        <li><strong>Team access</strong> - Additional team members may lose access</li>
+      </ul>
+    </div>
+    <p style="margin: 0 0 16px; font-size: 16px; line-height: 1.6; color: #52525b;">
+      Free plan limits:
+    </p>
+    <ul style="margin: 0 0 24px; padding-left: 24px; font-size: 14px; line-height: 1.8; color: #52525b;">
+      <li>3 journeys maximum</li>
+      <li>1 team member</li>
+      <li>50 AI credits per month</li>
+    </ul>
+    <p style="margin: 0 0 24px; font-size: 16px; line-height: 1.6; color: #52525b;">
+      Ready to restore your full access? Upgrade anytime to get back all your premium features.
+    </p>
+    <div style="text-align: center; margin: 32px 0;">
+      <a href="${upgradeUrl}" style="display: inline-block; padding: 14px 32px; background: #18181b; color: #ffffff; text-decoration: none; border-radius: 8px; font-weight: 500; font-size: 14px;">
+        Upgrade Your Plan
+      </a>
+    </div>
+  `, { headerTitle: "Account Downgraded", headerIcon: "📉", showPreferencesLink: false }),
+
+  // Legacy alias for backward compatibility
   paymentFailed: (name: string, amount: string, retryUrl: string) => wrapEmailTemplate(`
     <p style="margin: 0 0 24px; font-size: 16px; line-height: 1.6; color: #52525b;">
       Hi ${name},
@@ -376,7 +490,7 @@ export const emailTemplates = {
         Update Payment Method
       </a>
     </div>
-  `, { headerTitle: "Payment Failed", headerIcon: "⚠️", showPreferencesLink: true }),
+  `, { headerTitle: "Payment Failed", headerIcon: "⚠️", showPreferencesLink: false }),
 
   subscriptionCreated: (name: string, planName: string, dashboardUrl: string) => wrapEmailTemplate(`
     <p style="margin: 0 0 24px; font-size: 16px; line-height: 1.6; color: #52525b;">
