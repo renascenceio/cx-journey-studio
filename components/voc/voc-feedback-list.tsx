@@ -5,7 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
-import { ThumbsUp, ThumbsDown, Minus, MessageSquare } from "lucide-react"
+import { ThumbsUp, ThumbsDown, Minus, MessageSquare, Layers, GitBranch, Radio, MapPin } from "lucide-react"
 import { cn } from "@/lib/utils"
 import type { VoCFeedback } from "@/lib/types"
 
@@ -40,6 +40,36 @@ function FeedbackTypeLabel({ type }: { type: string }) {
   )
 }
 
+function TargetElementBadge({ item }: { item: VoCFeedback }) {
+  const targetType = item.targetType
+  const metadata = item.metadata as Record<string, unknown> | null
+  
+  let icon = <MapPin className="h-3 w-3" />
+  let label = "Journey"
+  let color = "bg-slate-100 text-slate-800 dark:bg-slate-800 dark:text-slate-200"
+  
+  if (targetType === "stage") {
+    icon = <Layers className="h-3 w-3" />
+    label = (metadata?.stageName as string) || "Stage"
+    color = "bg-indigo-100 text-indigo-800 dark:bg-indigo-900 dark:text-indigo-200"
+  } else if (targetType === "step") {
+    icon = <GitBranch className="h-3 w-3" />
+    label = (metadata?.stepDescription as string) || (metadata?.stageName as string) || "Step"
+    color = "bg-cyan-100 text-cyan-800 dark:bg-cyan-900 dark:text-cyan-200"
+  } else if (targetType === "touchpoint") {
+    icon = <Radio className="h-3 w-3" />
+    label = (metadata?.channel as string) || "Touchpoint"
+    color = "bg-emerald-100 text-emerald-800 dark:bg-emerald-900 dark:text-emerald-200"
+  }
+  
+  return (
+    <Badge className={cn("text-[10px] gap-1", color)}>
+      {icon}
+      <span className="truncate max-w-[100px]">{label}</span>
+    </Badge>
+  )
+}
+
 function FeedbackItem({ item }: { item: VoCFeedback }) {
   const initials = item.respondentId 
     ? item.respondentId.slice(0, 2).toUpperCase() 
@@ -53,6 +83,7 @@ function FeedbackItem({ item }: { item: VoCFeedback }) {
       <div className="flex-1 min-w-0 space-y-1.5">
         <div className="flex items-center gap-2 flex-wrap">
           <SentimentIcon sentiment={item.sentiment} />
+          <TargetElementBadge item={item} />
           <FeedbackTypeLabel type={item.feedbackType} />
           {item.npsScore !== null && (
             <Badge variant="outline" className="text-[10px]">

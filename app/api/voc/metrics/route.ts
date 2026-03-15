@@ -19,21 +19,7 @@ export async function GET(req: Request) {
   }
 
   try {
-    // Check if VoC tables exist by trying a simple query
-    const { error: tableCheckError } = await supabase
-      .from("voc_metrics")
-      .select("id")
-      .limit(1)
-
-    // If tables don't exist, return mock/demo data for UI development
-    if (tableCheckError?.code === "42P01") {
-      return NextResponse.json({ 
-        stats: generateDemoStats(journeyId),
-        isDemo: true
-      })
-    }
-
-    // Fetch journey with stages, steps, and touchpoints
+    // Always fetch journey structure first (needed for both real and demo data)
     const { data: journey, error: journeyError } = await supabase
       .from("journeys")
       .select(`
@@ -63,6 +49,20 @@ export async function GET(req: Request) {
       return NextResponse.json({ error: "Journey not found" }, { status: 404 })
     }
 
+    // Check if VoC tables exist by trying a simple query
+    const { error: tableCheckError } = await supabase
+      .from("voc_metrics")
+      .select("id")
+      .limit(1)
+
+    // If tables don't exist, return demo data based on actual journey structure
+    if (tableCheckError?.code === "42P01") {
+      return NextResponse.json({ 
+        stats: generateDemoStatsFromJourney(journey),
+        isDemo: true
+      })
+    }
+
     // Fetch all metrics for this journey
     const { data: metrics, error: metricsError } = await supabase
       .from("voc_metrics")
@@ -74,7 +74,7 @@ export async function GET(req: Request) {
       console.error("Error fetching metrics:", metricsError)
       // Return demo data if metrics table has issues
       return NextResponse.json({ 
-        stats: generateDemoStats(journeyId),
+        stats: generateDemoStatsFromJourney(journey),
         isDemo: true
       })
     }
@@ -97,9 +97,9 @@ export async function GET(req: Request) {
     return NextResponse.json({ stats, isDemo: false })
   } catch (err) {
     console.error("VoC metrics error:", err)
-    // Return demo data on any error
+    // Return basic demo data on any error (journey fetch may have failed too)
     return NextResponse.json({ 
-      stats: generateDemoStats(journeyId),
+      stats: generateBasicDemoStats(journeyId),
       isDemo: true
     })
   }
@@ -206,130 +206,244 @@ function aggregateMetrics(
   }
 }
 
-// Generate demo data for UI development
-function generateDemoStats(journeyId: string): VoCJourneyStats {
-  const demoStages: VoCStageMetric[] = [
-    {
-      stageId: "demo-1",
-      stageName: "Awareness",
-      nps: 42,
-      csat: 4.2,
-      ces: 3.1,
-      sentiment: 0.65,
-      feedbackCount: 234,
-      steps: [
-        {
-          stepId: "demo-s1-1",
-          stepName: "First contact",
-          nps: 38,
-          csat: 4.0,
-          ces: 2.8,
-          sentiment: 0.58,
-          feedbackCount: 89,
-          touchpoints: [
-            { touchpointId: "demo-t1", channel: "Website", nps: 41, csat: 4.1, ces: 2.9, sentiment: 0.62, feedbackCount: 45 },
-            { touchpointId: "demo-t2", channel: "Social Media", nps: 35, csat: 3.9, ces: 2.7, sentiment: 0.54, feedbackCount: 44 },
-          ],
-        },
-      ],
-    },
-    {
-      stageId: "demo-2",
-      stageName: "Consideration",
-      nps: 35,
-      csat: 3.8,
-      ces: 3.5,
-      sentiment: 0.52,
-      feedbackCount: 189,
-      steps: [
-        {
-          stepId: "demo-s2-1",
-          stepName: "Product research",
-          nps: 32,
-          csat: 3.6,
-          ces: 3.8,
-          sentiment: 0.48,
-          feedbackCount: 95,
-          touchpoints: [
-            { touchpointId: "demo-t3", channel: "Website", nps: 34, csat: 3.7, ces: 3.6, sentiment: 0.51, feedbackCount: 60 },
-            { touchpointId: "demo-t4", channel: "Email", nps: 30, csat: 3.5, ces: 4.0, sentiment: 0.45, feedbackCount: 35 },
-          ],
-        },
-      ],
-    },
-    {
-      stageId: "demo-3",
-      stageName: "Purchase",
-      nps: 28,
-      csat: 3.5,
-      ces: 4.2,
-      sentiment: 0.38,
-      feedbackCount: 312,
-      steps: [
-        {
-          stepId: "demo-s3-1",
-          stepName: "Checkout",
-          nps: 25,
-          csat: 3.3,
-          ces: 4.5,
-          sentiment: 0.32,
-          feedbackCount: 156,
-          touchpoints: [
-            { touchpointId: "demo-t5", channel: "Website", nps: 26, csat: 3.4, ces: 4.4, sentiment: 0.35, feedbackCount: 120 },
-            { touchpointId: "demo-t6", channel: "Mobile App", nps: 24, csat: 3.2, ces: 4.6, sentiment: 0.29, feedbackCount: 36 },
-          ],
-        },
-      ],
-    },
-    {
-      stageId: "demo-4",
-      stageName: "Retention",
-      nps: 55,
-      csat: 4.5,
-      ces: 2.5,
-      sentiment: 0.78,
-      feedbackCount: 456,
-      steps: [
-        {
-          stepId: "demo-s4-1",
-          stepName: "Support interaction",
-          nps: 58,
-          csat: 4.6,
-          ces: 2.3,
-          sentiment: 0.82,
-          feedbackCount: 228,
-          touchpoints: [
-            { touchpointId: "demo-t7", channel: "Phone", nps: 62, csat: 4.7, ces: 2.1, sentiment: 0.85, feedbackCount: 120 },
-            { touchpointId: "demo-t8", channel: "Live Chat", nps: 54, csat: 4.5, ces: 2.5, sentiment: 0.79, feedbackCount: 108 },
-          ],
-        },
-      ],
-    },
-    {
-      stageId: "demo-5",
-      stageName: "Advocacy",
-      nps: 72,
-      csat: 4.8,
-      ces: 1.8,
-      sentiment: 0.92,
-      feedbackCount: 123,
-      steps: [
-        {
-          stepId: "demo-s5-1",
-          stepName: "Referral",
-          nps: 75,
-          csat: 4.9,
-          ces: 1.6,
-          sentiment: 0.95,
-          feedbackCount: 67,
-          touchpoints: [
-            { touchpointId: "demo-t9", channel: "Email", nps: 74, csat: 4.8, ces: 1.7, sentiment: 0.93, feedbackCount: 67 },
-          ],
-        },
-      ],
-    },
-  ]
+// Helper to generate realistic VoC scores with some variance
+function generateScore(base: number, variance: number): number {
+  return Math.round((base + (Math.random() - 0.5) * variance) * 10) / 10
+}
 
+function generateNps(stageIndex: number, totalStages: number): number {
+  // NPS typically varies by stage - awareness/consideration lower, retention/advocacy higher
+  const baseNps = stageIndex < totalStages / 2 ? 25 + stageIndex * 8 : 40 + (stageIndex - totalStages / 2) * 15
+  return Math.round(generateScore(baseNps, 20))
+}
+
+function generateCsat(nps: number): number {
+  // CSAT correlates with NPS (1-5 scale)
+  const base = 3.0 + (nps / 100) * 2
+  return Math.round(generateScore(base, 0.8) * 10) / 10
+}
+
+function generateCes(stageIndex: number): number {
+  // CES (1-7 scale, lower is better) - purchase stages typically higher effort
+  const base = stageIndex < 2 ? 2.5 : stageIndex < 4 ? 3.8 : 2.0
+  return Math.round(generateScore(base, 1.2) * 10) / 10
+}
+
+function generateSentiment(nps: number): number {
+  // Sentiment (-1 to 1) correlates with NPS
+  const base = (nps + 100) / 200 - 0.1
+  return Math.round(generateScore(base, 0.2) * 100) / 100
+}
+
+// Generate demo data based on actual journey structure
+function generateDemoStatsFromJourney(journey: any): VoCJourneyStats {
+  const stages = (journey.stages || []).sort((a: any, b: any) => a.order - b.order)
+  const totalStages = stages.length
+  
+  let allFeedback: any[] = []
+  let totalFeedbackCount = 0
+  
+  const stageMetrics: VoCStageMetric[] = stages.map((stage: any, stageIndex: number) => {
+    const stageNps = generateNps(stageIndex, totalStages)
+    const stageCsat = generateCsat(stageNps)
+    const stageCes = generateCes(stageIndex)
+    const stageSentiment = generateSentiment(stageNps)
+    const stageFeedbackCount = Math.floor(50 + Math.random() * 200)
+    totalFeedbackCount += stageFeedbackCount
+    
+    const steps = (stage.steps || []).sort((a: any, b: any) => a.order - b.order)
+    
+    const stepMetrics: VoCStepMetric[] = steps.map((step: any, stepIndex: number) => {
+      const stepNps = Math.round(stageNps + (Math.random() - 0.5) * 15)
+      const stepCsat = generateCsat(stepNps)
+      const stepCes = Math.round((stageCes + (Math.random() - 0.5) * 1) * 10) / 10
+      const stepSentiment = generateSentiment(stepNps)
+      const stepFeedbackCount = Math.floor(stageFeedbackCount / steps.length)
+      
+      const touchpoints = (step.touchpoints || []).sort((a: any, b: any) => a.order - b.order)
+      
+      const touchpointMetrics: VoCTouchpointMetric[] = touchpoints.map((tp: any) => {
+        const tpNps = Math.round(stepNps + (Math.random() - 0.5) * 10)
+        return {
+          touchpointId: tp.id,
+          channel: tp.channel || "Unknown",
+          nps: tpNps,
+          csat: generateCsat(tpNps),
+          ces: Math.round((stepCes + (Math.random() - 0.5) * 0.8) * 10) / 10,
+          sentiment: generateSentiment(tpNps),
+          feedbackCount: Math.floor(stepFeedbackCount / Math.max(touchpoints.length, 1)),
+        }
+      })
+      
+      // Generate sample feedback for steps and touchpoints
+      const shouldAddFeedback = Math.random() > 0.5 // Add feedback to ~50% of steps
+      
+      if (shouldAddFeedback) {
+        const sentiment = stepNps > 40 ? "positive" : stepNps > 20 ? "neutral" : "negative"
+        const feedbackTemplates = {
+          positive: [
+            `Great experience with ${stage.name}! The process was smooth and efficient.`,
+            `Really impressed with how easy ${step.description || 'this step'} was.`,
+            `The team was very helpful throughout ${stage.name.toLowerCase()}.`,
+          ],
+          neutral: [
+            `${stage.name} was okay, but could be improved.`,
+            `The ${step.description || 'process'} worked as expected.`,
+            `Average experience, nothing special but nothing wrong either.`,
+          ],
+          negative: [
+            `Had some issues during ${stage.name}. The ${step.description || 'process'} was confusing.`,
+            `Expected better from ${stage.name}. Too many steps involved.`,
+            `Frustrating experience with ${step.description || 'this part'}. Needs improvement.`,
+          ],
+        }
+        
+        // Add step-level feedback
+        allFeedback.push({
+          id: `demo-f-${stage.id}-${step.id}`,
+          dataSourceId: "demo-ds",
+          journeyId: journey.id,
+          targetType: "step",
+          targetId: step.id,
+          externalId: null,
+          respondentId: `user-${Math.floor(Math.random() * 1000)}`,
+          feedbackType: ["survey", "review", "support"][Math.floor(Math.random() * 3)] as any,
+          sentiment,
+          sentimentScore: sentiment === "positive" ? 0.8 : sentiment === "neutral" ? 0.1 : -0.6,
+          npsScore: stepNps > 40 ? 9 : stepNps > 20 ? 7 : 4,
+          csatScore: stepCsat,
+          cesScore: stepCes,
+          textContent: feedbackTemplates[sentiment as keyof typeof feedbackTemplates][Math.floor(Math.random() * 3)],
+          tags: [stage.name.toLowerCase().replace(/\s+/g, "-"), sentiment],
+          metadata: { stageName: stage.name, stepDescription: step.description },
+          respondedAt: new Date(Date.now() - Math.floor(Math.random() * 72) * 60 * 60 * 1000).toISOString(),
+          createdAt: new Date(Date.now() - Math.floor(Math.random() * 72) * 60 * 60 * 1000).toISOString(),
+        })
+        
+        // Add touchpoint-level feedback for some touchpoints
+        touchpoints.forEach((tp: any) => {
+          if (Math.random() > 0.7) {
+            const tpSentiment = Math.random() > 0.5 ? "positive" : Math.random() > 0.5 ? "neutral" : "negative"
+            const tpTemplates = {
+              positive: `Loved using ${tp.channel || 'this channel'}! Very convenient.`,
+              neutral: `${tp.channel || 'The channel'} worked fine.`,
+              negative: `${tp.channel || 'This channel'} could be better. Had some issues.`,
+            }
+            allFeedback.push({
+              id: `demo-f-tp-${tp.id}-${Math.random().toString(36).slice(2, 8)}`,
+              dataSourceId: "demo-ds",
+              journeyId: journey.id,
+              targetType: "touchpoint",
+              targetId: tp.id,
+              externalId: null,
+              respondentId: `user-${Math.floor(Math.random() * 1000)}`,
+              feedbackType: "survey",
+              sentiment: tpSentiment,
+              sentimentScore: tpSentiment === "positive" ? 0.75 : tpSentiment === "neutral" ? 0.05 : -0.5,
+              npsScore: tpSentiment === "positive" ? 8 : tpSentiment === "neutral" ? 6 : 3,
+              csatScore: tpSentiment === "positive" ? 4.5 : tpSentiment === "neutral" ? 3.2 : 2.1,
+              cesScore: tpSentiment === "positive" ? 2 : tpSentiment === "neutral" ? 4 : 5.5,
+              textContent: tpTemplates[tpSentiment as keyof typeof tpTemplates],
+              tags: [tp.channel?.toLowerCase().replace(/\s+/g, "-") || "touchpoint", tpSentiment],
+              metadata: { stageName: stage.name, stepDescription: step.description, channel: tp.channel },
+              respondedAt: new Date(Date.now() - Math.floor(Math.random() * 96) * 60 * 60 * 1000).toISOString(),
+              createdAt: new Date(Date.now() - Math.floor(Math.random() * 96) * 60 * 60 * 1000).toISOString(),
+            })
+          }
+        })
+      }
+      
+      // Also add some stage-level feedback
+      if (stepIndex === 0 && Math.random() > 0.6) {
+        const sentiment = stageNps > 50 ? "positive" : stageNps > 25 ? "neutral" : "negative"
+        allFeedback.push({
+          id: `demo-f-stage-${stage.id}`,
+          dataSourceId: "demo-ds",
+          journeyId: journey.id,
+          targetType: "stage",
+          targetId: stage.id,
+          externalId: null,
+          respondentId: `user-${Math.floor(Math.random() * 1000)}`,
+          feedbackType: "review",
+          sentiment,
+          sentimentScore: sentiment === "positive" ? 0.85 : sentiment === "neutral" ? 0.15 : -0.55,
+          npsScore: sentiment === "positive" ? 10 : sentiment === "neutral" ? 7 : 5,
+          csatScore: sentiment === "positive" ? 4.8 : sentiment === "neutral" ? 3.5 : 2.5,
+          cesScore: sentiment === "positive" ? 1.8 : sentiment === "neutral" ? 3.5 : 5,
+          textContent: sentiment === "positive" 
+            ? `Overall, ${stage.name} exceeded my expectations!`
+            : sentiment === "neutral"
+            ? `${stage.name} was an average experience.`
+            : `Disappointed with ${stage.name}. Needs significant improvement.`,
+          tags: [stage.name.toLowerCase().replace(/\s+/g, "-"), sentiment, "overall"],
+          metadata: { stageName: stage.name },
+          respondedAt: new Date(Date.now() - Math.floor(Math.random() * 48) * 60 * 60 * 1000).toISOString(),
+          createdAt: new Date(Date.now() - Math.floor(Math.random() * 48) * 60 * 60 * 1000).toISOString(),
+        })
+      }
+      
+      return {
+        stepId: step.id,
+        stepName: step.description || `Step ${stepIndex + 1}`,
+        nps: stepNps,
+        csat: stepCsat,
+        ces: stepCes,
+        sentiment: stepSentiment,
+        feedbackCount: stepFeedbackCount,
+        touchpoints: touchpointMetrics,
+      }
+    })
+    
+    return {
+      stageId: stage.id,
+      stageName: stage.name,
+      nps: stageNps,
+      csat: stageCsat,
+      ces: stageCes,
+      sentiment: stageSentiment,
+      feedbackCount: stageFeedbackCount,
+      steps: stepMetrics,
+    }
+  })
+  
+  // Calculate overall metrics as weighted average
+  const overallNps = stageMetrics.length > 0 
+    ? Math.round(stageMetrics.reduce((sum, s) => sum + (s.nps || 0), 0) / stageMetrics.length)
+    : 42
+  const overallCsat = stageMetrics.length > 0
+    ? Math.round(stageMetrics.reduce((sum, s) => sum + (s.csat || 0), 0) / stageMetrics.length * 10) / 10
+    : 4.1
+  const overallCes = stageMetrics.length > 0
+    ? Math.round(stageMetrics.reduce((sum, s) => sum + (s.ces || 0), 0) / stageMetrics.length * 10) / 10
+    : 3.2
+  const overallSentiment = stageMetrics.length > 0
+    ? Math.round(stageMetrics.reduce((sum, s) => sum + (s.sentiment || 0), 0) / stageMetrics.length * 100) / 100
+    : 0.65
+  
+  // Sort feedback by date
+  allFeedback.sort((a, b) => new Date(b.respondedAt).getTime() - new Date(a.respondedAt).getTime())
+
+  return {
+    overallNps,
+    npsChange: Math.round((Math.random() - 0.3) * 10) / 10,
+    npsSampleSize: Math.floor(800 + Math.random() * 600),
+    overallCsat,
+    csatChange: Math.round((Math.random() - 0.4) * 0.6 * 10) / 10,
+    csatSampleSize: Math.floor(700 + Math.random() * 500),
+    overallCes,
+    cesChange: Math.round((Math.random() - 0.5) * 0.8 * 10) / 10,
+    cesSampleSize: Math.floor(600 + Math.random() * 400),
+    overallSentiment,
+    sentimentChange: Math.round((Math.random() - 0.4) * 0.2 * 100) / 100,
+    totalFeedbackCount,
+    recentFeedback: allFeedback.slice(0, 5),
+    stageMetrics,
+    lastUpdated: new Date().toISOString(),
+  }
+}
+
+// Basic demo data fallback when journey fetch fails
+function generateBasicDemoStats(journeyId: string): VoCJourneyStats {
   return {
     overallNps: 42,
     npsChange: 3.5,
@@ -342,70 +456,9 @@ function generateDemoStats(journeyId: string): VoCJourneyStats {
     cesSampleSize: 982,
     overallSentiment: 0.65,
     sentimentChange: 0.05,
-    totalFeedbackCount: 1314,
-    recentFeedback: [
-      {
-        id: "demo-f1",
-        dataSourceId: "demo-ds",
-        journeyId,
-        targetType: "touchpoint",
-        targetId: "demo-t7",
-        externalId: null,
-        respondentId: "user-123",
-        feedbackType: "survey",
-        sentiment: "positive",
-        sentimentScore: 0.85,
-        npsScore: 9,
-        csatScore: 5,
-        cesScore: 2,
-        textContent: "The support team was incredibly helpful and resolved my issue quickly!",
-        tags: ["support", "positive", "quick-resolution"],
-        metadata: {},
-        respondedAt: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
-        createdAt: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
-      },
-      {
-        id: "demo-f2",
-        dataSourceId: "demo-ds",
-        journeyId,
-        targetType: "step",
-        targetId: "demo-s3-1",
-        externalId: null,
-        respondentId: "user-456",
-        feedbackType: "survey",
-        sentiment: "negative",
-        sentimentScore: -0.6,
-        npsScore: 3,
-        csatScore: 2,
-        cesScore: 5,
-        textContent: "The checkout process was confusing and took too long to complete.",
-        tags: ["checkout", "negative", "ux-issue"],
-        metadata: {},
-        respondedAt: new Date(Date.now() - 5 * 60 * 60 * 1000).toISOString(),
-        createdAt: new Date(Date.now() - 5 * 60 * 60 * 1000).toISOString(),
-      },
-      {
-        id: "demo-f3",
-        dataSourceId: "demo-ds",
-        journeyId,
-        targetType: "stage",
-        targetId: "demo-4",
-        externalId: null,
-        respondentId: "user-789",
-        feedbackType: "review",
-        sentiment: "positive",
-        sentimentScore: 0.92,
-        npsScore: 10,
-        csatScore: 5,
-        cesScore: 1,
-        textContent: "Been a customer for 3 years now. Best decision I ever made!",
-        tags: ["loyalty", "positive", "long-term"],
-        metadata: {},
-        respondedAt: new Date(Date.now() - 12 * 60 * 60 * 1000).toISOString(),
-        createdAt: new Date(Date.now() - 12 * 60 * 60 * 1000).toISOString(),
-      },
-    ],
-    stageMetrics: demoStages,
+    totalFeedbackCount: 0,
+    recentFeedback: [],
+    stageMetrics: [],
     lastUpdated: new Date().toISOString(),
   }
 }
