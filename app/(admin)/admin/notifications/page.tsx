@@ -536,7 +536,7 @@ function EmailPreview({ event }: { event: typeof NOTIFICATION_EVENTS[0] }) {
       <div className="border-t border-zinc-200 bg-zinc-50 px-8 py-6">
         <div className="text-center">
           <ReneStudioLogo className="justify-center text-zinc-700 mb-3" />
-          <p className="text-xs text-zinc-500 mb-2">by Renascence</p>
+          <p className="text-xs text-zinc-500 mb-2">Journey Design Studio</p>
           {showPreferencesLink ? (
             <p className="text-xs text-zinc-500">
               <a href="#" className="text-zinc-600 hover:text-zinc-900 transition-colors">Notification Preferences</a>
@@ -951,7 +951,7 @@ const sendTestEmail = async (eventId: string) => {
           <tr>
             <td style="background-color: #fafafa; border-top: 1px solid #e4e4e7; padding: 24px; text-align: center;">
               <p style="color: #71717a; font-size: 11px; margin: 0;">
-                René Studio · Renascence · Dubai, UAE
+                René Studio · Dubai, UAE
               </p>
             </td>
           </tr>

@@ -154,7 +154,7 @@ export function wrapEmailTemplate(content: string, options?: {
                       ${RENE_LOGO_FOOTER_HTML}
                     </div>
                     <p style="margin: 0 0 12px; font-size: 13px; color: #71717a;">
-                      by Renascence
+                      Journey Design Studio
                     </p>
                     <p style="margin: 0 0 16px; font-size: 12px; color: #a1a1aa;">
                       You're receiving this because you have an account at rene.cx
@@ -177,7 +177,7 @@ export function wrapEmailTemplate(content: string, options?: {
           <tr>
             <td align="center" style="padding: 24px 20px;">
               <p style="margin: 0; font-size: 11px; color: #a1a1aa;">
-                Renascence Journey Design Studio<br>
+                René Studio<br>
                 Simplifying customer experience mapping
               </p>
             </td>
