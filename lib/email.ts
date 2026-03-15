@@ -66,23 +66,18 @@ export async function sendEmail(options: EmailOptions): Promise<{ success: boole
   }
 }
 
-// Rene Logo HTML for emails - uses text with icon since SVG text isn't well supported
-const RENE_LOGO_HTML = `
+// Small Rene Logo HTML for footer - simple icon only
+const RENE_LOGO_SMALL_HTML = `
 <table role="presentation" cellspacing="0" cellpadding="0" border="0" align="center">
   <tr>
-    <td style="background: #ffffff; width: 36px; height: 36px; border-radius: 8px; text-align: center; vertical-align: middle;">
-      <div style="width: 36px; height: 36px; display: flex; align-items: center; justify-content: center;">
-        <table role="presentation" cellspacing="0" cellpadding="0" border="0">
-          <tr>
-            <td style="width: 6px; height: 12px; background: #18181B; border-radius: 1px;"></td>
-            <td style="width: 4px;"></td>
-            <td style="width: 6px; height: 16px; background: #18181B; border-radius: 1px;"></td>
-          </tr>
-        </table>
-      </div>
-    </td>
-    <td style="padding-left: 12px;">
-      <span style="font-size: 20px; font-weight: 600; color: #ffffff; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; letter-spacing: -0.02em;">Rene</span>
+    <td style="background: #18181B; width: 24px; height: 24px; border-radius: 6px; text-align: center; vertical-align: middle;">
+      <table role="presentation" cellspacing="0" cellpadding="0" border="0" align="center" style="margin: 0 auto;">
+        <tr>
+          <td style="width: 4px; height: 8px; background: #ffffff; border-radius: 1px;"></td>
+          <td style="width: 2px;"></td>
+          <td style="width: 4px; height: 10px; background: #ffffff; border-radius: 1px;"></td>
+        </tr>
+      </table>
     </td>
   </tr>
 </table>
@@ -120,13 +115,9 @@ export function wrapEmailTemplate(content: string, options?: {
     <tr>
       <td align="center" style="padding: 40px 20px;">
         <table role="presentation" width="600" cellspacing="0" cellpadding="0" border="0" style="max-width: 600px; width: 100%; background: #ffffff; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06);">
-          <!-- Dark Header with Logo -->
+          <!-- Dark Header -->
           <tr>
-            <td style="background-color: #18181B; padding: 32px 40px; text-align: center;">
-              <!-- Logo -->
-              <div style="margin-bottom: 24px;">
-                ${RENE_LOGO_HTML}
-              </div>
+            <td style="background: #18181B; background-color: #18181B; padding: 32px 40px; text-align: center;" bgcolor="#18181B">
               ${options?.headerIcon ? `
               <!-- Icon Circle -->
               <div style="display: inline-block; width: 56px; height: 56px; background: rgba(255,255,255,0.1); border-radius: 16px; line-height: 56px; margin-bottom: 16px;">
@@ -153,6 +144,10 @@ export function wrapEmailTemplate(content: string, options?: {
               <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0">
                 <tr>
                   <td align="center">
+                    <!-- Small Logo -->
+                    <div style="margin-bottom: 16px;">
+                      ${RENE_LOGO_SMALL_HTML}
+                    </div>
                     <p style="margin: 0 0 12px; font-size: 13px; color: #71717a;">
                       ${siteName} by Renascence
                     </p>
