@@ -196,6 +196,7 @@
   },
   "dashboard": {
     "title": "Panel",
+    "overview": "Resumen",
     "welcome": "Bienvenido de nuevo",
     "welcomeName": "Bienvenido de nuevo, {name}",
     "recentJourneys": "Viajes recientes",

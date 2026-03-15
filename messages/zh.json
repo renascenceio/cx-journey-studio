@@ -196,6 +196,7 @@
   },
   "dashboard": {
     "title": "控制台",
+    "overview": "概览",
     "welcome": "欢迎回来",
     "welcomeName": "欢迎回来，{name}",
     "recentJourneys": "最近的旅程",
@@ -284,7 +285,7 @@
     "addPainPoint": "添加痛点",
     "addPainPointDesc": "描述客户在此接触点遇到的痛点或摩擦。",
     "addHighlight": "添加亮点",
-    "addHighlightDesc": "描述客户在此接触点体验到的积极时刻或愉悦感。",
+    "addHighlightDesc": "描述客户在此接触点体验���的积极时刻或愉悦感。",
     "description": "描述",
     "severity": "严重程度",
     "impact": "影响",
@@ -407,7 +408,7 @@
     "new": "新",
     "empty": "暂无通知",
     "viewAll": "查看所有通知",
-    "markAllRead": "全部标记为已读"
+    "markAllRead": "全部标记为已���"
   },
   "settings": {
     "title": "设置",

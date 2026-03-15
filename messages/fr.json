@@ -196,6 +196,7 @@
   },
   "dashboard": {
     "title": "Tableau de bord",
+    "overview": "Aperçu",
     "welcome": "Bienvenue",
     "welcomeName": "Bienvenue, {name}",
     "recentJourneys": "Parcours récents",
