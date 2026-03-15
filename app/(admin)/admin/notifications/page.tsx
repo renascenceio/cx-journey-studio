@@ -590,13 +590,11 @@ export default function NotificationsPage() {
 const sendTestEmail = async (eventId: string) => {
   setSendingTest(eventId)
   try {
-    const event = NOTIFICATION_EVENTS.find(e => e.id === eventId)
     const response = await fetch("/api/admin/send-test-email", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        template: eventId,
-        subject: `Test: ${event?.name || eventId}`,
+        eventType: eventId,
       }),
     })
     
