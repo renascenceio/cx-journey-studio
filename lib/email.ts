@@ -19,20 +19,26 @@ export interface EmailOptions {
   text?: string
 }
 
-export async function sendEmail(options: EmailOptions): Promise<{ success: boolean; error?: string; id?: string }> {
+export async function sendEmail(options: EmailOptions): Promise<{ success: boolean; error?: string; id?: string; details?: unknown }> {
   const resend = getResendClient()
   
   // Check if Resend is configured
   if (!resend) {
-    console.error("[Email] RESEND_API_KEY not found in environment variables")
-    return { success: false, error: "Email service not configured - RESEND_API_KEY missing" }
+    const apiKeyPresent = !!process.env.RESEND_API_KEY
+    const apiKeyLength = process.env.RESEND_API_KEY?.length || 0
+    console.error("[Email] RESEND_API_KEY check - present:", apiKeyPresent, "length:", apiKeyLength)
+    return { 
+      success: false, 
+      error: "Email service not configured - RESEND_API_KEY missing",
+      details: { apiKeyPresent, apiKeyLength }
+    }
   }
 
   try {
     // Using verified domain updates.rene.cx
     const fromAddress = options.from || "René Studio <noreply@updates.rene.cx>"
     
-    console.log("[Email] Sending to:", options.to, "Subject:", options.subject)
+    console.log("[Email] Attempting to send email to:", options.to, "Subject:", options.subject, "From:", fromAddress)
     
     const { data, error } = await resend.emails.send({
       from: fromAddress,
@@ -44,15 +50,19 @@ export async function sendEmail(options: EmailOptions): Promise<{ success: boole
     })
 
     if (error) {
-      console.error("[Email] Resend API error:", error.message, error)
-      return { success: false, error: error.message }
+      console.error("[Email] Resend API returned error:", JSON.stringify(error))
+      return { success: false, error: error.message, details: error }
     }
 
     console.log("[Email] Successfully sent! ID:", data?.id)
     return { success: true, id: data?.id }
   } catch (err) {
-    console.error("[Email] Exception:", err)
-    return { success: false, error: err instanceof Error ? err.message : "Unknown error" }
+    console.error("[Email] Exception thrown:", err)
+    return { 
+      success: false, 
+      error: err instanceof Error ? err.message : "Unknown error",
+      details: err instanceof Error ? { name: err.name, stack: err.stack } : err
+    }
   }
 }
 
