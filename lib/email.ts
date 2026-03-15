@@ -66,14 +66,26 @@ export async function sendEmail(options: EmailOptions): Promise<{ success: boole
   }
 }
 
-// Rene Logo as inline SVG for emails (works better than external images)
-const RENE_LOGO_SVG = `
-<svg width="120" height="32" viewBox="0 0 120 32" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <rect x="4" y="4" width="24" height="24" rx="4" fill="white"/>
-  <rect x="10" y="12" width="4" height="8" fill="#18181B"/>
-  <rect x="16" y="10" width="4" height="10" fill="#18181B"/>
-  <text x="36" y="22" font-family="system-ui, -apple-system, sans-serif" font-size="18" font-weight="600" fill="white">Rene</text>
-</svg>
+// Rene Logo HTML for emails - uses text with icon since SVG text isn't well supported
+const RENE_LOGO_HTML = `
+<table role="presentation" cellspacing="0" cellpadding="0" border="0" align="center">
+  <tr>
+    <td style="background: #ffffff; width: 36px; height: 36px; border-radius: 8px; text-align: center; vertical-align: middle;">
+      <div style="width: 36px; height: 36px; display: flex; align-items: center; justify-content: center;">
+        <table role="presentation" cellspacing="0" cellpadding="0" border="0">
+          <tr>
+            <td style="width: 6px; height: 12px; background: #18181B; border-radius: 1px;"></td>
+            <td style="width: 4px;"></td>
+            <td style="width: 6px; height: 16px; background: #18181B; border-radius: 1px;"></td>
+          </tr>
+        </table>
+      </div>
+    </td>
+    <td style="padding-left: 12px;">
+      <span style="font-size: 20px; font-weight: 600; color: #ffffff; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; letter-spacing: -0.02em;">Rene</span>
+    </td>
+  </tr>
+</table>
 `
 
 // Email template helper with modern design matching admin preview
@@ -113,7 +125,7 @@ export function wrapEmailTemplate(content: string, options?: {
             <td style="background-color: #18181B; padding: 32px 40px; text-align: center;">
               <!-- Logo -->
               <div style="margin-bottom: 24px;">
-                ${RENE_LOGO_SVG}
+                ${RENE_LOGO_HTML}
               </div>
               ${options?.headerIcon ? `
               <!-- Icon Circle -->
