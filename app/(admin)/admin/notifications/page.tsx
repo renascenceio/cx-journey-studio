@@ -587,12 +587,34 @@ export default function NotificationsPage() {
     )
   }
 
-  const sendTestEmail = async (eventId: string) => {
-    setSendingTest(eventId)
-    // Simulate sending
-    await new Promise(resolve => setTimeout(resolve, 1500))
-    setSendingTest(null)
+const sendTestEmail = async (eventId: string) => {
+  setSendingTest(eventId)
+  try {
+    const event = NOTIFICATION_EVENTS.find(e => e.id === eventId)
+    const response = await fetch("/api/admin/send-test-email", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        template: eventId,
+        subject: `Test: ${event?.name || eventId}`,
+      }),
+    })
+    
+    const data = await response.json()
+    
+    if (!response.ok) {
+      console.error("[v0] Test email failed:", data)
+      toast.error(data.error || "Failed to send test email")
+      return
+    }
+    
     toast.success("Test email sent to your inbox")
+  } catch (error) {
+    console.error("[v0] Test email error:", error)
+    toast.error("Failed to send test email")
+  } finally {
+    setSendingTest(null)
+  }
   }
 
   const handleSave = () => {
