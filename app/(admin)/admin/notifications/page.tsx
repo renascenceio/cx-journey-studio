@@ -211,37 +211,38 @@ const CATEGORIES = [
   { id: "digest", name: "Digests" },
 ]
 
-// Rene Logo SVG Component for emails
-function ReneLogo({ className = "" }: { className?: string }) {
+// René Studio Logo Component for emails
+function ReneStudioLogo({ className = "" }: { className?: string }) {
   return (
-    <svg className={className} viewBox="0 0 120 32" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <path d="M8 4H24C26.2091 4 28 5.79086 28 8V24C28 26.2091 26.2091 28 24 28H8C5.79086 28 4 26.2091 4 24V8C4 5.79086 5.79086 4 8 4Z" fill="currentColor"/>
-      <path d="M10 12H14V20H10V12Z" fill="white"/>
-      <path d="M16 10H20V20H16V10Z" fill="white"/>
-      <text x="36" y="22" fontFamily="system-ui, -apple-system, sans-serif" fontSize="18" fontWeight="600" fill="currentColor">
-        Rene
-      </text>
-    </svg>
+    <div className={`flex items-center gap-2 ${className}`}>
+      <div className="w-7 h-7 bg-current rounded-md flex items-center justify-center">
+        <div className="flex gap-0.5">
+          <div className="w-1 h-2 bg-white rounded-sm" />
+          <div className="w-1 h-2.5 bg-white rounded-sm" />
+        </div>
+      </div>
+      <span className="font-semibold text-current">René Studio</span>
+    </div>
   )
 }
 
 // Email template preview component
 function EmailPreview({ event }: { event: typeof NOTIFICATION_EVENTS[0] }) {
+  // Determine if this email type should show preferences link
+  const showPreferencesLink = !["welcome", "email_verification", "password_reset", "magic_link", "password_changed"].includes(event.id)
+  
   return (
     <div className="rounded-lg border border-border bg-white overflow-hidden shadow-sm">
-      {/* Email Header with Logo */}
+      {/* Email Header - Dark background, no logo (logo goes in footer) */}
       <div className="bg-[#18181B] px-6 py-6">
-        <div className="flex items-center justify-center gap-3 mb-6">
-          <ReneLogo className="h-8 w-auto text-white" />
-        </div>
         <div className="mx-auto mb-3 flex h-14 w-14 items-center justify-center rounded-2xl bg-white/10 backdrop-blur">
           <event.icon className="h-7 w-7 text-white" />
         </div>
         <h2 className="text-xl font-semibold text-white text-center">
-          {event.name === "Welcome Email" && "Welcome to Rene"}
+          {event.name === "Welcome Email" && "Welcome to René Studio"}
           {event.name === "Email Verification" && "Verify Your Email"}
           {event.name === "Password Reset" && "Reset Your Password"}
-          {event.name === "Magic Link Login" && "Sign In to Rene"}
+          {event.name === "Magic Link Login" && "Sign In to René Studio"}
           {event.name === "Password Changed" && "Password Updated"}
           {event.name === "Journey Shared" && "A Journey Was Shared With You"}
           {event.name === "Collaborator Joined" && "New Collaborator Joined"}
@@ -534,16 +535,21 @@ function EmailPreview({ event }: { event: typeof NOTIFICATION_EVENTS[0] }) {
       {/* Email Footer */}
       <div className="border-t border-zinc-200 bg-zinc-50 px-8 py-6">
         <div className="text-center">
-          <ReneLogo className="h-6 w-auto text-zinc-400 mx-auto mb-3" />
-          <p className="text-xs text-zinc-500">
-            <a href="#" className="text-zinc-600 hover:text-zinc-900 transition-colors">Unsubscribe</a>
-            {" · "}
-            <a href="#" className="text-zinc-600 hover:text-zinc-900 transition-colors">Preferences</a>
-            {" · "}
-            <a href="#" className="text-zinc-600 hover:text-zinc-900 transition-colors">Help</a>
-          </p>
+          <ReneStudioLogo className="justify-center text-zinc-700 mb-3" />
+          <p className="text-xs text-zinc-500 mb-2">Journey Design Studio</p>
+          {showPreferencesLink ? (
+            <p className="text-xs text-zinc-500">
+              <a href="#" className="text-zinc-600 hover:text-zinc-900 transition-colors">Notification Preferences</a>
+              {" · "}
+              <a href="#" className="text-zinc-600 hover:text-zinc-900 transition-colors">Unsubscribe</a>
+            </p>
+          ) : (
+            <p className="text-[11px] text-zinc-400">
+              This is a transactional email required for your account.
+            </p>
+          )}
           <p className="mt-3 text-[11px] text-zinc-400">
-            Renascence · Dubai, United Arab Emirates
+            Dubai, United Arab Emirates
           </p>
         </div>
       </div>
@@ -563,6 +569,7 @@ export default function NotificationsPage() {
     }))
   )
   const [sendingTest, setSendingTest] = useState<string | null>(null)
+  const [sendingInAppTest, setSendingInAppTest] = useState<string | null>(null)
   const [saving, setSaving] = useState(false)
   const [loading, setLoading] = useState(true)
   
@@ -651,6 +658,30 @@ const sendTestEmail = async (eventId: string) => {
   }
   }
 
+  const sendTestInAppNotification = async (eventId: string) => {
+    setSendingInAppTest(eventId)
+    try {
+      const response = await fetch("/api/test-notifications", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+      })
+      
+      const data = await response.json()
+      
+      if (!response.ok) {
+        toast.error(data.error || "Failed to create test notification")
+        return
+      }
+      
+      toast.success("Test notifications created! Check the bell icon in the top bar.")
+    } catch (error) {
+      console.error("[v0] Test in-app notification error:", error)
+      toast.error("Failed to create test notification")
+    } finally {
+      setSendingInAppTest(null)
+    }
+  }
+
   const handleSave = async () => {
     setSaving(true)
     try {
@@ -690,9 +721,28 @@ const sendTestEmail = async (eventId: string) => {
             Configure email and in-app notifications for all system events
           </p>
         </div>
-        <Button onClick={handleSave} disabled={saving || loading}>
-          {saving ? "Saving..." : "Save Changes"}
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button
+            variant="outline"
+            onClick={() => sendTestInAppNotification("all")}
+            disabled={sendingInAppTest === "all"}
+          >
+            {sendingInAppTest === "all" ? (
+              <>
+                <RefreshCw className="mr-1.5 h-4 w-4 animate-spin" />
+                Creating...
+              </>
+            ) : (
+              <>
+                <Bell className="mr-1.5 h-4 w-4" />
+                Test In-App Notifications
+              </>
+            )}
+          </Button>
+          <Button onClick={handleSave} disabled={saving || loading}>
+            {saving ? "Saving..." : "Save Changes"}
+          </Button>
+        </div>
       </div>
 
       <Tabs defaultValue="events" className="w-full">
@@ -813,6 +863,26 @@ const sendTestEmail = async (eventId: string) => {
                                   </>
                                 )}
                               </Button>
+                              {event.inAppEnabled && (
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  onClick={() => sendTestInAppNotification(event.id)}
+                                  disabled={sendingInAppTest === event.id}
+                                >
+                                  {sendingInAppTest === event.id ? (
+                                    <>
+                                      <RefreshCw className="mr-1.5 h-3.5 w-3.5 animate-spin" />
+                                      Creating...
+                                    </>
+                                  ) : (
+                                    <>
+                                      <Bell className="mr-1.5 h-3.5 w-3.5" />
+                                      Test In-App
+                                    </>
+                                  )}
+                                </Button>
+                              )}
                             </div>
                           </DialogContent>
                         </Dialog>
@@ -881,7 +951,7 @@ const sendTestEmail = async (eventId: string) => {
           <tr>
             <td style="background-color: #fafafa; border-top: 1px solid #e4e4e7; padding: 24px; text-align: center;">
               <p style="color: #71717a; font-size: 11px; margin: 0;">
-                René Studio · Renascence · Dubai, UAE
+                René Studio · Dubai, UAE
               </p>
             </td>
           </tr>

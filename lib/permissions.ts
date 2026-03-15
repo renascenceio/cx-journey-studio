@@ -120,7 +120,7 @@ export function usePermissions(): PermissionSet & { role: UserRole | null } {
 export const ROLE_LABELS: Record<UserRole, string> = {
   admin: "Admin",
   project_manager: "Project Manager",
-  journey_master: "Journey Master",
+  journey_master: "Master",
   contributor: "Contributor",
   viewer: "Viewer",
   external: "External",

@@ -395,16 +395,29 @@ export function AppTopbar() {
           {isAuthenticated && user ? (
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full">
+              <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full relative">
                 <Avatar className="h-7 w-7">
                   <AvatarFallback className="bg-primary/10 text-xs font-medium text-primary">
                     {getInitials(displayName)}
                   </AvatarFallback>
                 </Avatar>
+                {/* Payment issue alert dot */}
+                {workspace?.paymentStatus?.paymentFailed && (
+                  <span className="absolute -top-0.5 -right-0.5 h-3 w-3 rounded-full bg-red-500 border-2 border-background animate-pulse" />
+                )}
                 <span className="sr-only">Profile menu</span>
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-56">
+              {/* Payment alert banner */}
+              {workspace?.paymentStatus?.paymentFailed && (
+                <div className="px-2 py-2 mb-1 bg-red-50 dark:bg-red-950 border-b border-red-200 dark:border-red-800">
+                  <Link href="/settings/billing" className="flex items-center gap-2 text-red-700 dark:text-red-400 text-xs">
+                    <AlertTriangle className="h-3.5 w-3.5 flex-shrink-0" />
+                    <span className="font-medium">Payment failed - Update billing</span>
+                  </Link>
+                </div>
+              )}
               <DropdownMenuLabel>
                 <div className="flex flex-col">
                   <div className="flex items-center gap-2">
