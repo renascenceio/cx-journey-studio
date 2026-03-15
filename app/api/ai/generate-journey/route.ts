@@ -3,7 +3,7 @@ import { createAnthropic } from "@ai-sdk/anthropic"
 import { NextResponse } from "next/server"
 import { createClient } from "@/lib/supabase/server"
 import { revalidatePath } from "next/cache"
-import { detectPredominantLanguage, getLanguageInstruction, extractExplicitLanguage } from "@/lib/language-detection"
+import { smartDetectLanguage, getLanguageInstruction } from "@/lib/language-detection"
 
 interface GeneratedPainPoint {
   description: string
@@ -62,10 +62,30 @@ export async function POST(req: Request) {
 
   const { journeyId, title, description, options, language: explicitLanguage } = await req.json()
   
-  // Detect language from title/description or use explicit language
-  const extractedLang = description ? extractExplicitLanguage(description) : undefined
-  const langResult = detectPredominantLanguage(title, description, explicitLanguage || extractedLang)
-  const languageInstruction = getLanguageInstruction(langResult)
+  // Smart language detection with priority:
+  // 1. Explicit request in description ("generate in Spanish")
+  // 2. Language detected from title/description content
+  // 3. User's manual selection
+  // 4. Default to English
+  const langResult = smartDetectLanguage({
+    prompt: description,
+    title,
+    description,
+    userSelection: explicitLanguage,
+  })
+  
+  console.log("[v0] Journey language detection:", {
+    language: langResult.language,
+    source: langResult.source,
+    reasoning: langResult.reasoning,
+  })
+  
+  const languageInstruction = getLanguageInstruction({
+    detectedLanguage: langResult.language,
+    languageName: langResult.languageName,
+    confidence: langResult.confidence,
+    script: "Latin",
+  })
   
   // Default options - generate everything if not specified
   const generateOptions = {

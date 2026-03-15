@@ -206,42 +206,235 @@ DO NOT translate or mix languages. Keep everything consistently in ${langResult.
 }
 
 /**
+ * Comprehensive language name to code mapping
+ * Includes English names, native names, and common variations
+ */
+const LANGUAGE_NAME_TO_CODE: Record<string, string> = {
+  // English names
+  english: "en",
+  korean: "ko",
+  japanese: "ja",
+  chinese: "zh",
+  "mandarin": "zh",
+  "cantonese": "zh",
+  arabic: "ar",
+  spanish: "es",
+  french: "fr",
+  german: "de",
+  portuguese: "pt",
+  italian: "it",
+  russian: "ru",
+  hindi: "hi",
+  turkish: "tr",
+  dutch: "nl",
+  thai: "th",
+  vietnamese: "vi",
+  indonesian: "id",
+  malay: "ms",
+  polish: "pl",
+  ukrainian: "uk",
+  persian: "fa",
+  farsi: "fa",
+  urdu: "ur",
+  
+  // Native/local names
+  español: "es",
+  espanol: "es",
+  castellano: "es",
+  français: "fr",
+  francais: "fr",
+  deutsch: "de",
+  português: "pt",
+  portugues: "pt",
+  italiano: "it",
+  русский: "ru",
+  russkiy: "ru",
+  한국어: "ko",
+  hangugeo: "ko",
+  日本語: "ja",
+  nihongo: "ja",
+  中文: "zh",
+  zhongwen: "zh",
+  العربية: "ar",
+  عربي: "ar",
+  हिन्दी: "hi",
+  türkçe: "tr",
+  turkce: "tr",
+  tiếng việt: "vi",
+  "tieng viet": "vi",
+  bahasa: "id", // Usually means Indonesian
+  "bahasa indonesia": "id",
+  "bahasa melayu": "ms",
+  polski: "pl",
+  українська: "uk",
+  فارسی: "fa",
+  اردو: "ur",
+  ไทย: "th",
+  nederlands: "nl",
+}
+
+/**
  * Extract explicit language instruction from text
+ * Supports various patterns in multiple languages for requesting output language
  */
 export function extractExplicitLanguage(text: string): string | undefined {
+  if (!text) return undefined
+  
+  const lowerText = text.toLowerCase()
+  
+  // Patterns for explicit language requests (prioritized - most specific first)
   const patterns = [
-    /generate\s+(?:it\s+)?in\s+(\w+)/i,
-    /(?:write|create|make)\s+(?:it\s+)?in\s+(\w+)/i,
-    /language[:\s]+(\w+)/i,
-    /in\s+(\w+)\s+language/i,
+    // Direct language specification
+    /(?:output|response|generate|write|create|make|provide)\s+(?:this\s+)?(?:content\s+)?(?:all\s+)?in\s+(\w+(?:\s+\w+)?)/i,
+    /(?:in|using|use)\s+(\w+(?:\s+\w+)?)\s+(?:language|please|por favor|s'il vous plaît|bitte)/i,
+    /language[:\s]+(\w+(?:\s+\w+)?)/i,
+    /(?:respond|answer|reply)\s+in\s+(\w+(?:\s+\w+)?)/i,
+    // Spanish request patterns
+    /(?:en|escribe(?:lo)?|genera(?:lo)?|crea(?:lo)?)\s+(?:en\s+)?(\w+)/i,
+    // French request patterns
+    /(?:en|écris|génère|crée)\s+(?:en\s+)?(\w+)/i,
+    // German request patterns
+    /(?:auf|schreib|generier|erstell)\s+(?:auf\s+)?(\w+)/i,
+    // Portuguese request patterns
+    /(?:em|escreve|gera|cria)\s+(?:em\s+)?(\w+)/i,
+    // General "in X" pattern at end of text
+    /\bin\s+(\w+)$/i,
   ]
 
   for (const pattern of patterns) {
     const match = text.match(pattern)
     if (match && match[1]) {
-      const lang = match[1].toLowerCase()
-      // Map common language names to codes
-      const langMap: Record<string, string> = {
-        english: "en",
-        korean: "ko",
-        japanese: "ja",
-        chinese: "zh",
-        arabic: "ar",
-        spanish: "es",
-        french: "fr",
-        german: "de",
-        portuguese: "pt",
-        italian: "it",
-        russian: "ru",
-        hindi: "hi",
-        turkish: "tr",
-        dutch: "nl",
-        thai: "th",
-        vietnamese: "vi",
+      const langName = match[1].toLowerCase().trim()
+      
+      // Check if it's a known language name
+      const langCode = LANGUAGE_NAME_TO_CODE[langName]
+      if (langCode) {
+        return langCode
       }
-      return langMap[lang] || lang
+      
+      // Check if it's already a language code (2-3 chars)
+      if (langName.length <= 3 && /^[a-z]+(-[a-z]+)?$/i.test(langName)) {
+        return langName
+      }
     }
   }
 
   return undefined
+}
+
+/**
+ * Language detection result with reasoning for transparency
+ */
+export interface SmartLanguageResult {
+  language: string
+  languageName: string
+  confidence: "high" | "medium" | "low"
+  source: "explicit_request" | "content_detected" | "user_selection" | "default"
+  reasoning: string
+}
+
+/**
+ * Smart language detection with clear priority order:
+ * 1. Explicit request in prompt ("generate in Spanish", "en español")
+ * 2. Language detected from content (title/description text)
+ * 3. User's manual selection in the language picker
+ * 4. Default to English
+ * 
+ * Returns the detected language with reasoning for transparency
+ */
+export function smartDetectLanguage(params: {
+  prompt?: string
+  title?: string
+  description?: string
+  userSelection?: string
+}): SmartLanguageResult {
+  const { prompt, title, description, userSelection } = params
+  
+  // Priority 1: Check for explicit language request in the prompt
+  if (prompt) {
+    const explicitLang = extractExplicitLanguage(prompt)
+    if (explicitLang) {
+      const langInfo = getLanguageInfo(explicitLang)
+      return {
+        language: explicitLang,
+        languageName: langInfo.name,
+        confidence: "high",
+        source: "explicit_request",
+        reasoning: `User explicitly requested "${langInfo.name}" in their prompt`,
+      }
+    }
+  }
+  
+  // Priority 2: Detect language from content (title and description)
+  const contentText = [title, description].filter(Boolean).join(" ")
+  if (contentText.length > 3) {
+    const contentResult = detectLanguage(contentText)
+    
+    // Only use content detection if confidence is medium or high
+    // This prevents false positives from common words
+    if (contentResult.confidence !== "low" && contentResult.detectedLanguage !== "en") {
+      return {
+        language: contentResult.detectedLanguage,
+        languageName: contentResult.languageName,
+        confidence: contentResult.confidence,
+        source: "content_detected",
+        reasoning: `Detected ${contentResult.languageName} from the ${title ? "title" : "description"} text with ${contentResult.confidence} confidence`,
+      }
+    }
+  }
+  
+  // Priority 3: Use user's manual selection if provided and not English
+  // (English is treated as "no preference" since it's the default)
+  if (userSelection && userSelection !== "en") {
+    const langInfo = getLanguageInfo(userSelection)
+    return {
+      language: userSelection,
+      languageName: langInfo.name,
+      confidence: "high",
+      source: "user_selection",
+      reasoning: `User selected "${langInfo.name}" in the language picker`,
+    }
+  }
+  
+  // Priority 4: Default to English
+  return {
+    language: "en",
+    languageName: "English",
+    confidence: "medium",
+    source: "default",
+    reasoning: "No specific language detected or requested, defaulting to English",
+  }
+}
+
+/**
+ * Get language info from code
+ */
+function getLanguageInfo(code: string): { name: string; script: string } {
+  const languageMap: Record<string, { name: string; script: string }> = {
+    en: { name: "English", script: "Latin" },
+    ko: { name: "Korean", script: "Hangul" },
+    ja: { name: "Japanese", script: "Japanese" },
+    zh: { name: "Chinese", script: "Han" },
+    "zh-tw": { name: "Chinese (Traditional)", script: "Han" },
+    ar: { name: "Arabic", script: "Arabic" },
+    es: { name: "Spanish", script: "Latin" },
+    fr: { name: "French", script: "Latin" },
+    de: { name: "German", script: "Latin" },
+    pt: { name: "Portuguese", script: "Latin" },
+    it: { name: "Italian", script: "Latin" },
+    ru: { name: "Russian", script: "Cyrillic" },
+    hi: { name: "Hindi", script: "Devanagari" },
+    tr: { name: "Turkish", script: "Latin" },
+    nl: { name: "Dutch", script: "Latin" },
+    th: { name: "Thai", script: "Thai" },
+    vi: { name: "Vietnamese", script: "Latin" },
+    id: { name: "Indonesian", script: "Latin" },
+    ms: { name: "Malay", script: "Latin" },
+    pl: { name: "Polish", script: "Latin" },
+    uk: { name: "Ukrainian", script: "Cyrillic" },
+    fa: { name: "Persian", script: "Arabic" },
+    ur: { name: "Urdu", script: "Arabic" },
+  }
+  
+  return languageMap[code.toLowerCase()] || { name: "English", script: "Latin" }
 }
