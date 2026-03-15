@@ -260,7 +260,7 @@ const LANGUAGE_NAME_TO_CODE: Record<string, string> = {
   हिन्दी: "hi",
   türkçe: "tr",
   turkce: "tr",
-  tiếng việt: "vi",
+  "tiếng việt": "vi",
   "tieng viet": "vi",
   bahasa: "id", // Usually means Indonesian
   "bahasa indonesia": "id",

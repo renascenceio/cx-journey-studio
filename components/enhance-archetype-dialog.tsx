@@ -26,7 +26,6 @@ import {
 import { toast } from "sonner"
 import type { Archetype } from "@/lib/types"
 import { AILanguageSelector, useAILanguage } from "@/components/ai-language-selector"
-import { updateArchetype } from "@/lib/actions/data"
 import { mutate } from "swr"
 
 interface EnhanceArchetypeDialogProps {
@@ -362,13 +361,23 @@ export function EnhanceArchetypeDialog({
       // Build the update object
       const updates: Partial<Archetype> = {}
       
-      for (const change of acceptedChanges) {
-        (updates as any)[change.field] = change.suggestedValue
-      }
-
-      await updateArchetype(archetype.id, updates)
-      
-      mutate((key: string) => typeof key === "string" && key.includes("/api/archetypes"))
+for (const change of acceptedChanges) {
+  (updates as any)[change.field] = change.suggestedValue
+  }
+  
+  // Use the PATCH API route to update the archetype
+  const response = await fetch(`/api/archetypes/${archetype.id}`, {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(updates),
+  })
+  
+  if (!response.ok) {
+    const error = await response.json()
+    throw new Error(error.error || "Failed to update archetype")
+  }
+  
+  mutate((key: string) => typeof key === "string" && key.includes("/api/archetypes"))
       
       toast.success(`${acceptedChanges.length} changes applied successfully`)
       handleClose()
