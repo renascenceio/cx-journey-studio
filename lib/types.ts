@@ -455,3 +455,99 @@ export interface DashboardStats {
   deployedJourneys: number
   healthyDeployed: number
 }
+
+// --- Journey Enhancement (AI-powered changes) ---
+
+export type EnhancementChangeType = "add" | "modify" | "remove"
+export type EnhancementTargetType = "stage" | "step" | "touchpoint" | "painPoint" | "highlight"
+
+export interface EnhancementChange {
+  id: string
+  type: EnhancementChangeType
+  targetType: EnhancementTargetType
+  targetId?: string // For modify/remove - ID of existing item
+  parentId?: string // For add - parent container ID
+  confidence: number // 0-100 confidence score
+  reasoning: string // Why this change is suggested
+  
+  // The change data (what to add or change to)
+  data: {
+    // For stages
+    name?: string
+    order?: number
+    
+    // For steps
+    description?: string
+    
+    // For touchpoints
+    channel?: string
+    emotionalScore?: number
+    
+    // For pain points
+    severity?: Severity
+    
+    // For highlights
+    impact?: Impact
+  }
+  
+  // Original data (for modify/remove - shows what's being changed)
+  originalData?: {
+    name?: string
+    description?: string
+    channel?: string
+    emotionalScore?: number
+    severity?: Severity
+    impact?: Impact
+  }
+  
+  // Location context for UI display
+  location: {
+    stageName?: string
+    stageId?: string
+    stepName?: string
+    stepId?: string
+    touchpointChannel?: string
+    touchpointId?: string
+  }
+}
+
+export type EnhancementInputType = "text" | "voice" | "file"
+
+export interface EnhancementInput {
+  type: EnhancementInputType
+  content: string // Text content or transcription
+  fileName?: string // For file uploads
+  fileType?: string // MIME type
+}
+
+export interface EnhancementSession {
+  id: string
+  journeyId: string
+  input: EnhancementInput
+  changes: EnhancementChange[]
+  status: "analyzing" | "ready" | "applying" | "completed" | "cancelled"
+  createdAt: string
+  appliedAt?: string
+  appliedChangesCount?: number
+  rejectedChangesCount?: number
+}
+
+// --- Transfer/Handover ---
+
+export type TransferAction = "move" | "copy"
+export type TransferTargetType = "workspace" | "user"
+export type TransferAssetType = "journey" | "archetype" | "workspace"
+
+export interface TransferRequest {
+  assetType: TransferAssetType
+  assetId: string
+  action: TransferAction
+  targetType: TransferTargetType
+  targetId: string
+}
+
+export interface TransferResult {
+  success: boolean
+  newAssetId?: string // For copy operations
+  error?: string
+}

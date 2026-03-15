@@ -2,7 +2,7 @@
 
 import { useParams, usePathname } from "next/navigation"
 import Link from "next/link"
-import { ArrowLeft, Share2, MoreHorizontal, Copy, Rocket, BookTemplate, Upload, FileText, History, Eye, EyeOff, ThumbsUp, ArrowDown, ArrowUp, Sparkles, Loader2, Link2, Mail, Check, Globe, Lock } from "lucide-react"
+import { ArrowLeft, Share2, MoreHorizontal, Copy, Rocket, BookTemplate, Upload, FileText, History, Eye, EyeOff, ThumbsUp, ArrowDown, ArrowUp, Sparkles, Loader2, Link2, Mail, Check, Globe, Lock, ArrowRightLeft, Wand2 } from "lucide-react"
 import { useState, useEffect } from "react"
 import {
   AlertDialog,
@@ -34,6 +34,11 @@ import { updateJourneyStatus, duplicateJourney, toggleJourneyVisibility, upvoteJ
 import { mutate } from "swr"
 import { useRouter } from "next/navigation"
 import { PresenceIndicator, useMockPresence } from "@/components/presence-indicator"
+import { EnhanceJourneyDialog } from "@/components/enhance-journey-dialog"
+import { EnhancementReviewPanel } from "@/components/enhancement-review-panel"
+import { EnhancementTour, createTourSteps, type TourStep } from "@/components/enhancement-tour"
+import { TransferDialog } from "@/components/transfer-dialog"
+import type { EnhancementChange, Journey } from "@/lib/types"
 
 const statusColors: Record<string, string> = {
   draft: "bg-muted text-muted-foreground",
@@ -80,6 +85,17 @@ export default function JourneyDetailLayout({
   const [hasUpvoted, setHasUpvoted] = useState(false)
   const [upvoteCount, setUpvoteCount] = useState(0)
   const [linkCopied, setLinkCopied] = useState(false)
+  
+  // Enhancement feature state
+  const [enhanceDialogOpen, setEnhanceDialogOpen] = useState(false)
+  const [enhancementReviewOpen, setEnhancementReviewOpen] = useState(false)
+  const [pendingChanges, setPendingChanges] = useState<EnhancementChange[]>([])
+  const [changesSummary, setChangesSummary] = useState("")
+  const [tourSteps, setTourSteps] = useState<TourStep[]>([])
+  const [showTour, setShowTour] = useState(false)
+  
+  // Transfer feature state
+  const [transferDialogOpen, setTransferDialogOpen] = useState(false)
   
   // Hook must be called at top level (before any early returns)
   const activePresence = useMockPresence(journeyId)
@@ -187,6 +203,18 @@ export default function JourneyDetailLayout({
                 <Sparkles className="h-3 w-3" />
                 Generate with René AI
               </Button>
+              {/* Enhance with René AI button - visible when journey has stages */}
+              {journey.stages && journey.stages.length > 0 && (
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  className="h-7 text-xs gap-1.5"
+                  onClick={() => setEnhanceDialogOpen(true)}
+                >
+                  <Wand2 className="h-3 w-3" />
+                  Enhance with René AI
+                </Button>
+              )}
               {/* Upvote button */}
               <Button 
                 variant={hasUpvoted ? "default" : "outline"} 
@@ -338,6 +366,10 @@ export default function JourneyDetailLayout({
                   <DropdownMenuItem onClick={() => setImportOpen(true)}>
                     <Upload className="mr-2 h-3.5 w-3.5" />
                     Import
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => setTransferDialogOpen(true)}>
+                    <ArrowRightLeft className="mr-2 h-3.5 w-3.5" />
+                    Transfer Journey
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
                   {/* Visibility toggle */}
@@ -705,6 +737,85 @@ export default function JourneyDetailLayout({
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      {/* Enhance with René AI Dialog */}
+      {journey && (
+        <EnhanceJourneyDialog
+          open={enhanceDialogOpen}
+          onOpenChange={setEnhanceDialogOpen}
+          journey={journey as unknown as Journey}
+          onChangesGenerated={(changes, summary) => {
+            setPendingChanges(changes)
+            setChangesSummary(summary)
+            setEnhancementReviewOpen(true)
+          }}
+        />
+      )}
+
+      {/* Enhancement Review Panel */}
+      {journey && (
+        <EnhancementReviewPanel
+          open={enhancementReviewOpen}
+          onOpenChange={setEnhancementReviewOpen}
+          journeyId={journeyId}
+          journeyTitle={journey.title}
+          changes={pendingChanges}
+          summary={changesSummary}
+          onComplete={(appliedChangeIds) => {
+            // Create tour steps from applied changes
+            const steps = createTourSteps(appliedChangeIds, pendingChanges)
+            if (steps.length > 0) {
+              setTourSteps(steps)
+              setShowTour(true)
+            }
+            // Clear pending changes
+            setPendingChanges([])
+            setChangesSummary("")
+            // Refresh journey data
+            mutate((key: string) => typeof key === "string" && key.includes("/api/journeys"))
+          }}
+        />
+      )}
+
+      {/* Enhancement Tour */}
+      {showTour && tourSteps.length > 0 && (
+        <EnhancementTour
+          steps={tourSteps}
+          onComplete={() => {
+            setShowTour(false)
+            setTourSteps([])
+            toast.success("Tour complete! All changes have been applied.")
+          }}
+          onDismiss={() => {
+            setShowTour(false)
+            setTourSteps([])
+          }}
+        />
+      )}
+
+      {/* Transfer Dialog */}
+      {journey && (
+        <TransferDialog
+          open={transferDialogOpen}
+          onOpenChange={setTransferDialogOpen}
+          assetType="journey"
+          assetId={journeyId}
+          assetName={journey.title}
+          currentWorkspaceId={journey.organizationId}
+          onTransferComplete={(newAssetId) => {
+            mutate((key: string) => typeof key === "string" && key.includes("/api/journeys"))
+            if (newAssetId) {
+              // If copied, could navigate to new journey
+              toast.success("Journey copied successfully", {
+                action: {
+                  label: "Open Copy",
+                  onClick: () => router.push(`/journeys/${newAssetId}/overview`),
+                },
+              })
+            }
+          }}
+        />
+      )}
     </div>
   )
 }
