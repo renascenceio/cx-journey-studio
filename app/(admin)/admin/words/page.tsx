@@ -697,6 +697,128 @@ export default function AdminWordsPage() {
         </CardContent>
       </Card>
 
+      {/* Posts Display */}
+      {isLoading ? (
+        <div className="flex items-center justify-center py-16">
+          <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+        </div>
+      ) : filteredPosts.length === 0 ? (
+        <Card>
+          <CardContent className="py-16 text-center">
+            <FileText className="h-12 w-12 mx-auto text-muted-foreground/50 mb-4" />
+            <h3 className="text-lg font-semibold mb-2">No articles found</h3>
+            <p className="text-muted-foreground mb-4">
+              {searchQuery || filterStatus !== "all" || filterCategory !== "all" 
+                ? "Try adjusting your filters or search query"
+                : "Create your first article to get started"}
+            </p>
+            <Button onClick={() => setShowCreateDialog(true)}>
+              <Plus className="h-4 w-4 mr-2" />
+              Create Article
+            </Button>
+          </CardContent>
+        </Card>
+      ) : viewMode === "grid" ? (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {filteredPosts.map(post => (
+            <Card key={post.id} className="group hover:shadow-md transition-shadow">
+              <CardHeader className="pb-2">
+                <div className="flex items-start justify-between gap-2">
+                  <Badge variant={post.status === "published" ? "default" : "secondary"} className="shrink-0">
+                    {post.status}
+                  </Badge>
+                  <Badge variant="outline" className="shrink-0 text-xs">
+                    {post.language?.toUpperCase()}
+                  </Badge>
+                </div>
+                <CardTitle className="text-lg line-clamp-2 mt-2">{post.title}</CardTitle>
+              </CardHeader>
+              <CardContent className="pb-2">
+                <p className="text-sm text-muted-foreground line-clamp-2">{post.excerpt}</p>
+                <div className="flex items-center gap-3 mt-3 text-xs text-muted-foreground">
+                  <span className="flex items-center gap-1">
+                    <User className="h-3 w-3" />
+                    {post.author_name}
+                  </span>
+                  <span className="flex items-center gap-1">
+                    <Eye className="h-3 w-3" />
+                    {post.views || 0}
+                  </span>
+                  <span className="flex items-center gap-1">
+                    <Calendar className="h-3 w-3" />
+                    {new Date(post.created_at).toLocaleDateString()}
+                  </span>
+                </div>
+              </CardContent>
+              <CardFooter className="pt-2 gap-2">
+                <Button variant="outline" size="sm" className="flex-1" onClick={() => openEditDialog(post)}>
+                  <Edit className="h-3.5 w-3.5 mr-1" />
+                  Edit
+                </Button>
+                {post.status === "draft" ? (
+                  <Button variant="default" size="sm" className="flex-1" onClick={() => handlePublish(post.id, true)}>
+                    <CheckCircle2 className="h-3.5 w-3.5 mr-1" />
+                    Publish
+                  </Button>
+                ) : (
+                  <Button variant="secondary" size="sm" className="flex-1" onClick={() => handlePublish(post.id, false)}>
+                    Unpublish
+                  </Button>
+                )}
+                <Button variant="ghost" size="sm" className="text-destructive hover:text-destructive" onClick={() => handleDelete(post.id)}>
+                  <Trash2 className="h-3.5 w-3.5" />
+                </Button>
+              </CardFooter>
+            </Card>
+          ))}
+        </div>
+      ) : (
+        <Card>
+          <CardContent className="p-0">
+            <div className="divide-y">
+              {filteredPosts.map(post => (
+                <div key={post.id} className="flex items-center gap-4 p-4 hover:bg-muted/50 transition-colors">
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 mb-1">
+                      <Badge variant={post.status === "published" ? "default" : "secondary"} className="text-xs">
+                        {post.status}
+                      </Badge>
+                      <Badge variant="outline" className="text-xs">{post.language?.toUpperCase()}</Badge>
+                      <Badge variant="outline" className="text-xs">{post.category}</Badge>
+                    </div>
+                    <h3 className="font-medium truncate">{post.title}</h3>
+                    <p className="text-sm text-muted-foreground truncate">{post.excerpt}</p>
+                    <div className="flex items-center gap-3 mt-1 text-xs text-muted-foreground">
+                      <span>{post.author_name}</span>
+                      <span>{post.views || 0} views</span>
+                      <span>{new Date(post.created_at).toLocaleDateString()}</span>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2 shrink-0">
+                    <Button variant="outline" size="sm" onClick={() => openEditDialog(post)}>
+                      <Edit className="h-3.5 w-3.5 mr-1" />
+                      Edit
+                    </Button>
+                    {post.status === "draft" ? (
+                      <Button variant="default" size="sm" onClick={() => handlePublish(post.id, true)}>
+                        Publish
+                      </Button>
+                    ) : (
+                      <Button variant="secondary" size="sm" onClick={() => handlePublish(post.id, false)}>
+                        Unpublish
+                      </Button>
+                    )}
+                    <Button variant="ghost" size="sm" className="text-destructive hover:text-destructive" onClick={() => handleDelete(post.id)}>
+                      <Trash2 className="h-3.5 w-3.5" />
+                    </Button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
       {/* Edit Dialog */}
       <Dialog open={showEditDialog} onOpenChange={setShowEditDialog}>
         <DialogContent className="sm:max-w-4xl max-h-[90vh] overflow-y-auto">

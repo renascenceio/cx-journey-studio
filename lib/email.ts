@@ -16,16 +16,7 @@ export async function sendEmail(options: EmailOptions): Promise<{ success: boole
   // Check if Resend is configured
   if (!resend) {
     console.warn("[Email] Resend API key not configured - emails will not be sent")
-    // In development, log the email instead of failing
-    if (process.env.NODE_ENV === "development") {
-      console.log("[Email] Would send email:", {
-        to: options.to,
-        subject: options.subject,
-        from: options.from || "René Studio <noreply@updates.rene.cx>",
-      })
-      return { success: true, id: "dev-mock-id" }
-    }
-    return { success: false, error: "Email service not configured" }
+    return { success: false, error: "Email service not configured - RESEND_API_KEY missing" }
   }
 
   try {
@@ -42,7 +33,7 @@ export async function sendEmail(options: EmailOptions): Promise<{ success: boole
     })
 
     if (error) {
-      console.error("[Email] Failed to send:", error)
+      console.error("[Email] Failed to send:", error.message)
       return { success: false, error: error.message }
     }
 
