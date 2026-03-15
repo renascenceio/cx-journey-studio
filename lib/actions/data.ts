@@ -3,6 +3,32 @@
 import { createClient } from "@/lib/supabase/server"
 import { revalidatePath } from "next/cache"
 
+// Helper to log activity with organization_id
+async function logActivity(
+  supabase: Awaited<ReturnType<typeof createClient>>,
+  userId: string,
+  action: string,
+  details: string,
+  journeyId?: string,
+  extra?: { stage_id?: string; step_id?: string; comment_preview?: string }
+) {
+  // Get user's organization_id
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("organization_id")
+    .eq("id", userId)
+    .single()
+  
+  await supabase.from("activity_log").insert({
+    action,
+    actor_id: userId,
+    journey_id: journeyId,
+    details,
+    organization_id: profile?.organization_id,
+    ...extra,
+  })
+}
+
 // Helper to create notifications
 async function createNotification(
   supabase: Awaited<ReturnType<typeof createClient>>,
@@ -90,12 +116,7 @@ export async function createJourney(formData: {
   })
 
   // Log activity
-  await supabase.from("activity_log").insert({
-    action: "created",
-    actor_id: user.id,
-    journey_id: journey.id,
-    details: `Created ${formData.title}`,
-  })
+  await logActivity(supabase, user.id, "created", `Created ${formData.title}`, journey.id)
 
   // Add 3 default stages
   const defaultStages = ["Awareness", "Engagement", "Outcome"]
@@ -263,12 +284,7 @@ export async function createJourneyFromImport(parsedJourney: {
   }
 
   // Log activity
-  await supabase.from("activity_log").insert({
-    action: "created",
-    actor_id: user.id,
-    journey_id: journey.id,
-    details: `Imported "${parsedJourney.title}" with ${parsedJourney.stages.length} stages`,
-  })
+  await logActivity(supabase, user.id, "created", `Imported "${parsedJourney.title}" with ${parsedJourney.stages.length} stages`, journey.id)
 
   revalidatePath("/journeys")
   revalidatePath("/dashboard")
@@ -333,12 +349,7 @@ export async function createArchetype(formData: {
   if (error) throw new Error(error.message)
 
   // Log activity
-  await supabase.from("activity_log").insert({
-    action: "edited",
-    actor_id: user.id,
-    journey_id: formData.journeyId,
-    details: `Added archetype "${formData.name}"`,
-  })
+  await logActivity(supabase, user.id, "edited", `Added archetype "${formData.name}"`, formData.journeyId)
 
   revalidatePath("/archetypes")
   revalidatePath(`/journeys/${formData.journeyId}`)
@@ -444,12 +455,7 @@ export async function updateJourneyStatus(journeyId: string, status: string, typ
   if (error) throw new Error(error.message)
 
   // Log activity
-  await supabase.from("activity_log").insert({
-    action: "status_changed",
-    actor_id: user.id,
-    journey_id: journeyId,
-    details: `Status changed to ${status}${typeOverride ? `, type changed to ${typeOverride}` : ""}`,
-  })
+  await logActivity(supabase, user.id, "status_changed", `Status changed to ${status}${typeOverride ? `, type changed to ${typeOverride}` : ""}`, journeyId)
 
   // JDS-041: Auto-create a version snapshot on promotion/demotion
   if (typeOverride || status === "deployed") {
@@ -568,10 +574,7 @@ export async function addStage(journeyId: string, name: string) {
 
   if (error) throw new Error(error.message)
 
-  await supabase.from("activity_log").insert({
-    action: "edited", actor_id: user.id, journey_id: journeyId,
-    details: `Added stage "${name}"`,
-  })
+  await logActivity(supabase, user.id, "edited", `Added stage "${name}"`, journeyId)
 
   revalidatePath(`/journeys/${journeyId}`)
   return { id: data.id }
@@ -592,10 +595,7 @@ export async function deleteStage(stageId: string, journeyId: string) {
   const { error } = await supabase.from("stages").delete().eq("id", stageId)
   if (error) throw new Error(error.message)
 
-  await supabase.from("activity_log").insert({
-    action: "edited", actor_id: user.id, journey_id: journeyId,
-    details: "Deleted a stage",
-  })
+  await logActivity(supabase, user.id, "edited", "Deleted a stage", journeyId)
 
   revalidatePath(`/journeys/${journeyId}`)
 }
@@ -675,10 +675,7 @@ export async function restoreStage(stageData: {
     await supabase.from("highlights").insert(stageData.highlights)
   }
   
-  await supabase.from("activity_log").insert({
-    action: "edited", actor_id: user.id, journey_id: journeyId,
-    details: "Restored a stage",
-  })
+  await logActivity(supabase, user.id, "edited", "Restored a stage", journeyId)
   
   revalidatePath(`/journeys/${journeyId}`)
 }
@@ -715,10 +712,7 @@ export async function addStep(stageId: string, journeyId: string, name: string, 
 
   if (error) throw new Error(error.message)
 
-  await supabase.from("activity_log").insert({
-    action: "edited", actor_id: user.id, journey_id: journeyId,
-    details: `Added step "${name}"`,
-  })
+  await logActivity(supabase, user.id, "edited", `Added step "${name}"`, journeyId)
 
   revalidatePath(`/journeys/${journeyId}`)
   return { id: data.id }
@@ -768,10 +762,7 @@ export async function addTouchPoint(stepId: string, journeyId: string, data: {
 
   if (error) throw new Error(error.message)
 
-  await supabase.from("activity_log").insert({
-    action: "edited", actor_id: user.id, journey_id: journeyId,
-    details: `Added touch point in ${data.channel}`,
-  })
+  await logActivity(supabase, user.id, "edited", `Added touch point in ${data.channel}`, journeyId)
 
   revalidatePath(`/journeys/${journeyId}`)
   return { id: tp.id }
@@ -864,10 +855,7 @@ export async function duplicateJourney(journeyId: string) {
     journey_id: newJourney.id, user_id: user.id, role: "journey_master",
   })
 
-  await supabase.from("activity_log").insert({
-    action: "created", actor_id: user.id, journey_id: newJourney.id,
-    details: `Duplicated from "${original.title}"`,
-  })
+  await logActivity(supabase, user.id, "created", `Duplicated from "${original.title}"`, newJourney.id)
 
   revalidatePath("/journeys")
   revalidatePath("/dashboard")
@@ -1009,10 +997,7 @@ export async function addEvidence(touchPointId: string, journeyId: string, data:
   })
   if (error) throw new Error(error.message)
 
-  await supabase.from("activity_log").insert({
-    action: "edited", actor_id: user.id, journey_id: journeyId,
-    details: `Attached evidence "${data.label}"`,
-  })
+  await logActivity(supabase, user.id, "edited", `Attached evidence "${data.label}"`, journeyId)
   revalidatePath(`/journeys/${journeyId}`)
 }
 
@@ -1657,12 +1642,7 @@ export async function archiveJourney(journeyId: string) {
   
   if (error) throw new Error(error.message)
   
-  await supabase.from("activity_log").insert({
-    action: "status_change",
-    actor_id: user.id,
-    journey_id: journeyId,
-    details: `Archived journey "${journey.title}"`,
-  })
+  await logActivity(supabase, user.id, "status_change", `Archived journey "${journey.title}"`, journeyId)
   
   revalidatePath("/journeys")
   revalidatePath(`/journeys/${journeyId}`)
@@ -1699,12 +1679,7 @@ export async function restoreArchivedJourney(journeyId: string) {
   
   if (error) throw new Error(error.message)
   
-  await supabase.from("activity_log").insert({
-    action: "status_change",
-    actor_id: user.id,
-    journey_id: journeyId,
-    details: `Restored journey "${journey.title}" from archive`,
-  })
+  await logActivity(supabase, user.id, "status_change", `Restored journey "${journey.title}" from archive`, journeyId)
   
   revalidatePath("/journeys")
   revalidatePath(`/journeys/${journeyId}`)
