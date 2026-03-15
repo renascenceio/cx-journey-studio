@@ -271,7 +271,10 @@ Requirements:
 - ${stepsInstruction}
 - ${touchpointsInstruction}
 - emotionalScore: integer from -5 (very negative) to +5 (very positive)
-- Channels: Website, Mobile App, Email, Phone, Live Chat, Social Media, Physical Store, SMS, In-Person, Documentation, Community Forum, etc.
+- Channels: Use channel names IN THE TARGET LANGUAGE. Examples in English: Website, Mobile App, Email, Phone, Live Chat, Social Media, Physical Store, SMS, In-Person, Documentation, Community Forum, Video Call, Push Notification, Self-Service Portal, Kiosk, ATM, Branch, Mail.
+  If generating in Russian, use: Вебсайт, Мобильное приложение, Электронная почта, Телефон, Чат, Социальные сети, Физический магазин, SMS, Лично, Документация, Форум сообщества, etc.
+  If generating in Spanish, use: Sitio web, Aplicación móvil, Correo electrónico, Teléfono, Chat en vivo, Redes sociales, Tienda física, SMS, En persona, Documentación, Foro comunitario, etc.
+  ALWAYS translate channel names to match the target language.
 - Vary emotional scores realistically - not everything is positive, include friction points
 
 ${painPointsInstruction}

@@ -1065,11 +1065,53 @@
     "stages": "stages",
     "loadingJourneys": "Loading journeys..."
   },
-  "impactMetrics": {
-    "fasterMapping": "faster journey mapping",
-    "npsImprovement": "NPS improvement",
-    "crossTeamAlignment": "more cross-team alignment",
-    "churnReduction": "reduction in churn"
+"impactMetrics": {
+    "fasterMapping": "schnelleres Journey Mapping",
+    "npsImprovement": "NPS-Verbesserung",
+    "crossTeamAlignment": "mehr teamübergreifende Abstimmung",
+    "churnReduction": "Reduzierung der Abwanderung"
+  },
+  "ai": {
+    "selectLanguage": "Generierungssprache wählen",
+    "searchLanguages": "Sprachen suchen...",
+    "noLanguageFound": "Sprache nicht gefunden",
+    "autoDetected": "Automatisch erkannt",
+    "generateIn": "Generieren in",
+    "generationLanguage": "Generierungssprache",
+    "generationLanguageDesc": "Inhalte werden in der ausgewählten Sprache generiert",
+    "detectFromName": "Aus Namen erkannt",
+    "defaultLanguage": "Standardsprache",
+    "willGenerateIn": "Inhalte werden auf {language} generiert",
+    "generatedBadge": "KI-generiert",
+    "generatedBadgeTooltip": "Dieser Inhalt wurde mit KI-Unterstützung erstellt",
+    "hideBadge": "KI-Badge ausblenden",
+    "showBadge": "KI-Badge anzeigen",
+    "badgeHidden": "KI-Badge ist für dieses Asset ausgeblendet",
+    "privilegedDomain": "Privilegierte Domain",
+    "privilegedDomainDesc": "Benutzer von privilegierten Domains zeigen keine KI-Badges an",
+    "languageDetectionTitle": "KI-Spracherkennung",
+    "languageDetectionDesc": "Bei der Nutzung von KI-Funktionen wird die Ausgabesprache nach Priorität bestimmt: 1) Explizite Anfragen in Ihrem Prompt, 2) Die Sprache Ihres Titels/Ihrer Beschreibung, 3) Ihre manuelle Sprachauswahl.",
+    "languageDetectionTooltip": "Die Sprache wird automatisch aus Ihrer Eingabe erkannt oder Sie können sie explizit angeben (z.B. 'auf Deutsch', 'in German')"
+  },
+  "channels": {
+    "website": "Website",
+    "mobileApp": "Mobile App",
+    "email": "E-Mail",
+    "phone": "Telefon",
+    "liveChat": "Live-Chat",
+    "socialMedia": "Soziale Medien",
+    "physicalStore": "Physisches Geschäft",
+    "sms": "SMS",
+    "inPerson": "Persönlich",
+    "documentation": "Dokumentation",
+    "communityForum": "Community-Forum",
+    "pushNotification": "Push-Benachrichtigung",
+    "selfService": "Self-Service-Portal",
+    "videoCall": "Videoanruf",
+    "mail": "Post",
+    "kiosk": "Kiosk",
+    "atm": "Geldautomat",
+    "branch": "Filiale"
   },
   "analytics": {
     "title": "Analytics",
