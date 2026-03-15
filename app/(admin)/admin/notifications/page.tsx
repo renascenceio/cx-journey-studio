@@ -590,6 +590,7 @@ export default function NotificationsPage() {
 const sendTestEmail = async (eventId: string) => {
   setSendingTest(eventId)
   try {
+    console.log("[v0] Sending test email for event:", eventId)
     const response = await fetch("/api/admin/send-test-email", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -599,17 +600,21 @@ const sendTestEmail = async (eventId: string) => {
     })
     
     const data = await response.json()
+    console.log("[v0] Test email response:", data)
     
     if (!response.ok) {
       console.error("[v0] Test email failed:", data)
-      toast.error(data.error || "Failed to send test email")
+      // Show detailed error including debug info
+      const errorMsg = data.error || "Failed to send test email"
+      const debugInfo = data.debugInfo ? ` (API Key present: ${data.debugInfo.hasApiKey})` : ""
+      toast.error(`${errorMsg}${debugInfo}`)
       return
     }
     
-    toast.success("Test email sent to your inbox")
+    toast.success(`Test email sent! ID: ${data.emailId || "unknown"}`)
   } catch (error) {
     console.error("[v0] Test email error:", error)
-    toast.error("Failed to send test email")
+    toast.error("Network error - check console for details")
   } finally {
     setSendingTest(null)
   }
