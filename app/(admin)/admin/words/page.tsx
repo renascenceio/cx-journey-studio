@@ -694,9 +694,8 @@ export default function AdminWordsPage() {
               </Button>
             </div>
           </div>
-          </CardContent>
-        </Card>
-      )}
+        </CardContent>
+      </Card>
 
       {/* Edit Dialog */}
       <Dialog open={showEditDialog} onOpenChange={setShowEditDialog}>
