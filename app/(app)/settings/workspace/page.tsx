@@ -38,13 +38,16 @@ export default function WorkspaceSettingsPage() {
   const router = useRouter()
   const [saving, setSaving] = useState(false)
   const [logoUrl, setLogoUrl] = useState<string | null>(null)
+  const [faviconUrl, setFaviconUrl] = useState<string | null>(null)
   const [uploading, setUploading] = useState(false)
+  const [uploadingFavicon, setUploadingFavicon] = useState(false)
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
   const [deleting, setDeleting] = useState(false)
   const [deleteConfirmText, setDeleteConfirmText] = useState("")
   const [workspaceTimezone, setWorkspaceTimezone] = useState<string>("America/New_York")
   const nameRef = useRef<HTMLInputElement>(null)
   const logoRef = useRef<HTMLInputElement>(null)
+  const faviconRef = useRef<HTMLInputElement>(null)
 
   // Initialize logoUrl from workspace when it loads
   useEffect(() => {
@@ -75,6 +78,33 @@ export default function WorkspaceSettingsPage() {
     }
   }
 
+  async function handleFaviconUpload(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0]
+    if (!file) return
+    // Allow .ico, .png, and .svg files
+    const validTypes = ["image/x-icon", "image/vnd.microsoft.icon", "image/png", "image/svg+xml"]
+    if (!validTypes.includes(file.type) && !file.name.endsWith(".ico")) { 
+      toast.error("Please select a .ico, .png, or .svg file")
+      return 
+    }
+    if (file.size > 256 * 1024) { toast.error("Favicon must be under 256KB"); return }
+    setUploadingFavicon(true)
+    try {
+      const formData = new FormData()
+      formData.append("file", file)
+      formData.append("purpose", "workspace-favicon")
+      const res = await fetch("/api/upload", { method: "POST", body: formData })
+      if (!res.ok) throw new Error("Upload failed")
+      const data = await res.json()
+      setFaviconUrl(data.url)
+      toast.success("Favicon updated")
+    } catch {
+      toast.error("Failed to upload favicon")
+    } finally {
+      setUploadingFavicon(false)
+    }
+  }
+
   if (!workspace) {
     return <p className="text-sm text-muted-foreground">No workspace selected</p>
   }
@@ -95,20 +125,41 @@ export default function WorkspaceSettingsPage() {
           <CardDescription>{t("workspaceDetailsDesc")}</CardDescription>
         </CardHeader>
         <CardContent className="flex flex-col gap-4">
-          <div className="flex items-center gap-4 mb-2">
-            {logoUrl ? (
-              <img src={logoUrl} alt="Workspace logo" className="h-14 w-14 rounded-lg object-cover" />
-            ) : (
-              <div className="flex h-14 w-14 items-center justify-center rounded-lg bg-primary/10 text-xl font-bold text-primary">
-                {workspace.name.charAt(0)}
+          <div className="flex items-start gap-6 mb-2">
+            {/* Logo Upload */}
+            <div className="flex items-center gap-4">
+              {logoUrl ? (
+                <img src={logoUrl} alt="Workspace logo" className="h-14 w-14 rounded-lg object-cover" />
+              ) : (
+                <div className="flex h-14 w-14 items-center justify-center rounded-lg bg-primary/10 text-xl font-bold text-primary">
+                  {workspace.name.charAt(0)}
+                </div>
+              )}
+              <div>
+                <input ref={logoRef} type="file" accept="image/*" className="hidden" onChange={handleLogoUpload} />
+                <Button variant="outline" size="sm" onClick={() => logoRef.current?.click()} disabled={uploading}>
+                  {uploading ? t("uploading") : t("uploadLogo")}
+                </Button>
+                <p className="text-[11px] text-muted-foreground mt-1">{t("logoFormats")}</p>
               </div>
-            )}
-            <div>
-              <input ref={logoRef} type="file" accept="image/*" className="hidden" onChange={handleLogoUpload} />
-              <Button variant="outline" size="sm" onClick={() => logoRef.current?.click()} disabled={uploading}>
-                {uploading ? t("uploading") : t("uploadLogo")}
-              </Button>
-              <p className="text-[11px] text-muted-foreground mt-1">{t("logoFormats")}</p>
+            </div>
+            
+            {/* Favicon Upload */}
+            <div className="flex items-center gap-4 border-l border-border pl-6">
+              {faviconUrl ? (
+                <img src={faviconUrl} alt="Favicon" className="h-10 w-10 rounded object-contain bg-muted p-1" />
+              ) : (
+                <div className="flex h-10 w-10 items-center justify-center rounded bg-muted text-xs font-medium text-muted-foreground">
+                  .ico
+                </div>
+              )}
+              <div>
+                <input ref={faviconRef} type="file" accept=".ico,.png,.svg,image/x-icon,image/png,image/svg+xml" className="hidden" onChange={handleFaviconUpload} />
+                <Button variant="outline" size="sm" onClick={() => faviconRef.current?.click()} disabled={uploadingFavicon}>
+                  {uploadingFavicon ? t("uploading") : "Upload Favicon"}
+                </Button>
+                <p className="text-[11px] text-muted-foreground mt-1">.ico, .png, or .svg (max 256KB)</p>
+              </div>
             </div>
           </div>
           <div className="grid gap-4 sm:grid-cols-2">

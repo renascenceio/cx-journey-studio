@@ -36,11 +36,12 @@ function JourneyPreviewViz() {
 }
 
 function EmotionalArcViz() {
+  const stages = ["Awareness", "Consider", "Purchase", "Onboard", "Retain"]
   const scores = [3, -1, 2, 4, 3]
-  const width = 160
-  const height = 48
-  const padX = 8
-  const padY = 8
+  const width = 280
+  const height = 100
+  const padX = 20
+  const padY = 16
   const innerW = width - padX * 2
   const innerH = height - padY * 2
   const range = 10
@@ -48,6 +49,8 @@ function EmotionalArcViz() {
   const points = scores.map((s, i) => ({
     x: padX + (i / (scores.length - 1)) * innerW,
     y: padY + ((5 - s) / range) * innerH,
+    score: s,
+    stage: stages[i],
   }))
 
   const pathD = points
@@ -60,21 +63,49 @@ function EmotionalArcViz() {
     .join(" ")
 
   return (
-    <div className="mt-3 mb-1">
-      <svg viewBox={`0 0 ${width} ${height}`} className="w-full h-12">
+    <div className="mt-4 mb-2 rounded-lg border border-border/50 bg-muted/20 p-3">
+      <svg viewBox={`0 0 ${width} ${height}`} className="w-full h-24">
         <defs>
-          <linearGradient id="arc-grad" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor="var(--color-primary)" stopOpacity={0.2} />
-            <stop offset="100%" stopColor="var(--color-primary)" stopOpacity={0} />
+          <linearGradient id="arc-grad-v2" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor="var(--color-chart-1)" stopOpacity={0.3} />
+            <stop offset="50%" stopColor="var(--color-chart-2)" stopOpacity={0.1} />
+            <stop offset="100%" stopColor="var(--color-chart-4)" stopOpacity={0.05} />
           </linearGradient>
         </defs>
-        <line x1={padX} y1={height/2} x2={width-padX} y2={height/2} stroke="currentColor" strokeOpacity={0.1} strokeDasharray="2 2" />
-        <path d={`${pathD} L ${points[points.length - 1].x} ${height - padY} L ${points[0].x} ${height - padY} Z`} fill="url(#arc-grad)" />
-        <path d={pathD} fill="none" stroke="var(--color-primary)" strokeWidth={2} strokeLinecap="round" />
+        {/* Neutral baseline */}
+        <line x1={padX} y1={height/2} x2={width-padX} y2={height/2} stroke="currentColor" strokeOpacity={0.15} strokeDasharray="4 4" />
+        {/* Positive zone label */}
+        <text x={padX - 2} y={padY + 4} fontSize="7" fill="currentColor" opacity={0.4} textAnchor="end">+</text>
+        {/* Negative zone label */}
+        <text x={padX - 2} y={height - padY - 2} fontSize="7" fill="currentColor" opacity={0.4} textAnchor="end">-</text>
+        {/* Area fill */}
+        <path d={`${pathD} L ${points[points.length - 1].x} ${height/2} L ${points[0].x} ${height/2} Z`} fill="url(#arc-grad-v2)" />
+        {/* Main line */}
+        <path d={pathD} fill="none" stroke="var(--color-primary)" strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round" />
+        {/* Data points with sentiment colors */}
         {points.map((p, i) => (
-          <circle key={i} cx={p.x} cy={p.y} r={2.5} fill="var(--color-primary)" />
+          <g key={i}>
+            <circle cx={p.x} cy={p.y} r={5} fill={p.score >= 2 ? "var(--color-chart-1)" : p.score < 0 ? "var(--color-chart-4)" : "var(--color-chart-2)"} />
+            <circle cx={p.x} cy={p.y} r={2.5} fill="white" />
+            <text x={p.x} y={height - 4} fontSize="7" fill="currentColor" opacity={0.5} textAnchor="middle">{p.stage}</text>
+          </g>
         ))}
       </svg>
+      {/* Legend */}
+      <div className="flex justify-center gap-4 mt-2">
+        <div className="flex items-center gap-1">
+          <div className="w-2 h-2 rounded-full bg-chart-1" />
+          <span className="text-[8px] text-muted-foreground">Positive</span>
+        </div>
+        <div className="flex items-center gap-1">
+          <div className="w-2 h-2 rounded-full bg-chart-2" />
+          <span className="text-[8px] text-muted-foreground">Neutral</span>
+        </div>
+        <div className="flex items-center gap-1">
+          <div className="w-2 h-2 rounded-full bg-chart-4" />
+          <span className="text-[8px] text-muted-foreground">Pain Point</span>
+        </div>
+      </div>
     </div>
   )
 }
@@ -107,20 +138,36 @@ function ViewModesViz() {
 }
 
 function ArchetypeViz() {
+  const pillars = [
+    { name: "Tech Comfort", value: 0.85 },
+    { name: "Price Sensitive", value: 0.4 },
+    { name: "Brand Loyal", value: 0.7 },
+    { name: "Research Heavy", value: 0.95 },
+  ]
   return (
-    <div className="flex items-center gap-3 mt-3 mb-1">
-      <div className="h-10 w-10 rounded-full bg-gradient-to-br from-chart-1/30 to-chart-2/30 flex items-center justify-center">
-        <UserCircle className="h-5 w-5 text-muted-foreground" />
-      </div>
-      <div className="flex-1">
-        <div className="flex gap-1 mb-1">
-          {[0.8, 0.6, 0.9, 0.4].map((v, i) => (
-            <div key={i} className="flex-1 bg-muted/50 rounded-full h-1.5">
-              <div className="h-full rounded-full bg-primary/60" style={{width: `${v*100}%`}} />
-            </div>
-          ))}
+    <div className="mt-4 mb-2 rounded-lg border border-border/50 bg-muted/20 p-3">
+      <div className="flex items-start gap-3">
+        <div className="h-12 w-12 rounded-xl bg-gradient-to-br from-chart-1/30 to-chart-2/30 flex items-center justify-center shrink-0">
+          <UserCircle className="h-6 w-6 text-primary" />
         </div>
-        <p className="text-[8px] text-muted-foreground">Tech-Savvy Shopper</p>
+        <div className="flex-1 min-w-0">
+          <p className="text-[11px] font-semibold text-foreground">Tech-Savvy Shopper</p>
+          <p className="text-[9px] text-muted-foreground mb-2">Research-driven, values reviews</p>
+          <div className="space-y-1.5">
+            {pillars.map((p) => (
+              <div key={p.name} className="flex items-center gap-2">
+                <span className="text-[7px] text-muted-foreground w-16 truncate">{p.name}</span>
+                <div className="flex-1 bg-muted/50 rounded-full h-1.5">
+                  <div 
+                    className="h-full rounded-full bg-gradient-to-r from-chart-1 to-chart-2" 
+                    style={{width: `${p.value*100}%`}} 
+                  />
+                </div>
+                <span className="text-[7px] text-muted-foreground w-6 text-right">{Math.round(p.value*100)}%</span>
+              </div>
+            ))}
+          </div>
+        </div>
       </div>
     </div>
   )
@@ -179,12 +226,27 @@ function GapAnalysisViz() {
 }
 
 function TemplatesViz() {
+  const templates = [
+    { name: "E-Commerce", stages: 5, color: "bg-chart-1", icon: "🛒" },
+    { name: "SaaS Onboarding", stages: 4, color: "bg-chart-2", icon: "💻" },
+    { name: "Banking", stages: 6, color: "bg-chart-4", icon: "🏦" },
+  ]
   return (
-    <div className="flex gap-1.5 mt-3 mb-1">
-      {["E-Com", "SaaS", "Bank"].map((t, i) => (
-        <div key={t} className="flex-1 rounded border border-border/50 bg-muted/30 p-1.5">
-          <div className={`h-4 w-full rounded mb-1 ${i === 0 ? 'bg-chart-1/30' : i === 1 ? 'bg-chart-2/30' : 'bg-chart-4/30'}`} />
-          <p className="text-[7px] text-center text-muted-foreground">{t}</p>
+    <div className="mt-4 mb-2 space-y-2">
+      {templates.map((t) => (
+        <div key={t.name} className="flex items-center gap-2 rounded-lg border border-border/50 bg-muted/20 p-2 hover:border-primary/30 hover:bg-primary/5 transition-colors cursor-pointer group">
+          <div className={`h-8 w-8 rounded-md ${t.color}/20 flex items-center justify-center text-sm`}>
+            {t.icon}
+          </div>
+          <div className="flex-1 min-w-0">
+            <p className="text-[10px] font-medium text-foreground truncate">{t.name}</p>
+            <p className="text-[8px] text-muted-foreground">{t.stages} stages</p>
+          </div>
+          <div className="flex gap-0.5">
+            {Array.from({ length: t.stages }).map((_, i) => (
+              <div key={i} className={`h-1.5 w-1.5 rounded-full ${t.color}/50`} />
+            ))}
+          </div>
         </div>
       ))}
     </div>

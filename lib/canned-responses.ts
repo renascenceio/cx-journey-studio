@@ -14,7 +14,7 @@ export const CANNED_RESPONSES: CannedResponse[] = [
   {
     id: "greeting-1",
     title: "Initial Greeting",
-    body: "Hi there! Thank you for reaching out to Journey Design Studio support. I'm here to help you. Let me look into your issue right away.",
+    body: "Hi there! Thank you for reaching out to René Studio support. I'm here to help you. Let me look into your issue right away.",
     category: "greeting",
     shortcut: "/hi",
   },
@@ -99,7 +99,7 @@ export const CANNED_RESPONSES: CannedResponse[] = [
   {
     id: "tech-2",
     title: "Browser Compatibility",
-    body: "For the best experience with Journey Design Studio, we recommend using the latest version of Chrome, Firefox, Safari, or Edge. Some features may not work correctly on older browsers.",
+    body: "For the best experience with René Studio, we recommend using the latest version of Chrome, Firefox, Safari, or Edge. Some features may not work correctly on older browsers.",
     category: "technical",
     shortcut: "/browser",
   },
