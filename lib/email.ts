@@ -66,18 +66,21 @@ export async function sendEmail(options: EmailOptions): Promise<{ success: boole
   }
 }
 
-// Small Rene Logo HTML for footer - simple icon only
-const RENE_LOGO_SMALL_HTML = `
+// René Studio Logo HTML for footer (light version - dark icon on light background)
+const RENE_LOGO_FOOTER_HTML = `
 <table role="presentation" cellspacing="0" cellpadding="0" border="0" align="center">
   <tr>
-    <td style="background: #18181B; width: 24px; height: 24px; border-radius: 6px; text-align: center; vertical-align: middle;">
+    <td style="background: #18181B; width: 28px; height: 28px; border-radius: 6px; text-align: center; vertical-align: middle; padding: 6px;">
       <table role="presentation" cellspacing="0" cellpadding="0" border="0" align="center" style="margin: 0 auto;">
         <tr>
-          <td style="width: 4px; height: 8px; background: #ffffff; border-radius: 1px;"></td>
-          <td style="width: 2px;"></td>
-          <td style="width: 4px; height: 10px; background: #ffffff; border-radius: 1px;"></td>
+          <td style="width: 5px; height: 10px; background: #ffffff; border-radius: 1px;"></td>
+          <td style="width: 3px;"></td>
+          <td style="width: 5px; height: 12px; background: #ffffff; border-radius: 1px;"></td>
         </tr>
       </table>
+    </td>
+    <td style="padding-left: 10px;">
+      <span style="font-size: 14px; font-weight: 600; color: #18181B; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">René Studio</span>
     </td>
   </tr>
 </table>
@@ -90,10 +93,12 @@ export function wrapEmailTemplate(content: string, options?: {
   headerTitle?: string
   unsubscribeUrl?: string
   preferencesUrl?: string
+  showPreferencesLink?: boolean  // Whether to show notification preferences link (not for transactional emails)
 }): string {
-  const siteName = options?.siteName || "Rene"
+  const siteName = options?.siteName || "René Studio"
   const unsubscribeUrl = options?.unsubscribeUrl || "https://rene.cx/settings/notifications"
   const preferencesUrl = options?.preferencesUrl || "https://rene.cx/settings/notifications"
+  const showPreferencesLink = options?.showPreferencesLink !== false  // Default to true
   
   return `
 <!DOCTYPE html>
@@ -144,21 +149,23 @@ export function wrapEmailTemplate(content: string, options?: {
               <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0">
                 <tr>
                   <td align="center">
-                    <!-- Small Logo -->
+                    <!-- René Studio Logo -->
                     <div style="margin-bottom: 16px;">
-                      ${RENE_LOGO_SMALL_HTML}
+                      ${RENE_LOGO_FOOTER_HTML}
                     </div>
                     <p style="margin: 0 0 12px; font-size: 13px; color: #71717a;">
-                      ${siteName} by Renascence
+                      by Renascence
                     </p>
                     <p style="margin: 0 0 16px; font-size: 12px; color: #a1a1aa;">
                       You're receiving this because you have an account at rene.cx
                     </p>
+                    ${showPreferencesLink ? `
                     <p style="margin: 0; font-size: 12px;">
                       <a href="${preferencesUrl}" style="color: #71717a; text-decoration: underline;">Notification Preferences</a>
                       <span style="color: #d4d4d8; margin: 0 8px;">|</span>
                       <a href="${unsubscribeUrl}" style="color: #71717a; text-decoration: underline;">Unsubscribe</a>
                     </p>
+                    ` : ''}
                   </td>
                 </tr>
               </table>
@@ -191,7 +198,7 @@ export const emailTemplates = {
       Hi ${name},
     </p>
     <p style="margin: 0 0 24px; font-size: 16px; line-height: 1.6; color: #52525b;">
-      Thank you for joining Rene! We're excited to have you on board. Start creating amazing customer journey maps and transform how you understand your customers.
+      Thank you for joining René Studio! We're excited to have you on board. Start creating amazing customer journey maps and transform how you understand your customers.
     </p>
     ${verifyUrl ? `
     <div style="text-align: center; margin: 32px 0;">
@@ -209,14 +216,14 @@ export const emailTemplates = {
     <p style="margin: 0; font-size: 14px; line-height: 1.6; color: #71717a;">
       Need help getting started? Check out our <a href="https://rene.cx/docs" style="color: #18181b; text-decoration: underline;">documentation</a> or reach out to our support team.
     </p>
-  `, { headerTitle: "Welcome to Rene", headerIcon: "👋" }),
+  `, { headerTitle: "Welcome to René Studio", headerIcon: "👋", showPreferencesLink: false }),
 
   passwordReset: (name: string, resetUrl: string) => wrapEmailTemplate(`
     <p style="margin: 0 0 24px; font-size: 16px; line-height: 1.6; color: #52525b;">
       Hi ${name},
     </p>
     <p style="margin: 0 0 24px; font-size: 16px; line-height: 1.6; color: #52525b;">
-      We received a request to reset your password. Click the button below to create a new password.
+      We received a request to reset your René Studio password. Click the button below to create a new password.
     </p>
     <div style="text-align: center; margin: 32px 0;">
       <a href="${resetUrl}" style="display: inline-block; padding: 14px 32px; background: #18181b; color: #ffffff; text-decoration: none; border-radius: 8px; font-weight: 500; font-size: 14px;">
@@ -228,25 +235,25 @@ export const emailTemplates = {
         This link will expire in 1 hour. If you didn't request this password reset, you can safely ignore this email.
       </p>
     </div>
-  `, { headerTitle: "Reset Your Password", headerIcon: "🔐" }),
+  `, { headerTitle: "Reset Your Password", headerIcon: "🔐", showPreferencesLink: false }),
 
   magicLink: (email: string, loginUrl: string) => wrapEmailTemplate(`
     <p style="margin: 0 0 24px; font-size: 16px; line-height: 1.6; color: #52525b;">
-      Click the button below to sign in as <strong>${email}</strong>.
+      Click the button below to sign in to René Studio as <strong>${email}</strong>.
     </p>
     <div style="text-align: center; margin: 32px 0;">
       <a href="${loginUrl}" style="display: inline-block; padding: 14px 32px; background: #18181b; color: #ffffff; text-decoration: none; border-radius: 8px; font-weight: 500; font-size: 14px;">
-        Sign In to Rene
+        Sign In to René Studio
       </a>
     </div>
     <p style="margin: 0; font-size: 13px; color: #71717a; text-align: center;">
       This link will expire in 10 minutes and can only be used once.
     </p>
-  `, { headerTitle: "Sign In to Rene", headerIcon: "🔑" }),
+  `, { headerTitle: "Sign In to René Studio", headerIcon: "🔑", showPreferencesLink: false }),
 
   journeyShared: (inviterName: string, journeyTitle: string, journeyUrl: string) => wrapEmailTemplate(`
     <p style="margin: 0 0 24px; font-size: 16px; line-height: 1.6; color: #52525b;">
-      <strong>${inviterName}</strong> has shared a journey with you.
+      <strong>${inviterName}</strong> has shared a journey with you on René Studio.
     </p>
     <div style="margin: 24px 0; padding: 20px; background: #f4f4f5; border-radius: 12px; border: 1px solid #e4e4e7;">
       <p style="margin: 0 0 4px; font-size: 12px; color: #71717a; text-transform: uppercase; letter-spacing: 0.05em;">Journey</p>
@@ -260,14 +267,14 @@ export const emailTemplates = {
     <p style="margin: 0; font-size: 13px; color: #71717a;">
       You can now collaborate on this journey and provide feedback.
     </p>
-  `, { headerTitle: "Journey Shared With You", headerIcon: "🗺️" }),
+  `, { headerTitle: "Journey Shared With You", headerIcon: "🗺️", showPreferencesLink: true }),
 
   testEmail: (recipientName: string) => wrapEmailTemplate(`
     <p style="margin: 0 0 24px; font-size: 16px; line-height: 1.6; color: #52525b;">
       Hi ${recipientName},
     </p>
     <p style="margin: 0 0 24px; font-size: 16px; line-height: 1.6; color: #52525b;">
-      This is a test email from Rene. If you received this, your email notifications are working correctly!
+      This is a test email from René Studio. If you received this, your email notifications are working correctly!
     </p>
     <div style="margin: 24px 0; padding: 20px; background: #ecfdf5; border-radius: 12px; border: 1px solid #a7f3d0;">
       <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0">
@@ -286,7 +293,7 @@ export const emailTemplates = {
     <p style="margin: 0; font-size: 13px; color: #71717a;">
       Sent at: ${new Date().toLocaleString()}
     </p>
-  `, { headerTitle: "Test Email", headerIcon: "✉️" }),
+  `, { headerTitle: "Test Email", headerIcon: "✉️", showPreferencesLink: false }),
 
   // Additional email templates
   emailVerification: (name: string, verifyUrl: string) => wrapEmailTemplate(`
@@ -294,7 +301,7 @@ export const emailTemplates = {
       Hi ${name},
     </p>
     <p style="margin: 0 0 24px; font-size: 16px; line-height: 1.6; color: #52525b;">
-      Please verify your email address to complete your account setup.
+      Please verify your email address to complete your René Studio account setup.
     </p>
     <div style="text-align: center; margin: 32px 0;">
       <a href="${verifyUrl}" style="display: inline-block; padding: 14px 32px; background: #18181b; color: #ffffff; text-decoration: none; border-radius: 8px; font-weight: 500; font-size: 14px;">
@@ -304,11 +311,11 @@ export const emailTemplates = {
     <p style="margin: 0; font-size: 13px; color: #71717a; text-align: center;">
       This link will expire in 24 hours.
     </p>
-  `, { headerTitle: "Verify Your Email", headerIcon: "📧" }),
+  `, { headerTitle: "Verify Your Email", headerIcon: "📧", showPreferencesLink: false }),
 
   collaboratorJoined: (collaboratorName: string, journeyTitle: string, journeyUrl: string) => wrapEmailTemplate(`
     <p style="margin: 0 0 24px; font-size: 16px; line-height: 1.6; color: #52525b;">
-      <strong>${collaboratorName}</strong> has joined your journey as a collaborator.
+      <strong>${collaboratorName}</strong> has joined your journey as a collaborator on René Studio.
     </p>
     <div style="margin: 24px 0; padding: 20px; background: #f4f4f5; border-radius: 12px; border: 1px solid #e4e4e7;">
       <p style="margin: 0 0 4px; font-size: 12px; color: #71717a; text-transform: uppercase; letter-spacing: 0.05em;">Journey</p>
@@ -319,11 +326,11 @@ export const emailTemplates = {
         View Journey
       </a>
     </div>
-  `, { headerTitle: "New Collaborator Joined", headerIcon: "👥" }),
+  `, { headerTitle: "New Collaborator Joined", headerIcon: "👥", showPreferencesLink: true }),
 
   newComment: (commenterName: string, journeyTitle: string, commentPreview: string, journeyUrl: string) => wrapEmailTemplate(`
     <p style="margin: 0 0 24px; font-size: 16px; line-height: 1.6; color: #52525b;">
-      <strong>${commenterName}</strong> commented on your journey.
+      <strong>${commenterName}</strong> commented on your journey in René Studio.
     </p>
     <div style="margin: 24px 0; padding: 20px; background: #f4f4f5; border-radius: 12px; border: 1px solid #e4e4e7;">
       <p style="margin: 0 0 8px; font-size: 12px; color: #71717a; text-transform: uppercase; letter-spacing: 0.05em;">${journeyTitle}</p>
@@ -334,11 +341,11 @@ export const emailTemplates = {
         View Comment
       </a>
     </div>
-  `, { headerTitle: "New Comment", headerIcon: "💬" }),
+  `, { headerTitle: "New Comment", headerIcon: "💬", showPreferencesLink: true }),
 
   mentioned: (mentionerName: string, journeyTitle: string, commentPreview: string, journeyUrl: string) => wrapEmailTemplate(`
     <p style="margin: 0 0 24px; font-size: 16px; line-height: 1.6; color: #52525b;">
-      <strong>${mentionerName}</strong> mentioned you in a comment.
+      <strong>${mentionerName}</strong> mentioned you in a comment on René Studio.
     </p>
     <div style="margin: 24px 0; padding: 20px; background: #f4f4f5; border-radius: 12px; border: 1px solid #e4e4e7;">
       <p style="margin: 0 0 8px; font-size: 12px; color: #71717a; text-transform: uppercase; letter-spacing: 0.05em;">${journeyTitle}</p>
@@ -349,5 +356,63 @@ export const emailTemplates = {
         View Comment
       </a>
     </div>
-  `, { headerTitle: "You Were Mentioned", headerIcon: "@" }),
+  `, { headerTitle: "You Were Mentioned", headerIcon: "@", showPreferencesLink: true }),
+
+  // Billing emails - always show preferences link
+  paymentFailed: (name: string, amount: string, retryUrl: string) => wrapEmailTemplate(`
+    <p style="margin: 0 0 24px; font-size: 16px; line-height: 1.6; color: #52525b;">
+      Hi ${name},
+    </p>
+    <p style="margin: 0 0 24px; font-size: 16px; line-height: 1.6; color: #52525b;">
+      We were unable to process your payment of <strong>${amount}</strong> for your René Studio subscription.
+    </p>
+    <div style="margin: 24px 0; padding: 16px; background: #fef2f2; border-radius: 8px; border-left: 4px solid #ef4444;">
+      <p style="margin: 0; font-size: 13px; color: #991b1b;">
+        Please update your payment method to avoid service interruption.
+      </p>
+    </div>
+    <div style="text-align: center; margin: 32px 0;">
+      <a href="${retryUrl}" style="display: inline-block; padding: 14px 32px; background: #18181b; color: #ffffff; text-decoration: none; border-radius: 8px; font-weight: 500; font-size: 14px;">
+        Update Payment Method
+      </a>
+    </div>
+  `, { headerTitle: "Payment Failed", headerIcon: "⚠️", showPreferencesLink: true }),
+
+  subscriptionCreated: (name: string, planName: string, dashboardUrl: string) => wrapEmailTemplate(`
+    <p style="margin: 0 0 24px; font-size: 16px; line-height: 1.6; color: #52525b;">
+      Hi ${name},
+    </p>
+    <p style="margin: 0 0 24px; font-size: 16px; line-height: 1.6; color: #52525b;">
+      Thank you for subscribing to René Studio <strong>${planName}</strong>! Your subscription is now active.
+    </p>
+    <div style="margin: 24px 0; padding: 20px; background: #ecfdf5; border-radius: 12px; border: 1px solid #a7f3d0;">
+      <p style="margin: 0; font-size: 14px; color: #047857; font-weight: 500;">
+        ✓ Your subscription is now active
+      </p>
+    </div>
+    <div style="text-align: center; margin: 32px 0;">
+      <a href="${dashboardUrl}" style="display: inline-block; padding: 14px 32px; background: #18181b; color: #ffffff; text-decoration: none; border-radius: 8px; font-weight: 500; font-size: 14px;">
+        Go to Dashboard
+      </a>
+    </div>
+  `, { headerTitle: "Subscription Started", headerIcon: "🎉", showPreferencesLink: true }),
+
+  trialEnding: (name: string, daysLeft: number, upgradeUrl: string) => wrapEmailTemplate(`
+    <p style="margin: 0 0 24px; font-size: 16px; line-height: 1.6; color: #52525b;">
+      Hi ${name},
+    </p>
+    <p style="margin: 0 0 24px; font-size: 16px; line-height: 1.6; color: #52525b;">
+      Your René Studio trial ends in <strong>${daysLeft} day${daysLeft === 1 ? '' : 's'}</strong>. Upgrade now to keep access to all features.
+    </p>
+    <div style="margin: 24px 0; padding: 16px; background: #fef3c7; border-radius: 8px; border-left: 4px solid #f59e0b;">
+      <p style="margin: 0; font-size: 13px; color: #92400e;">
+        After your trial ends, you'll lose access to premium features.
+      </p>
+    </div>
+    <div style="text-align: center; margin: 32px 0;">
+      <a href="${upgradeUrl}" style="display: inline-block; padding: 14px 32px; background: #18181b; color: #ffffff; text-decoration: none; border-radius: 8px; font-weight: 500; font-size: 14px;">
+        Upgrade Now
+      </a>
+    </div>
+  `, { headerTitle: "Trial Ending Soon", headerIcon: "⏰", showPreferencesLink: true }),
 }
