@@ -1,9 +1,11 @@
 import { Metadata } from "next"
 import { createClient } from "@/lib/supabase/server"
+import { cookies } from "next/headers"
 import Link from "next/link"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card"
 import { Clock, User, ArrowRight, Sparkles } from "lucide-react"
+import { LOCALE_COOKIE, defaultLocale, locales, type Locale } from "@/lib/i18n/config"
 
 export const metadata: Metadata = {
   title: "Words - CX Journey Studio Blog",
@@ -32,9 +34,19 @@ export const metadata: Metadata = {
   }
 }
 
+async function getCurrentLocale(): Promise<Locale> {
+  const cookieStore = await cookies()
+  const cookieLocale = cookieStore.get(LOCALE_COOKIE)?.value as Locale | undefined
+  if (cookieLocale && locales.includes(cookieLocale)) {
+    return cookieLocale
+  }
+  return defaultLocale
+}
+
 async function getBlogPosts(lang: string = "en") {
   const supabase = await createClient()
   
+  // First try to get posts in the requested language
   const { data, error } = await supabase
     .from("blog_posts")
     .select("*")
@@ -46,6 +58,18 @@ async function getBlogPosts(lang: string = "en") {
   if (error) {
     console.error("[Words] Error fetching posts:", error)
     return []
+  }
+  
+  // If no posts in requested language, fall back to English
+  if ((!data || data.length === 0) && lang !== "en") {
+    const { data: fallbackData } = await supabase
+      .from("blog_posts")
+      .select("*")
+      .eq("status", "published")
+      .eq("language", "en")
+      .order("published_at", { ascending: false })
+      .limit(20)
+    return fallbackData || []
   }
   
   return data || []
@@ -68,10 +92,11 @@ async function getCategories() {
 export default async function WordsPage({
   searchParams
 }: {
-  searchParams: Promise<{ category?: string; lang?: string }>
+  searchParams: Promise<{ category?: string }>
 }) {
   const params = await searchParams
-  const lang = params.lang || "en"
+  // Get language from cookie (set by language switcher)
+  const lang = await getCurrentLocale()
   const posts = await getBlogPosts(lang)
   const categories = await getCategories()
   const selectedCategory = params.category

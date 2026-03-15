@@ -153,11 +153,13 @@ export async function POST(request: Request) {
     })
   }
 
-  // Log activity
+  // Log activity with organization_id
+  const { data: profile } = await supabase.from("profiles").select("organization_id").eq("id", user.id).single()
   await supabase.from("activity_log").insert({
     action: "transfer_initiated",
     actor_id: user.id,
     details: `Initiated ownership transfer of ${assetType} "${assetName}" to ${toEmail || "user"}`,
+    organization_id: profile?.organization_id,
   })
 
   return NextResponse.json({ id: data.id, message: "Transfer request created" })
