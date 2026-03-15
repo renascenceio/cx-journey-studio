@@ -205,7 +205,7 @@
   },
   "landing": {
     "hero": {
-      "title": "The complete platform to map customer journeys",
+      "title": "Complete platform for experience mapping",
       "subtitle": "Your CX team's toolkit to stop guessing and start improving. Map emotional arcs, define archetypes, monitor health with NPS, CSAT, and CES — all in one collaborative studio.",
       "startFree": "Start Free",
       "signIn": "Sign In",
@@ -939,7 +939,7 @@
     "title": "Refer & Earn",
     "description": "Share your unique referral link and earn AI credits when friends sign up with a corporate email.",
     "linkCopied": "Referral link copied to clipboard!",
-    "shareTitle": "Join me on Journey Design Studio",
+    "shareTitle": "Join me on René Studio",
     "shareText": "Create beautiful customer journey maps with AI assistance. Sign up using my referral link!",
     "standardReward": "Standard corporate: {credits} credits ($5)",
     "premiumReward": "Consultancy firms: {credits} credits ($10)",
@@ -1006,7 +1006,7 @@
   "publicNav": {
     "features": "Features",
     "pricing": "Pricing",
-    "howItWorks": "How It Works",
+    "howItWorks": "Process",
     "dashboard": "Dashboard",
     "myJourneys": "My Journeys",
     "settings": "Settings",
@@ -1175,8 +1175,8 @@
     "monthlyAiCredits": "Monthly AI Credits",
     "upgradeToUnlock": "Upgrade to unlock more features and AI credits",
     "upgradePlan": "Upgrade Plan",
-    "aiCredits": "AI Credits",
-    "aiCreditsDesc": "Credits are used for AI-powered features like journey generation and suggestions",
+    "aiCredits": "Workspace AI Credits",
+    "aiCreditsDesc": "Credits are shared across your workspace and used for AI-powered features like journey generation and suggestions",
     "creditsRemaining": "credits remaining",
     "usedOf": "{used} used of {total}",
     "purchased": "purchased",

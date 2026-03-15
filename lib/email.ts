@@ -66,21 +66,19 @@ export async function sendEmail(options: EmailOptions): Promise<{ success: boole
   }
 }
 
-// René Studio Logo HTML for footer (light version - dark icon on light background)
+// René Studio Logo HTML for footer
+// Uses hosted PNG image for maximum email client compatibility
 const RENE_LOGO_FOOTER_HTML = `
 <table role="presentation" cellspacing="0" cellpadding="0" border="0" align="center">
   <tr>
-    <td style="background: #18181B; width: 28px; height: 28px; border-radius: 6px; text-align: center; vertical-align: middle; padding: 6px;">
-      <table role="presentation" cellspacing="0" cellpadding="0" border="0" align="center" style="margin: 0 auto;">
-        <tr>
-          <td style="width: 5px; height: 10px; background: #ffffff; border-radius: 1px;"></td>
-          <td style="width: 3px;"></td>
-          <td style="width: 5px; height: 12px; background: #ffffff; border-radius: 1px;"></td>
-        </tr>
-      </table>
-    </td>
-    <td style="padding-left: 10px;">
-      <span style="font-size: 14px; font-weight: 600; color: #18181B; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">René Studio</span>
+    <td align="center">
+      <img 
+        src="https://rene.cx/logo.png" 
+        alt="René Studio" 
+        width="120" 
+        height="32" 
+        style="display: block; max-width: 120px; height: auto;" 
+      />
     </td>
   </tr>
 </table>
@@ -154,7 +152,7 @@ export function wrapEmailTemplate(content: string, options?: {
                       ${RENE_LOGO_FOOTER_HTML}
                     </div>
                     <p style="margin: 0 0 12px; font-size: 13px; color: #71717a;">
-                      Journey Design Studio
+                      Experience Design Studio
                     </p>
                     <p style="margin: 0 0 16px; font-size: 12px; color: #a1a1aa;">
                       You're receiving this because you have an account at rene.cx

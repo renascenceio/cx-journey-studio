@@ -20,7 +20,7 @@ export function LandingHero() {
         <div className="grid gap-8 md:grid-cols-2 md:gap-12 lg:gap-16">
           {/* Left: Headline */}
           <div className="flex flex-col justify-center">
-            <h1 className="text-balance text-4xl font-bold leading-[1.08] tracking-tight text-foreground sm:text-5xl lg:text-6xl">
+            <h1 className="text-balance text-[2.25rem] font-bold leading-[1.08] tracking-tight text-foreground sm:text-[2.8rem] lg:text-[3.4rem]">
               {t("landing.hero.title")}
             </h1>
           </div>

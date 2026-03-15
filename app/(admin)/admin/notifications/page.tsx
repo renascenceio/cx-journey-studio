@@ -536,7 +536,7 @@ function EmailPreview({ event }: { event: typeof NOTIFICATION_EVENTS[0] }) {
       <div className="border-t border-zinc-200 bg-zinc-50 px-8 py-6">
         <div className="text-center">
           <ReneStudioLogo className="justify-center text-zinc-700 mb-3" />
-          <p className="text-xs text-zinc-500 mb-2">Journey Design Studio</p>
+          <p className="text-xs text-zinc-500 mb-2">Experience Design Studio</p>
           {showPreferencesLink ? (
             <p className="text-xs text-zinc-500">
               <a href="#" className="text-zinc-600 hover:text-zinc-900 transition-colors">Notification Preferences</a>
