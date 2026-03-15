@@ -245,11 +245,11 @@
     "currentPassword": "वर्तमान पासवर्ड",
     "newPassword": "नया पासवर्ड",
     "confirmNewPassword": "नए पासवर्ड की पुष्टि करें",
-    "twoFactor": "दो-कारक प्रमाणीकरण",
+    "twoFactor": "दो-कार�� प्रमाणीकरण",
     "twoFactorDesc": "अपने खाते में सुरक्षा की एक अतिरिक्त परत जोड़ें",
     "dangerZone": "खतरे का क्षेत्र",
     "deleteAccount": "खाता हटाएं",
-    "deleteAccountDesc": "अपना खाता और सभी डेटा स्थायी रूप से हटाएं"
+    "deleteAccountDesc": "अपना खाता और सभी डेटा ���्थायी रूप से हटाएं"
   },
   "admin": {
     "title": "प्रशासन",
@@ -422,5 +422,47 @@
     "npsImprovement": "NPS सुधार",
     "crossTeamAlignment": "अधिक क्रॉस-टीम संरेखण",
     "churnReduction": "चर्न में कमी"
+  },
+  "ai": {
+    "selectLanguage": "जनरेशन भाषा चुनें",
+    "searchLanguages": "भाषाएं खोजें...",
+    "noLanguageFound": "भाषा नहीं मिली",
+    "autoDetected": "स्वतः पता लगाया गया",
+    "generateIn": "में जनरेट करें",
+    "generationLanguage": "जनरेशन भाषा",
+    "generationLanguageDesc": "सामग्री चयनित भाषा में जनरेट की जाएगी",
+    "detectFromName": "नाम से पता लगाया गया",
+    "defaultLanguage": "डिफ़ॉल्ट भाषा",
+    "willGenerateIn": "सामग्री {language} में जनरेट होगी",
+    "generatedBadge": "AI जनरेटेड",
+    "generatedBadgeTooltip": "यह सामग्री AI सहायता से बनाई गई थी",
+    "hideBadge": "AI बैज छुपाएं",
+    "showBadge": "AI बैज दिखाएं",
+    "badgeHidden": "इस एसेट के लिए AI बैज छुपा है",
+    "privilegedDomain": "विशेषाधिकार प्राप्त डोमेन",
+    "privilegedDomainDesc": "विशेषाधिकार प्राप्त डोमेन के उपयोगकर्ता AI बैज नहीं दिखाते",
+    "languageDetectionTitle": "AI भाषा पहचान",
+    "languageDetectionDesc": "AI सुविधाओं का उपयोग करते समय, आउटपुट भाषा प्राथमिकता द्वारा निर्धारित होती है: 1) आपके प्रॉम्प्ट में स्पष्ट अनुरोध, 2) आपके शीर्षक/विवरण की भाषा, 3) आपका मैन्युअल भाषा चयन।",
+    "languageDetectionTooltip": "भाषा आपके इनपुट से स्वचालित रूप से पता लगाई जाती है या आप स्पष्ट रूप से निर्दिष्ट कर सकते हैं (जैसे, 'हिंदी में', 'in Hindi')"
+  },
+  "channels": {
+    "website": "वेबसाइट",
+    "mobileApp": "मोबाइल ऐप",
+    "email": "ईमेल",
+    "phone": "फोन",
+    "liveChat": "लाइव चैट",
+    "socialMedia": "सोशल मीडिया",
+    "physicalStore": "भौतिक स्टोर",
+    "sms": "एसएमएस",
+    "inPerson": "व्यक्तिगत रूप से",
+    "documentation": "दस्तावेज़ीकरण",
+    "communityForum": "समुदाय फोरम",
+    "pushNotification": "पुश नोटिफिकेशन",
+    "selfService": "स्व-सेवा पोर्टल",
+    "videoCall": "वीडियो कॉल",
+    "mail": "डाक",
+    "kiosk": "कियोस्क",
+    "atm": "एटीएम",
+    "branch": "शाखा"
   }
 }
