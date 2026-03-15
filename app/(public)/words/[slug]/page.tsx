@@ -1,5 +1,6 @@
 import { Metadata } from "next"
 import { createClient } from "@/lib/supabase/server"
+import { cookies } from "next/headers"
 import { notFound } from "next/navigation"
 import Link from "next/link"
 import { Badge } from "@/components/ui/badge"
@@ -7,6 +8,7 @@ import { Button } from "@/components/ui/button"
 import { Separator } from "@/components/ui/separator"
 import { Clock, User, Calendar, ArrowLeft, Share2, Globe } from "lucide-react"
 import { MarkdownContent } from "@/components/markdown-content"
+import { LOCALE_COOKIE, defaultLocale, locales, type Locale } from "@/lib/i18n/config"
 
 // Language names for display
 const LANGUAGE_NAMES: Record<string, string> = {
@@ -20,15 +22,42 @@ const LANGUAGE_NAMES: Record<string, string> = {
   ja: "日本語"
 }
 
-async function getPost(slug: string) {
+async function getCurrentLocale(): Promise<Locale> {
+  const cookieStore = await cookies()
+  const cookieLocale = cookieStore.get(LOCALE_COOKIE)?.value as Locale | undefined
+  if (cookieLocale && locales.includes(cookieLocale)) {
+    return cookieLocale
+  }
+  return defaultLocale
+}
+
+async function getPost(slug: string, preferredLocale?: string) {
   const supabase = await createClient()
   
-  const { data, error } = await supabase
+  // First try to get the exact slug
+  let { data, error } = await supabase
     .from("blog_posts")
     .select("*")
     .eq("slug", slug)
     .eq("status", "published")
     .single()
+  
+  // If not found and we have a preferred locale, try to find a translation
+  if ((error || !data) && preferredLocale && preferredLocale !== "en") {
+    // Try the slug with locale suffix
+    const localizedSlug = `${slug}-${preferredLocale}`
+    const { data: localizedData } = await supabase
+      .from("blog_posts")
+      .select("*")
+      .eq("slug", localizedSlug)
+      .eq("status", "published")
+      .single()
+    
+    if (localizedData) {
+      data = localizedData
+      error = null
+    }
+  }
   
   if (error || !data) {
     return null
@@ -57,17 +86,31 @@ async function getRelatedPosts(category: string, currentId: string) {
   return data || []
 }
 
-async function getTranslations(slug: string) {
+async function getTranslations(slug: string, currentLanguage: string) {
   const supabase = await createClient()
   
-  // Get the base slug (without language suffix)
-  const baseSlug = slug.replace(/-(?:ar|es|fr|de|pt|zh|ja)$/, "")
+  // Get the base slug (without language suffix like -ar, -es, -de, etc.)
+  const languageSuffixes = ["ar", "es", "fr", "de", "pt", "zh", "ja", "it", "ru", "ko"]
+  let baseSlug = slug
+  for (const suffix of languageSuffixes) {
+    if (slug.endsWith(`-${suffix}`)) {
+      baseSlug = slug.slice(0, -(suffix.length + 1))
+      break
+    }
+  }
+  
+  // Build the filter to find all translations
+  // Look for: baseSlug (English) and baseSlug-{lang} for other languages
+  const slugPatterns = [baseSlug]
+  languageSuffixes.forEach(lang => {
+    slugPatterns.push(`${baseSlug}-${lang}`)
+  })
   
   const { data } = await supabase
     .from("blog_posts")
     .select("slug, language, title")
     .eq("status", "published")
-    .or(`slug.eq.${baseSlug},slug.like.${baseSlug}-%`)
+    .in("slug", slugPatterns)
   
   return data || []
 }
@@ -86,7 +129,7 @@ export async function generateMetadata({
     }
   }
 
-  const translations = await getTranslations(slug)
+  const translations = await getTranslations(slug, post?.language || "en")
   const alternateLanguages: Record<string, string> = {}
   translations.forEach(t => {
     alternateLanguages[t.language] = `/words/${t.slug}`
@@ -137,14 +180,15 @@ export default async function WordsArticlePage({
   params: Promise<{ slug: string }>
 }) {
   const { slug } = await params
-  const post = await getPost(slug)
+  const locale = await getCurrentLocale()
+  const post = await getPost(slug, locale)
   
   if (!post) {
     notFound()
   }
 
   const relatedPosts = await getRelatedPosts(post.category, post.id)
-  const translations = await getTranslations(slug)
+  const translations = await getTranslations(slug, post.language)
 
   // JSON-LD structured data
   const jsonLd = {
