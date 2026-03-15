@@ -68,14 +68,20 @@ export async function POST(request: Request) {
     })
     
     if (!result.success) {
+      console.error("[API] Email send failed:", result)
       return NextResponse.json({ 
         error: result.error || "Failed to send email",
         details: result.details,
-        hint: "Make sure RESEND_API_KEY is configured and domain is verified in Resend dashboard",
-        fromAddress: "noreply@updates.rene.cx"
+        hint: "Make sure RESEND_API_KEY is configured in Vercel environment variables and domain updates.rene.cx is verified in Resend dashboard",
+        fromAddress: "noreply@updates.rene.cx",
+        debugInfo: {
+          hasApiKey: !!process.env.RESEND_API_KEY,
+          apiKeyPrefix: process.env.RESEND_API_KEY?.substring(0, 8) + "..."
+        }
       }, { status: 500 })
     }
     
+    console.log("[API] Email sent successfully:", result.id)
     return NextResponse.json({ 
       success: true, 
       message: `Test email sent to ${recipientEmail}`,
