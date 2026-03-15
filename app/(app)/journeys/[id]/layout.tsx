@@ -113,6 +113,7 @@ export default function JourneyDetailLayout({
   const basePath = `/journeys/${journeyId}`
 
   // Build tabs dynamically based on journey type
+  // Note: Lingo and Rituals are now part of the Canvas view modes
   const allTabs = [
     { label: "Overview", href: `${basePath}/overview`, segment: "overview" },
     { label: "Canvas", href: `${basePath}/canvas`, segment: "canvas" },
@@ -124,9 +125,7 @@ export default function JourneyDetailLayout({
     ...(journey.type === "deployed"
       ? [{ label: "Health", href: `${basePath}/health`, segment: "health" }]
       : []),
-    { label: "Rituals", href: `${basePath}/rituals`, segment: "rituals", comingSoon: true },
     { label: "Voice", href: `${basePath}/voice`, segment: "voice", comingSoon: true },
-    { label: "Lingo", href: `${basePath}/lingo`, segment: "lingo", comingSoon: true },
     { label: "Collaborators", href: `${basePath}/collaborators`, segment: "collaborators" },
     { label: "Activity", href: `${basePath}/activity`, segment: "activity" },
     { label: `Versions (${versions.length})`, href: `${basePath}/versions`, segment: "versions" },
