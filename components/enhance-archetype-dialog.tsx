@@ -95,9 +95,10 @@ export function EnhanceArchetypeDialog({
   const mediaRecorderRef = useRef<MediaRecorder | null>(null)
   const recordingIntervalRef = useRef<NodeJS.Timeout | null>(null)
   
-  // File upload state
-  const [uploadedFile, setUploadedFile] = useState<File | null>(null)
+  // File upload state - support multiple files
+  const [uploadedFiles, setUploadedFiles] = useState<File[]>([])
   const [fileContent, setFileContent] = useState("")
+  const [isExtracting, setIsExtracting] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
   
   // Language
@@ -107,8 +108,9 @@ export function EnhanceArchetypeDialog({
     setTextInput("")
     setTranscript("")
     setAudioBlob(null)
-    setUploadedFile(null)
+    setUploadedFiles([])
     setFileContent("")
+    setIsExtracting(false)
     setProgress(0)
     setRecordingTime(0)
     setStep("input")
@@ -192,59 +194,97 @@ export function EnhanceArchetypeDialog({
     }
   }
 
-  // File upload functions
+  // File upload functions - support multiple files
   const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0]
-    if (!file) return
+    const files = Array.from(e.target.files || [])
+    if (files.length === 0) return
 
-    const fileType = file.type || ""
-    const fileExt = file.name.split(".").pop()?.toLowerCase()
+    const validFiles: File[] = []
     
-    const isAccepted = Object.keys(ACCEPTED_FILE_TYPES).includes(fileType) ||
-      ["csv", "txt", "md", "pdf", "pptx", "docx", "ppt", "doc", "key"].includes(fileExt || "")
+    for (const file of files) {
+      const fileType = file.type || ""
+      const fileExt = file.name.split(".").pop()?.toLowerCase()
+      
+      const isAccepted = Object.keys(ACCEPTED_FILE_TYPES).includes(fileType) ||
+        ["csv", "txt", "md", "pdf", "pptx", "docx", "ppt", "doc", "key"].includes(fileExt || "")
 
-    if (!isAccepted) {
-      toast.error("File type not supported", {
-        description: "Please upload CSV, TXT, MD, PDF, PPTX, DOCX, or KEY files."
-      })
-      return
+      if (!isAccepted) {
+        toast.error(`Unsupported file: ${file.name}`, {
+          description: "Please upload CSV, TXT, MD, PDF, PPTX, DOCX, or KEY files."
+        })
+        continue
+      }
+      
+      if (file.size > 10 * 1024 * 1024) {
+        toast.error(`File too large: ${file.name}`, {
+          description: "Maximum size is 10MB per file."
+        })
+        continue
+      }
+      
+      validFiles.push(file)
     }
-
-    setUploadedFile(file)
-    await extractFileContent(file)
+    
+    if (validFiles.length === 0) return
+    
+    const newFiles = [...uploadedFiles, ...validFiles]
+    setUploadedFiles(newFiles)
+    await extractFilesContent(newFiles)
   }
 
-  const extractFileContent = async (file: File) => {
-    setIsAnalyzing(true)
+  const extractFilesContent = async (files: File[]) => {
+    if (files.length === 0) return
+    
+    setIsExtracting(true)
     setProgress(10)
 
     try {
       const formData = new FormData()
-      formData.append("file", file)
+      files.forEach(file => formData.append("file", file))
+      
+      setProgress(30)
 
       const res = await fetch("/api/ai/extract-file", {
         method: "POST",
         body: formData,
       })
+      
+      setProgress(70)
 
       if (!res.ok) throw new Error("Failed to extract file content")
 
       const data = await res.json()
       setFileContent(data.content)
       setProgress(100)
-      toast.success("File content extracted", {
-        description: `${data.content.length} characters extracted from ${file.name}`
+      toast.success("Files processed", {
+        description: `${data.successCount} of ${data.totalFiles} files extracted successfully`
       })
     } catch (err) {
+      console.error("File extraction error:", err)
       toast.error("Failed to extract file content")
-      setUploadedFile(null)
+      setUploadedFiles([])
+      setFileContent("")
     } finally {
-      setIsAnalyzing(false)
+      setIsExtracting(false)
     }
   }
 
-  const removeFile = () => {
-    setUploadedFile(null)
+  const removeFile = (index: number) => {
+    const newFiles = uploadedFiles.filter((_, i) => i !== index)
+    setUploadedFiles(newFiles)
+    
+    if (newFiles.length === 0) {
+      setFileContent("")
+      if (fileInputRef.current) {
+        fileInputRef.current.value = ""
+      }
+    } else {
+      extractFilesContent(newFiles)
+    }
+  }
+  
+  const removeAllFiles = () => {
+    setUploadedFiles([])
     setFileContent("")
     if (fileInputRef.current) {
       fileInputRef.current.value = ""
@@ -267,7 +307,7 @@ export function EnhanceArchetypeDialog({
 
   const canAnalyze = () => {
     const content = getCurrentContent()
-    return content.trim().length > 10 && !isAnalyzing
+    return content.trim().length > 10 && !isAnalyzing && !isExtracting
   }
 
   // Analyze content and generate suggestions
@@ -521,61 +561,106 @@ for (const change of acceptedChanges) {
                 </div>
               </TabsContent>
 
-              {/* File Upload */}
+              {/* File Upload - Multiple Files */}
               <TabsContent value="file" className="space-y-3">
                 <div className="flex flex-col gap-3">
-                  {!uploadedFile ? (
-                    <div
-                      onClick={() => fileInputRef.current?.click()}
-                      className="flex flex-col items-center justify-center gap-3 rounded-lg border-2 border-dashed border-border p-8 cursor-pointer hover:border-primary/50 hover:bg-muted/30 transition-colors"
-                    >
-                      <Upload className="h-8 w-8 text-muted-foreground" />
-                      <div className="text-center">
-                        <p className="text-sm font-medium">Click to upload or drag and drop</p>
-                        <p className="text-xs text-muted-foreground mt-1">
-                          CSV, TXT, MD, PDF, PPTX, DOCX, KEY supported
-                        </p>
-                      </div>
+                  {/* Upload Area - Always visible */}
+                  <div
+                    onClick={() => fileInputRef.current?.click()}
+                    className={cn(
+                      "flex flex-col items-center justify-center gap-2 rounded-lg border-2 border-dashed border-border p-6 cursor-pointer hover:border-primary/50 hover:bg-muted/30 transition-colors",
+                      isExtracting && "opacity-50 pointer-events-none"
+                    )}
+                  >
+                    <Upload className="h-6 w-6 text-muted-foreground" />
+                    <div className="text-center">
+                      <p className="text-sm font-medium">
+                        {uploadedFiles.length > 0 ? "Add more files" : "Click to upload"}
+                      </p>
+                      <p className="text-xs text-muted-foreground mt-1">
+                        CSV, TXT, MD, PDF, PPTX, DOCX, KEY (max 10MB each)
+                      </p>
                     </div>
-                  ) : (
-                    <div className="rounded-lg border p-3">
+                  </div>
+                  
+                  {/* Extracting Progress */}
+                  {isExtracting && (
+                    <div className="space-y-2">
+                      <Progress value={progress} className="h-2" />
+                      <p className="text-xs text-center text-muted-foreground">
+                        Extracting content from files...
+                      </p>
+                    </div>
+                  )}
+                  
+                  {/* Uploaded Files List */}
+                  {uploadedFiles.length > 0 && (
+                    <div className="space-y-2">
                       <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-2">
-                          <FileIcon className="h-5 w-5 text-muted-foreground" />
-                          <div>
-                            <p className="text-sm font-medium">{uploadedFile.name}</p>
-                            <p className="text-xs text-muted-foreground">
-                              {(uploadedFile.size / 1024).toFixed(1)} KB
-                            </p>
-                          </div>
-                        </div>
-                        <Button variant="ghost" size="sm" onClick={removeFile}>
-                          <X className="h-4 w-4" />
+                        <p className="text-sm font-medium">{uploadedFiles.length} file(s)</p>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="text-xs h-7"
+                          onClick={removeAllFiles}
+                          disabled={isAnalyzing || isExtracting}
+                        >
+                          Remove all
                         </Button>
                       </div>
+                      <div className="space-y-2 max-h-40 overflow-auto">
+                        {uploadedFiles.map((file, index) => (
+                          <div key={`${file.name}-${index}`} className="rounded-lg border p-2">
+                            <div className="flex items-center justify-between">
+                              <div className="flex items-center gap-2 min-w-0">
+                                <FileIcon className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+                                <div className="min-w-0">
+                                  <p className="text-sm font-medium truncate">{file.name}</p>
+                                  <p className="text-xs text-muted-foreground">
+                                    {(file.size / 1024).toFixed(1)} KB
+                                  </p>
+                                </div>
+                              </div>
+                              <Button 
+                                variant="ghost" 
+                                size="icon"
+                                className="h-7 w-7 flex-shrink-0"
+                                onClick={() => removeFile(index)}
+                                disabled={isExtracting}
+                              >
+                                <X className="h-3.5 w-3.5" />
+                              </Button>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
                       {fileContent && (
-                        <div className="mt-3 rounded bg-muted/30 p-2 max-h-32 overflow-y-auto">
+                        <div className="rounded bg-muted/30 p-2 max-h-24 overflow-y-auto">
+                          <p className="text-xs text-muted-foreground mb-1">Content preview:</p>
                           <p className="text-xs text-muted-foreground whitespace-pre-wrap">
-                            {fileContent.slice(0, 500)}
-                            {fileContent.length > 500 && "..."}
+                            {fileContent.slice(0, 300)}
+                            {fileContent.length > 300 && "..."}
                           </p>
                         </div>
                       )}
                     </div>
                   )}
+                  
                   <input
                     ref={fileInputRef}
                     type="file"
                     accept=".csv,.txt,.md,.pdf,.pptx,.docx,.ppt,.doc,.key"
                     onChange={handleFileSelect}
                     className="hidden"
+                    multiple
+                    disabled={isExtracting}
                   />
                 </div>
               </TabsContent>
             </Tabs>
 
-            {/* Progress */}
-            {isAnalyzing && (
+            {/* Analysis Progress */}
+            {isAnalyzing && !isExtracting && (
               <div className="space-y-2">
                 <Progress value={progress} className="h-2" />
                 <p className="text-xs text-muted-foreground text-center">
