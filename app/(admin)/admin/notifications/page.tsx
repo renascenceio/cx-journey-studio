@@ -563,10 +563,41 @@ export default function NotificationsPage() {
     }))
   )
   const [sendingTest, setSendingTest] = useState<string | null>(null)
+  const [saving, setSaving] = useState(false)
+  const [loading, setLoading] = useState(true)
   
-  // Get logo URL for email templates
+  // Load notification settings from database on mount
   useEffect(() => {
     setMounted(true)
+    
+    const loadSettings = async () => {
+      try {
+        const response = await fetch("/api/admin/notification-settings")
+        if (response.ok) {
+          const data = await response.json()
+          if (data.settings && data.settings.length > 0) {
+            // Merge saved settings with defaults
+            setNotifications(prev => prev.map(n => {
+              const saved = data.settings.find((s: { event_type: string }) => s.event_type === n.id)
+              if (saved) {
+                return {
+                  ...n,
+                  emailEnabled: saved.email_enabled,
+                  inAppEnabled: saved.in_app_enabled,
+                }
+              }
+              return n
+            }))
+          }
+        }
+      } catch (error) {
+        console.error("Failed to load notification settings:", error)
+      } finally {
+        setLoading(false)
+      }
+    }
+    
+    loadSettings()
   }, [])
   
   const emailLogoUrl = mounted ? getLogo("dark") : null
@@ -620,8 +651,34 @@ const sendTestEmail = async (eventId: string) => {
   }
   }
 
-  const handleSave = () => {
-    toast.success("Notification settings saved")
+  const handleSave = async () => {
+    setSaving(true)
+    try {
+      const settingsToSave = notifications.map(n => ({
+        event_type: n.id,
+        email_enabled: n.emailEnabled,
+        in_app_enabled: n.inAppEnabled,
+      }))
+      
+      const response = await fetch("/api/admin/notification-settings", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ settings: settingsToSave }),
+      })
+      
+      if (!response.ok) {
+        const data = await response.json()
+        toast.error(data.error || "Failed to save settings")
+        return
+      }
+      
+      toast.success("Notification settings saved")
+    } catch (error) {
+      console.error("Failed to save notification settings:", error)
+      toast.error("Failed to save settings")
+    } finally {
+      setSaving(false)
+    }
   }
 
   return (
@@ -633,8 +690,8 @@ const sendTestEmail = async (eventId: string) => {
             Configure email and in-app notifications for all system events
           </p>
         </div>
-        <Button onClick={handleSave}>
-          Save Changes
+        <Button onClick={handleSave} disabled={saving || loading}>
+          {saving ? "Saving..." : "Save Changes"}
         </Button>
       </div>
 
