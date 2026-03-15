@@ -97,7 +97,6 @@ export function EnhancementReviewPanel({
   
   // Sync changes when initialChanges prop updates
   useEffect(() => {
-    console.log("[v0] EnhancementReviewPanel received changes:", initialChanges?.length)
     if (initialChanges && initialChanges.length > 0) {
       setChangesWithStatus(initialChanges.map(c => ({ ...c, status: "pending" })))
     }
@@ -208,7 +207,7 @@ export function EnhancementReviewPanel({
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent side="right" className="w-full sm:max-w-[540px] p-0 flex flex-col">
+      <SheetContent side="right" className="w-full sm:max-w-[540px] p-0 flex flex-col h-full max-h-screen overflow-hidden">
         <SheetHeader className="p-6 pb-4 border-b">
           <SheetTitle className="flex items-center gap-2">
             <Sparkles className="h-5 w-5 text-primary" />
@@ -237,20 +236,22 @@ export function EnhancementReviewPanel({
           </div>
           
           {stats.pending > 0 && (
-            <div className="flex gap-2">
-              <Button variant="outline" size="sm" onClick={acceptAll}>
-                Accept All
+            <div className="flex gap-1.5">
+              <Button variant="outline" size="sm" className="h-7 text-xs px-2" onClick={acceptAll}>
+                <Check className="h-3 w-3 mr-1" />
+                All
               </Button>
-              <Button variant="ghost" size="sm" onClick={rejectAll}>
-                Reject All
+              <Button variant="ghost" size="sm" className="h-7 text-xs px-2" onClick={rejectAll}>
+                <X className="h-3 w-3 mr-1" />
+                All
               </Button>
             </div>
           )}
         </div>
 
-        {/* Changes List */}
-        <ScrollArea className="flex-1">
-          <div className="p-4 space-y-4">
+        {/* Changes List - Scrollable */}
+        <ScrollArea className="flex-1 min-h-0">
+          <div className="p-4 space-y-4 pb-8">
             {Object.entries(groupedChanges).map(([stageName, stageChanges]) => (
               <div key={stageName} className="space-y-2">
                 <h3 className="text-sm font-medium text-muted-foreground flex items-center gap-2">
@@ -447,25 +448,43 @@ export function EnhancementReviewPanel({
           </div>
         </ScrollArea>
 
-        {/* Footer */}
-        <div className="p-4 border-t bg-background">
-          <div className="flex items-center justify-between">
-            <Button variant="outline" onClick={() => onOpenChange(false)} disabled={isApplying}>
+        {/* Footer - Always visible with prominent Apply button */}
+        <div className="p-4 border-t bg-background shrink-0">
+          {stats.accepted > 0 && (
+            <p className="text-xs text-muted-foreground mb-2 text-center">
+              {stats.accepted} change{stats.accepted !== 1 ? 's' : ''} ready to apply to your journey
+            </p>
+          )}
+          <div className="flex items-center gap-2">
+            <Button 
+              variant="outline" 
+              size="sm"
+              className="flex-shrink-0"
+              onClick={() => onOpenChange(false)} 
+              disabled={isApplying}
+            >
               Cancel
             </Button>
             <Button
               onClick={handleApplyChanges}
               disabled={isApplying || stats.accepted === 0}
+              className="flex-1 bg-primary hover:bg-primary/90"
+              size="lg"
             >
               {isApplying ? (
                 <>
                   <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                  Applying...
+                  Applying to Journey...
+                </>
+              ) : stats.accepted === 0 ? (
+                <>
+                  <Check className="h-4 w-4 mr-2" />
+                  Accept changes to apply
                 </>
               ) : (
                 <>
                   <Check className="h-4 w-4 mr-2" />
-                  Apply {stats.accepted} Changes
+                  Apply {stats.accepted} Change{stats.accepted !== 1 ? 's' : ''} to Journey
                 </>
               )}
             </Button>
@@ -489,48 +508,51 @@ function EditChangeForm({
   const [formData, setFormData] = useState(change.editedData || change.data)
 
   return (
-    <div className="space-y-3 p-3 border rounded-lg bg-background">
+    <div className="space-y-2 p-2 border rounded-lg bg-background max-w-full overflow-hidden">
       {(change.targetType === "stage" || change.targetType === "step") && (
-        <div className="space-y-1.5">
+        <div className="space-y-1">
           <label className="text-xs font-medium">Name</label>
           <Input
             value={formData.name || ""}
             onChange={(e) => setFormData({ ...formData, name: e.target.value })}
             placeholder="Enter name..."
+            className="h-8 text-sm"
           />
         </div>
       )}
       
       {(change.targetType === "step" || change.targetType === "touchpoint" || 
         change.targetType === "painPoint" || change.targetType === "highlight") && (
-        <div className="space-y-1.5">
+        <div className="space-y-1">
           <label className="text-xs font-medium">Description</label>
           <Textarea
             value={formData.description || ""}
             onChange={(e) => setFormData({ ...formData, description: e.target.value })}
             placeholder="Enter description..."
-            rows={3}
+            rows={2}
+            className="text-sm resize-none min-h-[60px]"
           />
         </div>
       )}
       
       {change.targetType === "touchpoint" && (
-        <div className="space-y-1.5">
+        <div className="space-y-1">
           <label className="text-xs font-medium">Channel</label>
           <Input
             value={formData.channel || ""}
             onChange={(e) => setFormData({ ...formData, channel: e.target.value })}
             placeholder="e.g., Website, Mobile App..."
+            className="h-8 text-sm"
           />
         </div>
       )}
 
-      <div className="flex justify-end gap-2">
-        <Button variant="ghost" size="sm" onClick={onCancel}>
+      <div className="flex justify-end gap-1.5 pt-1">
+        <Button variant="ghost" size="sm" className="h-7 text-xs" onClick={onCancel}>
           Cancel
         </Button>
-        <Button size="sm" onClick={() => onSave(formData)}>
-          Save Changes
+        <Button size="sm" className="h-7 text-xs" onClick={() => onSave(formData)}>
+          Save
         </Button>
       </div>
     </div>
