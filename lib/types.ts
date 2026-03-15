@@ -551,3 +551,161 @@ export interface TransferResult {
   newAssetId?: string // For copy operations
   error?: string
 }
+
+// --- Voice of Customer (VoC) Types ---
+
+export type VoCDataSourceType = "google_sheets" | "qualtrics" | "medallia" | "questionpro" | "surveymonkey" | "custom_api"
+export type VoCMetricType = "nps" | "csat" | "ces" | "sentiment" | "custom"
+export type VoCSyncFrequency = "hourly" | "daily" | "weekly" | "manual"
+export type VoCSyncStatus = "success" | "failed" | "partial" | "running"
+export type VoCFeedbackType = "survey" | "review" | "support" | "social" | "other"
+export type VoCSentiment = "positive" | "neutral" | "negative"
+export type VoCTargetType = "journey" | "stage" | "step" | "touchpoint"
+
+export interface VoCFieldMapping {
+  sourceField: string
+  targetType: VoCTargetType
+  targetId: string | null // null for journey-level
+  targetName?: string // display name
+  metricType: VoCMetricType
+  customMetricName?: string
+}
+
+export interface VoCDataSourceConfig {
+  // Google Sheets
+  spreadsheetId?: string
+  sheetName?: string
+  range?: string
+  // Qualtrics
+  surveyId?: string
+  datacenterId?: string
+  // Medallia
+  programId?: string
+  // QuestionPro / SurveyMonkey
+  // Custom API
+  url?: string
+  method?: "GET" | "POST"
+  headers?: Record<string, string>
+  authType?: "none" | "api_key" | "bearer" | "basic"
+}
+
+export interface VoCDataSource {
+  id: string
+  organizationId: string
+  journeyId: string | null
+  name: string
+  type: VoCDataSourceType
+  config: VoCDataSourceConfig
+  fieldMappings: VoCFieldMapping[]
+  syncFrequency: VoCSyncFrequency
+  lastSyncAt: string | null
+  lastSyncStatus: VoCSyncStatus | null
+  lastSyncError: string | null
+  isActive: boolean
+  createdAt: string
+  updatedAt: string
+  createdBy: string | null
+}
+
+export interface VoCMetric {
+  id: string
+  dataSourceId: string
+  journeyId: string
+  targetType: VoCTargetType
+  targetId: string | null
+  metricType: VoCMetricType
+  metricName: string | null
+  value: number
+  sampleSize: number
+  periodStart: string
+  periodEnd: string
+  breakdown?: Record<string, number>
+  createdAt: string
+  updatedAt: string
+}
+
+export interface VoCFeedback {
+  id: string
+  dataSourceId: string
+  journeyId: string
+  targetType: VoCTargetType
+  targetId: string | null
+  externalId: string | null
+  respondentId: string | null
+  feedbackType: VoCFeedbackType
+  sentiment: VoCSentiment | null
+  sentimentScore: number | null
+  npsScore: number | null
+  csatScore: number | null
+  cesScore: number | null
+  textContent: string | null
+  tags: string[]
+  metadata: Record<string, unknown>
+  respondedAt: string
+  createdAt: string
+}
+
+export interface VoCSyncLog {
+  id: string
+  dataSourceId: string
+  startedAt: string
+  completedAt: string | null
+  status: VoCSyncStatus
+  recordsProcessed: number
+  recordsCreated: number
+  recordsUpdated: number
+  recordsFailed: number
+  errorMessage: string | null
+  errorDetails: Record<string, unknown> | null
+}
+
+// Aggregated VoC stats for display
+export interface VoCJourneyStats {
+  overallNps: number | null
+  npsChange: number | null
+  npsSampleSize: number
+  overallCsat: number | null
+  csatChange: number | null
+  csatSampleSize: number
+  overallCes: number | null
+  cesChange: number | null
+  cesSampleSize: number
+  overallSentiment: number | null
+  sentimentChange: number | null
+  totalFeedbackCount: number
+  recentFeedback: VoCFeedback[]
+  stageMetrics: VoCStageMetric[]
+  lastUpdated: string | null
+}
+
+export interface VoCStageMetric {
+  stageId: string
+  stageName: string
+  nps: number | null
+  csat: number | null
+  ces: number | null
+  sentiment: number | null
+  feedbackCount: number
+  steps: VoCStepMetric[]
+}
+
+export interface VoCStepMetric {
+  stepId: string
+  stepName: string
+  nps: number | null
+  csat: number | null
+  ces: number | null
+  sentiment: number | null
+  feedbackCount: number
+  touchpoints: VoCTouchpointMetric[]
+}
+
+export interface VoCTouchpointMetric {
+  touchpointId: string
+  channel: string
+  nps: number | null
+  csat: number | null
+  ces: number | null
+  sentiment: number | null
+  feedbackCount: number
+}
