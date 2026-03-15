@@ -12,33 +12,16 @@ export interface EmailOptions {
   text?: string
 }
 
-export async function sendEmail(options: EmailOptions): Promise<{ success: boolean; error?: string; id?: string; details?: unknown }> {
+export async function sendEmail(options: EmailOptions): Promise<{ success: boolean; error?: string; id?: string }> {
   // Check if Resend is configured
   if (!resend) {
     console.warn("[Email] Resend API key not configured - emails will not be sent")
-    console.log("[Email] RESEND_API_KEY present:", !!process.env.RESEND_API_KEY)
-    // In development, log the email instead of failing
-    if (process.env.NODE_ENV === "development") {
-      console.log("[Email] Would send email:", {
-        to: options.to,
-        subject: options.subject,
-        from: options.from || "René Studio <noreply@updates.rene.cx>",
-      })
-      return { success: true, id: "dev-mock-id" }
-    }
     return { success: false, error: "Email service not configured - RESEND_API_KEY missing" }
   }
 
   try {
-    // Use Resend's testing domain until updates.rene.cx is verified
-    // Once verified, change to: "René Studio <noreply@updates.rene.cx>"
-    const fromAddress = options.from || "René Studio <onboarding@resend.dev>"
-    
-    console.log("[Email] Attempting to send:", {
-      from: fromAddress,
-      to: options.to,
-      subject: options.subject,
-    })
+    // Using verified domain updates.rene.cx
+    const fromAddress = options.from || "René Studio <noreply@updates.rene.cx>"
     
     const { data, error } = await resend.emails.send({
       from: fromAddress,
@@ -50,15 +33,14 @@ export async function sendEmail(options: EmailOptions): Promise<{ success: boole
     })
 
     if (error) {
-      console.error("[Email] Resend API error:", JSON.stringify(error, null, 2))
-      return { success: false, error: error.message, details: error }
+      console.error("[Email] Failed to send:", error.message)
+      return { success: false, error: error.message }
     }
 
-    console.log("[Email] Successfully sent, ID:", data?.id)
     return { success: true, id: data?.id }
   } catch (err) {
     console.error("[Email] Exception:", err)
-    return { success: false, error: err instanceof Error ? err.message : "Unknown error", details: err }
+    return { success: false, error: err instanceof Error ? err.message : "Unknown error" }
   }
 }
 
