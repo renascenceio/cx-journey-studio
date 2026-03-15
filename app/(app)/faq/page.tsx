@@ -138,6 +138,11 @@ const faqs: FaqItem[] = [
     question: "Is my data shared with AI providers?",
     answer: "Journey data is sent to the configured AI provider only when you explicitly trigger an AI feature (e.g., Generate Archetype, AI Search). Data is not stored by the AI provider beyond processing the request. Review your provider's data policy for details.",
   },
+  {
+    category: "ai",
+    question: "How does AI language detection work?",
+    answer: "AI-generated content respects your language preferences with smart detection. The system uses this priority: (1) Explicit requests in your prompt take highest priority - phrases like 'generate in Spanish', 'en français', or '한국어로' override all other settings. (2) The language of your title or description is detected automatically - if you write in Korean, outputs will be in Korean. (3) Your manual selection in the language picker. (4) Default to English only when no other signal is present. This means you can write a title in Japanese and the AI will generate Japanese content, or you can override by saying 'in English' in your description.",
+  },
 ]
 
 function FaqAccordionItem({ item, isOpen, onToggle }: { item: FaqItem; isOpen: boolean; onToggle: () => void }) {
