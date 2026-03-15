@@ -46,11 +46,25 @@ function EmotionalArcViz() {
   const innerH = height - padY * 2
   const range = 10
 
+  // Explicit colors: green for positive, amber for neutral, red for pain points
+  const COLORS = {
+    positive: "#22c55e", // green-500
+    neutral: "#f59e0b",  // amber-500
+    painPoint: "#ef4444", // red-500
+  }
+
+  const getColor = (score: number) => {
+    if (score >= 2) return COLORS.positive
+    if (score < 0) return COLORS.painPoint
+    return COLORS.neutral
+  }
+
   const points = scores.map((s, i) => ({
     x: padX + (i / (scores.length - 1)) * innerW,
     y: padY + ((5 - s) / range) * innerH,
     score: s,
     stage: stages[i],
+    color: getColor(s),
   }))
 
   const pathD = points
@@ -67,9 +81,9 @@ function EmotionalArcViz() {
       <svg viewBox={`0 0 ${width} ${height}`} className="w-full h-24">
         <defs>
           <linearGradient id="arc-grad-v2" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor="var(--color-chart-1)" stopOpacity={0.3} />
-            <stop offset="50%" stopColor="var(--color-chart-2)" stopOpacity={0.1} />
-            <stop offset="100%" stopColor="var(--color-chart-4)" stopOpacity={0.05} />
+            <stop offset="0%" stopColor={COLORS.positive} stopOpacity={0.25} />
+            <stop offset="50%" stopColor={COLORS.neutral} stopOpacity={0.1} />
+            <stop offset="100%" stopColor={COLORS.painPoint} stopOpacity={0.15} />
           </linearGradient>
         </defs>
         {/* Neutral baseline */}
@@ -85,7 +99,7 @@ function EmotionalArcViz() {
         {/* Data points with sentiment colors */}
         {points.map((p, i) => (
           <g key={i}>
-            <circle cx={p.x} cy={p.y} r={5} fill={p.score >= 2 ? "var(--color-chart-1)" : p.score < 0 ? "var(--color-chart-4)" : "var(--color-chart-2)"} />
+            <circle cx={p.x} cy={p.y} r={5} fill={p.color} />
             <circle cx={p.x} cy={p.y} r={2.5} fill="white" />
             <text x={p.x} y={height - 4} fontSize="7" fill="currentColor" opacity={0.5} textAnchor="middle">{p.stage}</text>
           </g>
@@ -94,15 +108,15 @@ function EmotionalArcViz() {
       {/* Legend */}
       <div className="flex justify-center gap-4 mt-2">
         <div className="flex items-center gap-1">
-          <div className="w-2 h-2 rounded-full bg-chart-1" />
+          <div className="w-2 h-2 rounded-full" style={{ backgroundColor: COLORS.positive }} />
           <span className="text-[8px] text-muted-foreground">Positive</span>
         </div>
         <div className="flex items-center gap-1">
-          <div className="w-2 h-2 rounded-full bg-chart-2" />
+          <div className="w-2 h-2 rounded-full" style={{ backgroundColor: COLORS.neutral }} />
           <span className="text-[8px] text-muted-foreground">Neutral</span>
         </div>
         <div className="flex items-center gap-1">
-          <div className="w-2 h-2 rounded-full bg-chart-4" />
+          <div className="w-2 h-2 rounded-full" style={{ backgroundColor: COLORS.painPoint }} />
           <span className="text-[8px] text-muted-foreground">Pain Point</span>
         </div>
       </div>
