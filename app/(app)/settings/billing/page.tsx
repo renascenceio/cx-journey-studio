@@ -150,35 +150,8 @@ export default function BillingSettingsPage() {
   
 return (
     <div className="flex flex-col gap-6">
-      {/* Trial Status Banner */}
-      {isTrialing && trialEndsAt && (
-        <Card className="border-primary/50 bg-primary/5">
-          <CardContent className="py-4">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10">
-                  <Gift className="h-5 w-5 text-primary" />
-                </div>
-                <div>
-                  <p className="font-semibold text-foreground">
-                    {trialDaysLeft} {trialDaysLeft === 1 ? "day" : "days"} left in your trial
-                  </p>
-                  <p className="text-sm text-muted-foreground">
-                    Trial ends on {trialEndsAt.toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" })}
-                  </p>
-                </div>
-              </div>
-              <Badge variant="outline" className="border-primary text-primary">
-                <Clock className="h-3 w-3 mr-1" />
-                Trial Active
-              </Badge>
-            </div>
-          </CardContent>
-        </Card>
-      )}
-
-      {/* Start Trial CTA for Free users */}
-      {currentPlan === "free" && !hadTrial && (
+      {/* Upgrade CTA for Free users */}
+      {currentPlan === "free" && (
         <Card className="border-primary/50 bg-gradient-to-r from-primary/5 to-purple-500/5">
           <CardContent className="py-6">
             <div className="flex items-center justify-between">
@@ -188,23 +161,16 @@ return (
                 </div>
                 <div>
                   <p className="text-lg font-semibold text-foreground">
-                    Start your 14-day free trial
+                    Upgrade to unlock more features
                   </p>
                   <p className="text-sm text-muted-foreground">
-                    Unlock unlimited journeys, team collaboration, and advanced AI features. No credit card required.
+                    Get more journeys, team collaboration, advanced AI features, and analytics.
                   </p>
                 </div>
               </div>
-              <div className="flex gap-2">
-                <Button variant="outline" onClick={() => handleStartTrial("starter")} disabled={startingTrial}>
-                  {startingTrial ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
-                  Try Starter
-                </Button>
-                <Button onClick={() => handleStartTrial("business")} disabled={startingTrial}>
-                  {startingTrial ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
-                  Try Business
-                </Button>
-              </div>
+              <Button asChild>
+                <a href="/pricing">View Plans</a>
+              </Button>
             </div>
           </CardContent>
         </Card>

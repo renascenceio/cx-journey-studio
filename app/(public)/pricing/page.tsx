@@ -2,144 +2,13 @@ import type { Metadata } from "next"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { Check, X, Sparkles, Zap, Building2, Crown } from "lucide-react"
+import { Check, X } from "lucide-react"
 import { PricingCards } from "@/components/pricing-cards"
+import { PLANS, ENTERPRISE_MIN_USERS } from "@/lib/plans"
 
 export const metadata: Metadata = {
   title: "Pricing - René Studio",
   description: "Choose the perfect plan for your customer journey mapping needs.",
-}
-
-// Plan definitions - these should match database plans
-export const PLANS = {
-  free: {
-    id: "free",
-    name: "Free",
-    icon: Sparkles,
-    price: 0,
-    priceYearly: 0,
-    period: "forever",
-    description: "For individuals exploring CX journey mapping.",
-    journeyLimit: 3,
-    teamMemberLimit: 1,
-    aiCreditsMonthly: 50,
-    features: {
-      journeys: "Up to 3 journeys",
-      teamMembers: "1 team member",
-      emotionalArc: "Basic emotional arc",
-      templates: "Community templates only",
-      export: "Export to PDF",
-      collaboration: false,
-      aiInsights: "50 AI credits/month",
-      versioning: "7-day version history",
-      support: "Community support",
-      analytics: false,
-      customBranding: false,
-      sso: false,
-      api: false,
-      dedicatedManager: false,
-    },
-    cta: "Get Started",
-    ctaHref: "/signup",
-    variant: "outline" as const,
-    popular: false,
-  },
-  starter: {
-    id: "starter",
-    name: "Starter",
-    icon: Zap,
-    price: 19,
-    priceYearly: 15,
-    period: "per user/month",
-    description: "For small teams starting their CX practice.",
-    journeyLimit: 15,
-    teamMemberLimit: 5,
-    aiCreditsMonthly: 500,
-    features: {
-      journeys: "Up to 15 journeys",
-      teamMembers: "Up to 5 team members",
-      emotionalArc: "Advanced emotional arc",
-      templates: "Full template library",
-      export: "Export to PDF, PNG, CSV",
-      collaboration: "Real-time collaboration",
-      aiInsights: "500 AI credits/month",
-      versioning: "30-day version history",
-      support: "Email support",
-      analytics: "Basic analytics",
-      customBranding: false,
-      sso: false,
-      api: false,
-      dedicatedManager: false,
-    },
-    cta: "Start Free Trial",
-    ctaHref: "/signup?plan=starter",
-    variant: "default" as const,
-    popular: false,
-  },
-  business: {
-    id: "business",
-    name: "Business",
-    icon: Building2,
-    price: 49,
-    priceYearly: 39,
-    period: "per user/month",
-    description: "For teams building a serious CX practice.",
-    journeyLimit: -1, // unlimited
-    teamMemberLimit: 25,
-    aiCreditsMonthly: 2000,
-    features: {
-      journeys: "Unlimited journeys",
-      teamMembers: "Up to 25 team members",
-      emotionalArc: "Advanced emotional arc with benchmarks",
-      templates: "Full template library + custom",
-      export: "All export formats",
-      collaboration: "Real-time collaboration",
-      aiInsights: "2,000 AI credits/month",
-      versioning: "90-day version history",
-      support: "Priority support",
-      analytics: "Advanced analytics & reports",
-      customBranding: "Custom branding",
-      sso: false,
-      api: "API access",
-      dedicatedManager: false,
-    },
-    cta: "Start Free Trial",
-    ctaHref: "/signup?plan=business",
-    variant: "default" as const,
-    popular: true,
-  },
-  enterprise: {
-    id: "enterprise",
-    name: "Enterprise",
-    icon: Crown,
-    price: -1, // custom
-    priceYearly: -1,
-    period: "contact us",
-    description: "For organizations scaling CX across teams.",
-    journeyLimit: -1,
-    teamMemberLimit: -1,
-    aiCreditsMonthly: -1, // custom
-    features: {
-      journeys: "Unlimited journeys",
-      teamMembers: "Unlimited team members",
-      emotionalArc: "Enterprise emotional intelligence suite",
-      templates: "Custom template development",
-      export: "All formats + custom integrations",
-      collaboration: "Enterprise collaboration tools",
-      aiInsights: "Custom AI credits",
-      versioning: "Unlimited version history",
-      support: "24/7 dedicated support",
-      analytics: "Enterprise analytics & BI integrations",
-      customBranding: "White-label option",
-      sso: "SSO & SAML",
-      api: "Full API access",
-      dedicatedManager: "Dedicated success manager",
-    },
-    cta: "Contact Sales",
-    ctaHref: "/contact?type=enterprise",
-    variant: "outline" as const,
-    popular: false,
-  },
 }
 
 const featureComparison = [
@@ -167,7 +36,7 @@ export default function PricingPage() {
           Simple, transparent pricing
         </h1>
         <p className="mt-4 text-pretty text-lg leading-relaxed text-muted-foreground">
-          Start free, upgrade when you need more power. All plans include a 14-day free trial.
+          Start free forever, upgrade when you need more power. No credit card required.
         </p>
       </div>
 
@@ -251,8 +120,8 @@ export default function PricingPage() {
             <p className="text-sm text-muted-foreground">You can top up AI credits anytime from your settings. Credits are $10 per 1,000 and never expire. Your monthly allocation resets on your billing date.</p>
           </div>
           <div>
-            <h3 className="text-sm font-semibold text-foreground mb-2">Is there a free trial?</h3>
-            <p className="text-sm text-muted-foreground">Yes! All paid plans come with a 14-day free trial. No credit card required to start.</p>
+            <h3 className="text-sm font-semibold text-foreground mb-2">Can I try before I buy?</h3>
+            <p className="text-sm text-muted-foreground">Absolutely! Our Free plan gives you full access to core features forever. Upgrade to a paid plan when you need more journeys, team members, or AI credits.</p>
           </div>
           <div>
             <h3 className="text-sm font-semibold text-foreground mb-2">What payment methods do you accept?</h3>

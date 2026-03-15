@@ -2,23 +2,11 @@ import { NextResponse } from "next/server"
 import Stripe from "stripe"
 import { createClient } from "@/lib/supabase/server"
 import { createAdminClient } from "@/lib/supabase/server"
+import { getPlan, getStripePriceId, requiresCheckout } from "@/lib/plans"
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || "", {
   apiVersion: "2025-02-24.acacia",
 })
-
-// Price IDs for each plan (configured in Stripe)
-const PRICE_IDS: Record<string, { monthly: string; yearly?: string }> = {
-  starter: {
-    monthly: "price_1TBAawRWXtNLtlsksjG3K5Vh",
-  },
-  business: {
-    monthly: "price_1TBAaxRWXtNLtlskjMUFNfxs",
-  },
-}
-
-// Trial period in days
-const TRIAL_DAYS = 14
 
 export async function POST(request: Request) {
   try {
@@ -32,11 +20,16 @@ export async function POST(request: Request) {
     const body = await request.json()
     const { planId, billingCycle = "monthly" } = body
 
-    if (!planId || !PRICE_IDS[planId]) {
+    // Validate plan exists and requires checkout
+    const plan = getPlan(planId)
+    if (!plan || !requiresCheckout(planId)) {
       return NextResponse.json({ error: "Invalid plan" }, { status: 400 })
     }
 
-    const priceId = PRICE_IDS[planId][billingCycle as keyof typeof PRICE_IDS[string]] || PRICE_IDS[planId].monthly
+    const priceId = getStripePriceId(planId, billingCycle as "monthly" | "yearly")
+    if (!priceId) {
+      return NextResponse.json({ error: "Price not configured for this plan" }, { status: 400 })
+    }
 
     // Get user's profile and organization
     const adminClient = createAdminClient()
@@ -82,11 +75,8 @@ export async function POST(request: Request) {
         .eq("id", org.id)
     }
 
-    // Check if user has already had a trial
-    const hadTrial = org.trial_started_at !== null
-
-    // Create checkout session with trial (only if no previous trial)
-    const sessionParams: Stripe.Checkout.SessionCreateParams = {
+    // Create checkout session (no trial - users can use Free tier to try)
+    const session = await stripe.checkout.sessions.create({
       customer: customerId,
       mode: "subscription",
       payment_method_types: ["card"],
@@ -108,18 +98,13 @@ export async function POST(request: Request) {
           organization_id: org.id,
           plan_id: planId,
         },
-        // Only add trial if user hasn't had one before
-        ...(hadTrial ? {} : { trial_period_days: TRIAL_DAYS }),
       },
       allow_promotion_codes: true,
-    }
-
-    const session = await stripe.checkout.sessions.create(sessionParams)
+    })
 
     return NextResponse.json({ 
       url: session.url,
       sessionId: session.id,
-      hasTrial: !hadTrial,
     })
   } catch (error) {
     console.error("[Checkout API] Error:", error)
