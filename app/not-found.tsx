@@ -1,9 +1,4 @@
-"use client"
-
-import { useState, useEffect, useCallback, useRef } from "react"
 import Link from "next/link"
-import { useRouter } from "next/navigation"
-import { motion, AnimatePresence } from "framer-motion"
 import {
   Search,
   Home,
@@ -13,22 +8,9 @@ import {
   Lightbulb,
   ArrowRight,
   Sparkles,
-  Command,
-  CornerDownLeft,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
 import { cn } from "@/lib/utils"
-
-// Journey path visualization nodes
-const journeyNodes = [
-  { x: 10, y: 50, delay: 0 },
-  { x: 25, y: 30, delay: 0.1 },
-  { x: 40, y: 60, delay: 0.2 },
-  { x: 55, y: 25, delay: 0.3 },
-  { x: 70, y: 55, delay: 0.4 },
-  { x: 85, y: 35, delay: 0.5 },
-]
 
 // Quick navigation items
 const quickLinks = [
@@ -38,49 +20,17 @@ const quickLinks = [
   { name: "Solutions", icon: Lightbulb, href: "/solutions", color: "from-amber-500 to-orange-500" },
 ]
 
+// Journey path nodes for SVG
+const journeyNodes = [
+  { x: 10, y: 50 },
+  { x: 25, y: 30 },
+  { x: 40, y: 60 },
+  { x: 55, y: 25 },
+  { x: 70, y: 55 },
+  { x: 85, y: 35 },
+]
+
 export default function NotFound() {
-  const router = useRouter()
-  const [query, setQuery] = useState("")
-  const [selectedIndex, setSelectedIndex] = useState(-1)
-  const [isFocused, setIsFocused] = useState(false)
-  const inputRef = useRef<HTMLInputElement>(null)
-
-  // Filter quick links based on query
-  const filteredLinks = query.length > 0 
-    ? quickLinks.filter(link => link.name.toLowerCase().includes(query.toLowerCase()))
-    : quickLinks
-
-  // Keyboard navigation
-  const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
-    if (e.key === "ArrowDown") {
-      e.preventDefault()
-      setSelectedIndex(i => Math.min(i + 1, filteredLinks.length - 1))
-    } else if (e.key === "ArrowUp") {
-      e.preventDefault()
-      setSelectedIndex(i => Math.max(i - 1, -1))
-    } else if (e.key === "Enter" && selectedIndex >= 0) {
-      e.preventDefault()
-      router.push(filteredLinks[selectedIndex].href)
-    }
-  }, [filteredLinks, selectedIndex, router])
-
-  // Focus input on Cmd/Ctrl + K
-  useEffect(() => {
-    const down = (e: KeyboardEvent) => {
-      if (e.key === "k" && (e.metaKey || e.ctrlKey)) {
-        e.preventDefault()
-        inputRef.current?.focus()
-      }
-    }
-    document.addEventListener("keydown", down)
-    return () => document.removeEventListener("keydown", down)
-  }, [])
-
-  // Reset selection when query changes
-  useEffect(() => {
-    setSelectedIndex(-1)
-  }, [query])
-
   return (
     <div className="relative min-h-screen bg-background overflow-hidden">
       {/* Animated background grid */}
@@ -93,24 +43,23 @@ export default function NotFound() {
       {/* Content */}
       <div className="relative z-10 flex min-h-screen flex-col items-center justify-center px-4 py-16">
         
-        {/* Animated Journey Path SVG */}
-        <div className="relative mb-8 w-full max-w-lg h-32">
+        {/* Journey Path SVG */}
+        <div className="relative mb-8 w-full max-w-lg h-32 animate-in fade-in duration-500">
           <svg 
             viewBox="0 0 100 80" 
             className="w-full h-full"
             preserveAspectRatio="xMidYMid meet"
           >
-            {/* Animated path line */}
-            <motion.path
+            {/* Path line with CSS animation */}
+            <path
               d={`M ${journeyNodes.map(n => `${n.x} ${n.y}`).join(" L ")}`}
               fill="none"
               stroke="url(#pathGradient)"
               strokeWidth="2"
               strokeLinecap="round"
               strokeLinejoin="round"
-              initial={{ pathLength: 0, opacity: 0 }}
-              animate={{ pathLength: 1, opacity: 1 }}
-              transition={{ duration: 2, ease: "easeInOut" }}
+              className="animate-draw-path"
+              style={{ strokeDasharray: 200, strokeDashoffset: 0 }}
             />
             
             {/* Gradient definition */}
@@ -124,61 +73,29 @@ export default function NotFound() {
             
             {/* Journey nodes */}
             {journeyNodes.map((node, i) => (
-              <motion.g key={i}>
-                {/* Pulse ring */}
-                <motion.circle
-                  cx={node.x}
-                  cy={node.y}
-                  r="6"
-                  fill="none"
-                  stroke="hsl(var(--primary) / 0.3)"
-                  strokeWidth="1"
-                  initial={{ scale: 0, opacity: 0 }}
-                  animate={{ 
-                    scale: [1, 1.5, 1],
-                    opacity: [0.5, 0, 0.5]
-                  }}
-                  transition={{ 
-                    delay: node.delay + 1.5,
-                    duration: 2,
-                    repeat: Infinity,
-                    repeatDelay: 1
-                  }}
-                />
+              <g key={i}>
                 {/* Main node */}
-                <motion.circle
+                <circle
                   cx={node.x}
                   cy={node.y}
                   r="4"
                   fill="hsl(var(--background))"
                   stroke="hsl(var(--primary))"
                   strokeWidth="2"
-                  initial={{ scale: 0, opacity: 0 }}
-                  animate={{ scale: 1, opacity: 1 }}
-                  transition={{ delay: node.delay + 0.8, duration: 0.3, type: "spring" }}
                 />
-              </motion.g>
+              </g>
             ))}
             
             {/* Lost indicator (broken connection) */}
-            <motion.g
-              initial={{ opacity: 0, y: -10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 2.2, duration: 0.5 }}
-            >
-              <circle cx="55" cy="25" r="8" fill="hsl(var(--destructive) / 0.1)" />
-              <text x="55" y="28" textAnchor="middle" className="fill-destructive text-[8px] font-bold">?</text>
-            </motion.g>
+            <g className="animate-bounce">
+              <circle cx="55" cy="25" r="8" fill="hsl(var(--destructive) / 0.15)" />
+              <text x="55" y="29" textAnchor="middle" fill="hsl(var(--destructive))" className="text-[10px] font-bold">?</text>
+            </g>
           </svg>
         </div>
 
         {/* 404 Text */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2 }}
-          className="text-center mb-8"
-        >
+        <div className="text-center mb-8 animate-in fade-in slide-in-from-bottom-4 duration-500 delay-200">
           <h1 className="text-8xl font-bold tracking-tighter bg-gradient-to-b from-foreground to-foreground/50 bg-clip-text text-transparent mb-4">
             404
           </h1>
@@ -188,49 +105,19 @@ export default function NotFound() {
           <p className="text-muted-foreground max-w-md mx-auto">
             Looks like this path leads nowhere. Let&apos;s help you find your way back to a meaningful experience.
           </p>
-        </motion.div>
+        </div>
 
-        {/* Spotlight Search Box */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.4 }}
-          className="w-full max-w-xl mb-8"
-        >
-          <div className={cn(
-            "relative rounded-2xl border bg-background/80 backdrop-blur-xl shadow-2xl transition-all duration-300",
-            isFocused ? "border-primary/50 shadow-primary/10" : "border-border/50"
-          )}>
-            {/* Animated gradient border */}
-            <AnimatePresence>
-              {isFocused && (
-                <motion.div
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                  className="absolute -inset-[1px] rounded-2xl bg-gradient-to-r from-primary/50 via-violet-500/50 to-primary/50 -z-10 blur-sm"
-                />
-              )}
-            </AnimatePresence>
-            
-            {/* Search Input */}
+        {/* Quick Navigation Card */}
+        <div className="w-full max-w-xl mb-8 animate-in fade-in slide-in-from-bottom-4 duration-500 delay-300">
+          <div className="relative rounded-2xl border border-border/50 bg-background/80 backdrop-blur-xl shadow-2xl">
+            {/* Header */}
             <div className="flex items-center gap-3 px-4 py-3 border-b border-border/50">
               <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-primary/20 via-primary/10 to-transparent">
                 <Search className="h-5 w-5 text-primary" />
               </div>
-              <Input
-                ref={inputRef}
-                value={query}
-                onChange={(e) => setQuery(e.target.value)}
-                onFocus={() => setIsFocused(true)}
-                onBlur={() => setIsFocused(false)}
-                onKeyDown={handleKeyDown}
-                placeholder="Search pages, journeys, or type a destination..."
-                className="h-10 border-0 bg-transparent px-0 text-base shadow-none placeholder:text-muted-foreground/50 focus-visible:ring-0"
-              />
-              <kbd className="hidden sm:flex items-center gap-0.5 rounded-md border border-border/50 bg-muted/50 px-2 py-1 font-mono text-[10px] font-medium text-muted-foreground/70">
-                <Command className="h-3 w-3" />K
-              </kbd>
+              <p className="text-sm text-muted-foreground">
+                Where would you like to go?
+              </p>
             </div>
             
             {/* Quick Links */}
@@ -242,20 +129,13 @@ export default function NotFound() {
                 </span>
               </div>
               <div className="space-y-0.5">
-                {filteredLinks.map((link, index) => {
+                {quickLinks.map((link) => {
                   const Icon = link.icon
-                  const isSelected = index === selectedIndex
                   return (
                     <Link
                       key={link.name}
                       href={link.href}
-                      className={cn(
-                        "flex items-center gap-3 rounded-xl px-3 py-2.5 transition-all",
-                        isSelected 
-                          ? "bg-primary/10" 
-                          : "hover:bg-muted/50"
-                      )}
-                      onMouseEnter={() => setSelectedIndex(index)}
+                      className="flex items-center gap-3 rounded-xl px-3 py-2.5 transition-all hover:bg-muted/50 group"
                     >
                       <div className={cn(
                         "flex h-9 w-9 items-center justify-center rounded-lg bg-gradient-to-br",
@@ -268,51 +148,26 @@ export default function NotFound() {
                         <p className="text-sm font-medium text-foreground">{link.name}</p>
                         <p className="text-xs text-muted-foreground">Go to {link.name.toLowerCase()}</p>
                       </div>
-                      <ArrowRight className={cn(
-                        "h-4 w-4 text-muted-foreground transition-transform",
-                        isSelected && "translate-x-1 text-primary"
-                      )} />
+                      <ArrowRight className="h-4 w-4 text-muted-foreground transition-transform group-hover:translate-x-1 group-hover:text-primary" />
                     </Link>
                   )
                 })}
               </div>
-              
-              {filteredLinks.length === 0 && (
-                <div className="flex flex-col items-center justify-center py-8 text-center">
-                  <Search className="h-8 w-8 text-muted-foreground/30 mb-2" />
-                  <p className="text-sm text-muted-foreground">No pages found</p>
-                </div>
-              )}
-            </div>
-            
-            {/* Footer hint */}
-            <div className="flex items-center justify-between border-t border-border/50 bg-muted/20 px-4 py-2">
-              <span className="text-[10px] text-muted-foreground">
-                Use <kbd className="mx-1 rounded border border-border/50 bg-background px-1 py-0.5 font-mono text-[9px]">↑</kbd>
-                <kbd className="mx-1 rounded border border-border/50 bg-background px-1 py-0.5 font-mono text-[9px]">↓</kbd> to navigate
-              </span>
-              <span className="flex items-center gap-1 text-[10px] text-muted-foreground">
-                <CornerDownLeft className="h-3 w-3" />
-                to select
-              </span>
             </div>
           </div>
-        </motion.div>
+        </div>
 
         {/* Home Button */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.6 }}
-        >
+        <div className="animate-in fade-in duration-500 delay-500">
           <Button asChild variant="outline" size="lg" className="gap-2 rounded-xl">
             <Link href="/">
               <Home className="h-4 w-4" />
               Back to Home
             </Link>
           </Button>
-        </motion.div>
+        </div>
       </div>
-    </div>
+      
+      </div>
   )
 }
