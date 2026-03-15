@@ -41,23 +41,43 @@ export async function POST(request: Request) {
     
     switch (eventType) {
       case "welcome":
-        subject = "Welcome to René Studio!"
+        subject = "Welcome to Rene!"
         html = emailTemplates.welcome(recipientName)
         break
+      case "email_verification":
+        subject = "Verify Your Email - Rene"
+        html = emailTemplates.emailVerification(recipientName, "https://rene.cx/verify?token=test")
+        break
       case "password_reset":
-        subject = "Reset Your Password"
+        subject = "Reset Your Password - Rene"
         html = emailTemplates.passwordReset(recipientName, "https://rene.cx/reset-password?token=test")
         break
       case "magic_link":
-        subject = "Sign In to René Studio"
+        subject = "Sign In to Rene"
         html = emailTemplates.magicLink(recipientEmail, "https://rene.cx/auth/callback?token=test")
         break
+      case "password_changed":
+        subject = "Password Updated - Rene"
+        html = emailTemplates.passwordReset(recipientName, "https://rene.cx/login")
+        break
       case "journey_shared":
-        subject = "Journey Shared With You"
+        subject = "A Journey Was Shared With You - Rene"
         html = emailTemplates.journeyShared("Test User", "Sample Customer Journey", "https://rene.cx/journeys/test")
         break
+      case "collaborator_joined":
+        subject = "New Collaborator Joined - Rene"
+        html = emailTemplates.collaboratorJoined("Test Collaborator", "Sample Customer Journey", "https://rene.cx/journeys/test")
+        break
+      case "new_comment":
+        subject = "New Comment on Your Journey - Rene"
+        html = emailTemplates.newComment("Test User", "Sample Customer Journey", "This is a preview of the comment...", "https://rene.cx/journeys/test")
+        break
+      case "mentioned":
+        subject = "You Were Mentioned - Rene"
+        html = emailTemplates.mentioned("Test User", "Sample Customer Journey", "Hey @you, check this out...", "https://rene.cx/journeys/test")
+        break
       default:
-        subject = "Test Email from René Studio"
+        subject = "Test Email from Rene"
         html = emailTemplates.testEmail(recipientName)
     }
     
