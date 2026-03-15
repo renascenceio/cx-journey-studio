@@ -692,8 +692,8 @@ export default function AdminWordsPage() {
               >
                 <List className="h-4 w-4" />
               </Button>
-              </div>
             </div>
+          </div>
           </CardContent>
         </Card>
       )}
