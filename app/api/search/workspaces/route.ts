@@ -14,6 +14,8 @@ export async function GET(req: Request) {
   const excludeId = searchParams.get("exclude") // Exclude current workspace
 
   try {
+    console.log("[v0] Searching workspaces for user:", user.id, "query:", query, "exclude:", excludeId)
+    
     // Get all workspaces the user has access to
     const { data: memberships, error: membershipError } = await supabase
       .from("workspace_members")
@@ -30,6 +32,8 @@ export async function GET(req: Request) {
       `)
       .eq("user_id", user.id)
 
+    console.log("[v0] Workspace memberships:", memberships?.length, "error:", membershipError)
+    
     if (membershipError) {
       console.error("Workspace membership error:", membershipError)
       return NextResponse.json({ workspaces: [] })
