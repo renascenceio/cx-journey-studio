@@ -29,6 +29,7 @@ import { createArchetype } from "@/lib/actions/data"
 import { useSound } from "@/components/sound-provider"
 import type { Journey } from "@/lib/types"
 import { INDUSTRIES } from "@/lib/industries"
+import { AILanguageSelector, useAILanguage } from "@/components/ai-language-selector"
 
 interface CreateArchetypeDialogProps {
   children: React.ReactNode
@@ -58,6 +59,9 @@ export function CreateArchetypeDialog({ children, journeys }: CreateArchetypeDia
   const [aiNarratives, setAiNarratives] = useState<Record<string, string>>({})
   const router = useRouter()
   const { play } = useSound()
+  
+  // AI Language state
+  const { language: aiLanguage, setLanguage: setAiLanguage, getPromptPrefix } = useAILanguage(aiPrompt)
 
   async function handleAiGenerate() {
     if (!aiPrompt.trim() || !category) return
@@ -66,7 +70,12 @@ export function CreateArchetypeDialog({ children, journeys }: CreateArchetypeDia
       const res = await fetch("/api/ai/generate-archetype", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ prompt: aiPrompt, category }),
+        body: JSON.stringify({ 
+          prompt: aiPrompt, 
+          category,
+          language: aiLanguage,
+          languagePromptPrefix: getPromptPrefix(),
+        }),
       })
       if (!res.ok) throw new Error("Generation failed")
       const { archetype } = await res.json()
@@ -234,6 +243,18 @@ export function CreateArchetypeDialog({ children, journeys }: CreateArchetypeDia
                 <><Sparkles className="h-3.5 w-3.5" />Generate Archetype</>
               )}
             </Button>
+            <div className="flex flex-col gap-2">
+              <Label>{t("ai.generationLanguage")}</Label>
+              <AILanguageSelector
+                value={aiLanguage}
+                onChange={setAiLanguage}
+                assetName={aiPrompt}
+                showDetectedBadge={true}
+              />
+              <p className="text-[10px] text-muted-foreground">
+                {t("ai.generationLanguageDesc")}
+              </p>
+            </div>
             <p className="text-[10px] text-muted-foreground">
               René AI will generate all fields. You can review and edit before saving.
             </p>

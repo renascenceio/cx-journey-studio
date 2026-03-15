@@ -3,7 +3,7 @@ import { createAnthropic } from "@ai-sdk/anthropic"
 import { NextResponse } from "next/server"
 import { createClient } from "@/lib/supabase/server"
 import { revalidatePath } from "next/cache"
-import { detectPredominantLanguage, getLanguageInstruction, extractExplicitLanguage } from "@/lib/language-detection"
+import { smartDetectLanguage, getLanguageInstruction } from "@/lib/language-detection"
 
 interface GeneratedPainPoint {
   description: string
@@ -60,12 +60,35 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Not authenticated" }, { status: 401 })
   }
 
-  const { journeyId, title, description, options, language: explicitLanguage } = await req.json()
+  const { journeyId, title, description, options, language: explicitLanguage, sourceContent, sourceType } = await req.json()
   
-  // Detect language from title/description or use explicit language
-  const extractedLang = description ? extractExplicitLanguage(description) : undefined
-  const langResult = detectPredominantLanguage(title, description, explicitLanguage || extractedLang)
-  const languageInstruction = getLanguageInstruction(langResult)
+  // Check if generating from file content
+  const isFileSource = sourceType === "file" && sourceContent
+  
+  // Smart language detection with priority:
+  // 1. Explicit request in description ("generate in Spanish")
+  // 2. Language detected from title/description content
+  // 3. User's manual selection
+  // 4. Default to English
+  const langResult = smartDetectLanguage({
+    prompt: description,
+    title,
+    description,
+    userSelection: explicitLanguage,
+  })
+  
+  console.log("[v0] Journey language detection:", {
+    language: langResult.language,
+    source: langResult.source,
+    reasoning: langResult.reasoning,
+  })
+  
+  const languageInstruction = getLanguageInstruction({
+    detectedLanguage: langResult.language,
+    languageName: langResult.languageName,
+    confidence: langResult.confidence,
+    script: "Latin",
+  })
   
   // Default options - generate everything if not specified
   const generateOptions = {
@@ -178,6 +201,30 @@ ${a.touchpoints_narrative ? `- Preferred Touchpoints: ${a.touchpoints_narrative}
     ? `\n\nADDITIONAL INSTRUCTIONS FROM ADMIN:\n${customPrompt.system_prompt}`
     : ""
 
+  // Build file source context if generating from file
+  const fileSourceContext = isFileSource
+    ? `
+
+SOURCE DOCUMENT CONTENT:
+The following document contains research, transcripts, or specifications that should inform the journey structure.
+Extract journey stages, steps, touchpoints, and emotional experiences from this content:
+
+---BEGIN DOCUMENT---
+${sourceContent.slice(0, 50000)}
+---END DOCUMENT---
+
+IMPORTANT: Use the document content as the PRIMARY source for:
+- Identifying stages/phases mentioned
+- Understanding customer actions and steps
+- Extracting touchpoints and channels
+- Determining emotional experiences (positive/negative moments)
+- Identifying pain points and highlights
+- Understanding the customer's goals and frustrations
+
+If the document mentions specific stages, steps, or touchpoints, include them. Fill gaps with realistic additions that fit the context.
+`
+    : ""
+
   const result = await generateText({
     model: anthropic("claude-sonnet-4-20250514"),
     prompt: `You are René AI, a world-class CX journey design expert. Generate a customer journey map structure as JSON.
@@ -191,7 +238,7 @@ JOURNEY CONTEXT:
 ${journey.description ? `- Description: ${journey.description}` : ""}
 ${journey.type ? `- Journey Type: ${journey.type}` : ""}
 ${journey.tags && journey.tags.length > 0 ? `- Tags: ${journey.tags.join(", ")}` : ""}
-${archetypeContext}${customSystemPrompt}
+${archetypeContext}${customSystemPrompt}${fileSourceContext}
 
 Generate a JSON object with this exact structure:
 {
@@ -251,7 +298,10 @@ Requirements:
 - ${stepsInstruction}
 - ${touchpointsInstruction}
 - emotionalScore: integer from -5 (very negative) to +5 (very positive)
-- Channels: Website, Mobile App, Email, Phone, Live Chat, Social Media, Physical Store, SMS, In-Person, Documentation, Community Forum, etc.
+- Channels: Use channel names IN THE TARGET LANGUAGE. Examples in English: Website, Mobile App, Email, Phone, Live Chat, Social Media, Physical Store, SMS, In-Person, Documentation, Community Forum, Video Call, Push Notification, Self-Service Portal, Kiosk, ATM, Branch, Mail.
+  If generating in Russian, use: Вебсайт, Мобильное приложение, Электронная почта, Телефон, Чат, Соци��льные сети, Физический магазин, SMS, Лично, Документация, Форум сообщества, etc.
+  If generating in Spanish, use: Sitio web, Aplicación móvil, Correo electrónico, Teléfono, Chat en vivo, Redes sociales, Tienda física, SMS, En persona, Documentación, Foro comunitario, etc.
+  ALWAYS translate channel names to match the target language.
 - Vary emotional scores realistically - not everything is positive, include friction points
 
 ${painPointsInstruction}

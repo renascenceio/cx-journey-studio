@@ -3,7 +3,7 @@ import { createAnthropic } from "@ai-sdk/anthropic"
 import { z } from "zod"
 import { NextResponse } from "next/server"
 import { createClient } from "@/lib/supabase/server"
-import { detectPredominantLanguage, getLanguageInstruction, extractExplicitLanguage } from "@/lib/language-detection"
+import { smartDetectLanguage, getLanguageInstruction } from "@/lib/language-detection"
 
 const anthropic = createAnthropic({
   apiKey: process.env.ANTHROPIC_API_KEY,
@@ -103,14 +103,30 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Prompt is required" }, { status: 400 })
     }
 
-    // Detect language from prompt or journey context
-    const extractedLang = extractExplicitLanguage(prompt)
-    const langResult = detectPredominantLanguage(
-      journeyContext?.title,
-      prompt + (journeyContext?.description || ""),
-      explicitLanguage || extractedLang
-    )
-    const languageInstruction = getLanguageInstruction(langResult)
+    // Smart language detection with priority:
+    // 1. Explicit request in prompt ("generate in Spanish", "en español")
+    // 2. Language detected from content (title/description)
+    // 3. User's manual selection
+    // 4. Default to English
+    const langResult = smartDetectLanguage({
+      prompt,
+      title: journeyContext?.title,
+      description: journeyContext?.description,
+      userSelection: explicitLanguage,
+    })
+    
+    console.log("[v0] Language detection result:", {
+      language: langResult.language,
+      source: langResult.source,
+      reasoning: langResult.reasoning,
+    })
+    
+    const languageInstruction = getLanguageInstruction({
+      detectedLanguage: langResult.language,
+      languageName: langResult.languageName,
+      confidence: langResult.confidence,
+      script: "Latin", // Will be overridden by the function if needed
+    })
 
     // Fetch custom prompt from database if available
     const customPromptData = await getCustomPrompt()

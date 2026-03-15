@@ -17,7 +17,7 @@ import {
 } from "@/components/ui/tooltip"
 import { cn } from "@/lib/utils"
 
-export type CanvasViewMode = "default" | "swimlane" | "timeline" | "moments" | "solutions"
+export type CanvasViewMode = "default" | "lingo" | "swimlane" | "timeline" | "moments" | "rituals" | "solutions"
 
 interface CanvasToolbarProps {
   zoom: number
@@ -79,7 +79,7 @@ export function CanvasToolbar({
 
         {/* 2. View mode switcher tabs */}
         <div className="flex items-center gap-0.5 rounded-md border border-border p-0.5">
-          {(["default", "swimlane", "timeline", "moments", "solutions"] as const).map((mode) => (
+          {(["default", "lingo", "swimlane", "timeline", "moments", "rituals", "solutions"] as const).map((mode) => (
             <TooltipProvider key={mode}>
               <Tooltip>
                 <TooltipTrigger asChild>
@@ -90,18 +90,22 @@ export function CanvasToolbar({
                       viewMode === mode
                         ? "bg-primary text-primary-foreground"
                         : "text-muted-foreground hover:text-foreground hover:bg-accent",
+                      mode === "lingo" && viewMode !== mode && "text-violet-600 dark:text-violet-400",
                       mode === "moments" && viewMode !== mode && "text-amber-600 dark:text-amber-400",
+                      mode === "rituals" && viewMode !== mode && "text-rose-600 dark:text-rose-400",
                       mode === "solutions" && viewMode !== mode && "text-blue-600 dark:text-blue-400"
                     )}
                   >
-                    {mode === "default" ? "Master" : mode === "swimlane" ? "Swimlane" : mode === "timeline" ? "Timeline" : mode === "moments" ? "Moments" : "Solutions"}
+                    {mode === "default" ? "Master" : mode === "lingo" ? "Lingo" : mode === "swimlane" ? "Swimlane" : mode === "timeline" ? "Timeline" : mode === "moments" ? "Moments" : mode === "rituals" ? "Rituals" : "Solutions"}
                   </button>
                 </TooltipTrigger>
                 <TooltipContent className="text-xs">
                   {mode === "default" && "Master view - Vertical columns per stage (editable)"}
+                  {mode === "lingo" && "Brand language and terminology for the journey"}
                   {mode === "swimlane" && "Horizontal rows by channel"}
                   {mode === "timeline" && "Compact timeline strip"}
                   {mode === "moments" && "Moments of Truth -- the critical touch points that define the experience"}
+                  {mode === "rituals" && "Signature behaviors and recurring patterns"}
                   {mode === "solutions" && "Solutions lane -- see applied solutions mapped to journey stages"}
                 </TooltipContent>
               </Tooltip>

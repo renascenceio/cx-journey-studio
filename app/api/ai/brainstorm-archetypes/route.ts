@@ -2,6 +2,7 @@ import { generateText, Output } from "ai"
 import { createAnthropic } from "@ai-sdk/anthropic"
 import { z } from "zod"
 import { NextResponse } from "next/server"
+import { smartDetectLanguage, getLanguageInstruction } from "@/lib/language-detection"
 
 const anthropic = createAnthropic({
   apiKey: process.env.ANTHROPIC_API_KEY,
@@ -30,11 +31,32 @@ export const maxDuration = 60
 
 export async function POST(request: Request) {
   try {
-    const { category, context, targetAudience, count = 9, modelId } = await request.json()
+    const { category, context, targetAudience, count = 9, modelId, language: userLanguage } = await request.json()
 
     if (!category) {
       return NextResponse.json({ error: "Category is required" }, { status: 400 })
     }
+
+    // Smart language detection
+    const langResult = smartDetectLanguage({
+      prompt: context,
+      title: targetAudience,
+      description: context,
+      userSelection: userLanguage,
+    })
+    
+    console.log("[v0] Brainstorm language detection:", {
+      language: langResult.language,
+      source: langResult.source,
+      reasoning: langResult.reasoning,
+    })
+    
+    const languageInstruction = getLanguageInstruction({
+      detectedLanguage: langResult.language,
+      languageName: langResult.languageName,
+      confidence: langResult.confidence,
+      script: "Latin",
+    })
 
     // B15: Use selected model or default to Sonnet
     const anthropicModel = MODEL_MAP[modelId] || MODEL_MAP["claude-sonnet-4.5"]
@@ -43,6 +65,9 @@ export async function POST(request: Request) {
       model: anthropic(anthropicModel),
       output: Output.object({ schema: brainstormSchema }),
       system: `You are a CX strategist brainstorming customer archetype ideas.
+
+LANGUAGE REQUIREMENT:
+${languageInstruction}
 
 CRITICAL RULES:
 1. Names are DESCRIPTIVE TITLES - NEVER personal names

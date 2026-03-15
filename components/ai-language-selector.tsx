@@ -268,22 +268,31 @@ export function AILanguageSelector({
 }
 
 /**
- * Hook for managing AI generation language
+ * Hook for managing AI generation language with smart detection
+ * Priority:
+ * 1. Explicit language request in content (detected from assetName/prompt)
+ * 2. Language detected from content script/characters
+ * 3. User's saved preference
+ * 4. Default to English
  */
-export function useAILanguage(assetName?: string) {
+export function useAILanguage(assetName?: string, prompt?: string) {
   const [language, setLanguage] = useState<AILanguageCode>(() => getUserPreferredLanguage())
+  const [detectionSource, setDetectionSource] = useState<"detected" | "user_selected" | "default">("default")
 
   useEffect(() => {
-    if (assetName) {
-      const detected = detectLanguageFromText(assetName)
+    if (assetName || prompt) {
+      const contentToCheck = [assetName, prompt].filter(Boolean).join(" ")
+      const detected = detectLanguageFromText(contentToCheck)
       if (detected) {
         setLanguage(detected)
+        setDetectionSource("detected")
       }
     }
-  }, [assetName])
+  }, [assetName, prompt])
 
   const savePreference = (lang: AILanguageCode) => {
     setLanguage(lang)
+    setDetectionSource("user_selected")
     if (typeof window !== "undefined") {
       localStorage.setItem("ai_preferred_language", lang)
     }
@@ -300,5 +309,6 @@ export function useAILanguage(assetName?: string) {
     setLanguage: savePreference,
     getPromptPrefix,
     isRTL: AI_LANGUAGES.find(l => l.code === language)?.direction === "rtl",
+    detectionSource,
   }
 }

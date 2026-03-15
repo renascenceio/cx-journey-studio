@@ -855,7 +855,30 @@
     "showBadge": "Show AI Badge",
     "badgeHidden": "AI badge is hidden for this asset",
     "privilegedDomain": "Privileged Domain",
-    "privilegedDomainDesc": "Users from privileged domains do not display AI badges"
+    "privilegedDomainDesc": "Users from privileged domains do not display AI badges",
+    "languageDetectionTitle": "AI Language Detection",
+    "languageDetectionDesc": "When using AI features, the output language is determined by priority: 1) Explicit requests in your prompt, 2) The language of your title/description, 3) Your manual language selection.",
+    "languageDetectionTooltip": "Language is auto-detected from your input or you can specify it explicitly (e.g., 'in Spanish', 'en français')"
+  },
+  "channels": {
+    "website": "Website",
+    "mobileApp": "Mobile App",
+    "email": "Email",
+    "phone": "Phone",
+    "liveChat": "Live Chat",
+    "socialMedia": "Social Media",
+    "physicalStore": "Physical Store",
+    "sms": "SMS",
+    "inPerson": "In-Person",
+    "documentation": "Documentation",
+    "communityForum": "Community Forum",
+    "pushNotification": "Push Notification",
+    "selfService": "Self-Service Portal",
+    "videoCall": "Video Call",
+    "mail": "Mail",
+    "kiosk": "Kiosk",
+    "atm": "ATM",
+    "branch": "Branch"
   },
   "aiModel": {
     "selectModel": "Select AI Model",

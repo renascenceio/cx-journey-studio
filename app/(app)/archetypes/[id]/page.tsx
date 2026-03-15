@@ -55,8 +55,11 @@ import {
 import { useTheme } from "next-themes"
 import { useEffect, useState, useMemo, useRef } from "react"
 import { ExportDialog } from "@/components/export-dialog"
-import { Download } from "lucide-react"
+import { Download, ArrowRightLeft } from "lucide-react"
 import { getIndustryLabelKey } from "@/lib/industries"
+import { TransferDialog } from "@/components/transfer-dialog"
+import { EnhanceArchetypeDialog } from "@/components/enhance-archetype-dialog"
+import { Wand2 } from "lucide-react"
 
 const categoryColors: Record<ArchetypeCategory, string> = {
   "e-commerce": "bg-blue-100 text-blue-700 border-blue-200 dark:bg-blue-900/30 dark:text-blue-300 dark:border-blue-800",
@@ -158,8 +161,10 @@ export default function ArchetypeDetailPage({ params }: { params: Promise<{ id: 
   const [editFields, setEditFields] = useState<Record<string, string>>({})
   const [editPillars, setEditPillars] = useState<{ name: string; score: number; group: string }[]>([])
   const [editRadarCharts, setEditRadarCharts] = useState<{ label: string; dimensions: { axis: string; value: number }[] }[]>([])
-  const [saving, setSaving] = useState(false)
-
+const [saving, setSaving] = useState(false)
+  const [transferDialogOpen, setTransferDialogOpen] = useState(false)
+  const [enhanceDialogOpen, setEnhanceDialogOpen] = useState(false)
+  
   function startEdit() {
     if (!archetype) return
     
@@ -307,6 +312,14 @@ export default function ArchetypeDetailPage({ params }: { params: Promise<{ id: 
             </>
           ) : (
             <>
+              <Button size="sm" variant="outline" className="gap-1.5" onClick={() => setEnhanceDialogOpen(true)}>
+                  <Wand2 className="h-3.5 w-3.5" />
+                  Enhance with René AI
+                </Button>
+                <Button size="sm" variant="outline" className="gap-1.5" onClick={() => setTransferDialogOpen(true)}>
+                  <ArrowRightLeft className="h-3.5 w-3.5" />
+                  Transfer
+                </Button>
               <ExportDialog type="archetype" data={archetype} elementRef={contentRef} title={archetype.name}>
                 <Button size="sm" variant="outline" className="gap-1.5">
                   <Download className="h-3.5 w-3.5" />
@@ -862,6 +875,30 @@ export default function ArchetypeDetailPage({ params }: { params: Promise<{ id: 
         </Card>
       )}
     </div>
+
+      {/* Transfer Dialog */}
+      {archetype && (
+        <TransferDialog
+          open={transferDialogOpen}
+          onOpenChange={setTransferDialogOpen}
+          assetType="archetype"
+          assetId={archetype.id}
+          assetName={archetype.name}
+          currentWorkspaceId={archetype.organizationId || ""}
+          onTransferComplete={() => {
+            mutate()
+          }}
+        />
+      )}
+
+      {/* Enhance Dialog */}
+      {archetype && (
+        <EnhanceArchetypeDialog
+          open={enhanceDialogOpen}
+          onOpenChange={setEnhanceDialogOpen}
+          archetype={archetype}
+        />
+      )}
     </TooltipProvider>
   )
 }

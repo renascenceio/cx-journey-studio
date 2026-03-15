@@ -2,8 +2,9 @@
 
 import { useParams, usePathname } from "next/navigation"
 import Link from "next/link"
-import { ArrowLeft, Share2, MoreHorizontal, Copy, Rocket, BookTemplate, Upload, FileText, History, Eye, EyeOff, ThumbsUp, ArrowDown, ArrowUp, Sparkles, Loader2, Link2, Mail, Check, Globe, Lock } from "lucide-react"
-import { useState, useEffect } from "react"
+import { ArrowLeft, Share2, MoreHorizontal, Copy, Rocket, BookTemplate, Upload, FileText, History, Eye, EyeOff, ThumbsUp, ArrowDown, ArrowUp, Sparkles, Loader2, Link2, Mail, Check, Globe, Lock, ArrowRightLeft, Wand2, X, FileIcon } from "lucide-react"
+import { useState, useEffect, useRef } from "react"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import {
   AlertDialog,
   AlertDialogAction,
@@ -34,6 +35,11 @@ import { updateJourneyStatus, duplicateJourney, toggleJourneyVisibility, upvoteJ
 import { mutate } from "swr"
 import { useRouter } from "next/navigation"
 import { PresenceIndicator, useMockPresence } from "@/components/presence-indicator"
+import { EnhanceJourneyDialog } from "@/components/enhance-journey-dialog"
+import { EnhancementReviewPanel } from "@/components/enhancement-review-panel"
+import { EnhancementTour, createTourSteps, type TourStep } from "@/components/enhancement-tour"
+import { TransferDialog } from "@/components/transfer-dialog"
+import type { EnhancementChange, Journey } from "@/lib/types"
 
 const statusColors: Record<string, string> = {
   draft: "bg-muted text-muted-foreground",
@@ -69,17 +75,33 @@ export default function JourneyDetailLayout({
   const [promoteTarget, setPromoteTarget] = useState<{ type: string; status: string; label: string } | null>(null)
   const [promoting, setPromoting] = useState(false)
   const [aiGenerateOpen, setAiGenerateOpen] = useState(false)
-  const [generating, setGenerating] = useState(false)
+const [generating, setGenerating] = useState(false)
+  const [generateMode, setGenerateMode] = useState<"metadata" | "file">("metadata")
+  const [generateFile, setGenerateFile] = useState<File | null>(null)
+  const [generateFileContent, setGenerateFileContent] = useState("")
+  const [extractingFile, setExtractingFile] = useState(false)
+  const generateFileInputRef = useRef<HTMLInputElement>(null)
   const [generateOptions, setGenerateOptions] = useState({
-    stages: true,
-    steps: true,
-    touchpoints: true,
-    painPoints: true,
-    highlights: true,
+  stages: true,
+  steps: true,
+  touchpoints: true,
+  painPoints: true,
+  highlights: true,
   })
   const [hasUpvoted, setHasUpvoted] = useState(false)
   const [upvoteCount, setUpvoteCount] = useState(0)
   const [linkCopied, setLinkCopied] = useState(false)
+  
+  // Enhancement feature state
+  const [enhanceDialogOpen, setEnhanceDialogOpen] = useState(false)
+  const [enhancementReviewOpen, setEnhancementReviewOpen] = useState(false)
+  const [pendingChanges, setPendingChanges] = useState<EnhancementChange[]>([])
+  const [changesSummary, setChangesSummary] = useState("")
+  const [tourSteps, setTourSteps] = useState<TourStep[]>([])
+  const [showTour, setShowTour] = useState(false)
+  
+  // Transfer feature state
+  const [transferDialogOpen, setTransferDialogOpen] = useState(false)
   
   // Hook must be called at top level (before any early returns)
   const activePresence = useMockPresence(journeyId)
@@ -113,6 +135,7 @@ export default function JourneyDetailLayout({
   const basePath = `/journeys/${journeyId}`
 
   // Build tabs dynamically based on journey type
+  // Note: Lingo and Rituals are now part of the Canvas view modes
   const allTabs = [
     { label: "Overview", href: `${basePath}/overview`, segment: "overview" },
     { label: "Canvas", href: `${basePath}/canvas`, segment: "canvas" },
@@ -124,9 +147,7 @@ export default function JourneyDetailLayout({
     ...(journey.type === "deployed"
       ? [{ label: "Health", href: `${basePath}/health`, segment: "health" }]
       : []),
-    { label: "Rituals", href: `${basePath}/rituals`, segment: "rituals", comingSoon: true },
     { label: "Voice", href: `${basePath}/voice`, segment: "voice", comingSoon: true },
-    { label: "Lingo", href: `${basePath}/lingo`, segment: "lingo", comingSoon: true },
     { label: "Collaborators", href: `${basePath}/collaborators`, segment: "collaborators" },
     { label: "Activity", href: `${basePath}/activity`, segment: "activity" },
     { label: `Versions (${versions.length})`, href: `${basePath}/versions`, segment: "versions" },
@@ -188,6 +209,18 @@ export default function JourneyDetailLayout({
                 <Sparkles className="h-3 w-3" />
                 Generate with René AI
               </Button>
+              {/* Enhance with René AI button - visible when journey has stages */}
+              {journey.stages && journey.stages.length > 0 && (
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  className="h-7 text-xs gap-1.5"
+                  onClick={() => setEnhanceDialogOpen(true)}
+                >
+                  <Wand2 className="h-3 w-3" />
+                  Enhance with René AI
+                </Button>
+              )}
               {/* Upvote button */}
               <Button 
                 variant={hasUpvoted ? "default" : "outline"} 
@@ -339,6 +372,10 @@ export default function JourneyDetailLayout({
                   <DropdownMenuItem onClick={() => setImportOpen(true)}>
                     <Upload className="mr-2 h-3.5 w-3.5" />
                     Import
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => setTransferDialogOpen(true)}>
+                    <ArrowRightLeft className="mr-2 h-3.5 w-3.5" />
+                    Transfer Journey
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
                   {/* Visibility toggle */}
@@ -530,11 +567,121 @@ export default function JourneyDetailLayout({
               <Sparkles className="h-5 w-5 text-primary" />
               Generate Journey with René AI
             </AlertDialogTitle>
-            <AlertDialogDescription className="text-left space-y-3">
-              <p>
-                René AI will generate a complete journey structure based on the <strong>{journey?.title}</strong> metadata, including category, description, tags, and linked archetypes.
-              </p>
-              
+            <AlertDialogDescription asChild className="text-left space-y-3">
+              <div>
+              {/* Source selection tabs */}
+              <Tabs value={generateMode} onValueChange={(v) => setGenerateMode(v as "metadata" | "file")} className="w-full">
+                <TabsList className="grid w-full grid-cols-2 mb-3">
+                  <TabsTrigger value="metadata" className="gap-2 text-xs">
+                    <Sparkles className="h-3.5 w-3.5" />
+                    From Metadata
+                  </TabsTrigger>
+                  <TabsTrigger value="file" className="gap-2 text-xs">
+                    <FileText className="h-3.5 w-3.5" />
+                    From File
+                  </TabsTrigger>
+                </TabsList>
+
+                <TabsContent value="metadata" className="space-y-3 mt-0">
+                  <p className="text-sm text-muted-foreground">
+                    Generate based on the <strong className="text-foreground">{journey?.title}</strong> metadata, including category, description, tags, and linked archetypes.
+                  </p>
+                </TabsContent>
+
+                <TabsContent value="file" className="space-y-3 mt-0">
+                  <p className="text-sm text-muted-foreground">
+                    Upload a document containing journey research, interview transcripts, or specifications to generate from.
+                  </p>
+                  
+                  {!generateFile ? (
+                    <div
+                      onClick={() => generateFileInputRef.current?.click()}
+                      className="flex flex-col items-center justify-center gap-2 rounded-lg border-2 border-dashed border-border p-6 cursor-pointer hover:border-primary/50 hover:bg-muted/30 transition-colors"
+                    >
+                      <Upload className="h-6 w-6 text-muted-foreground" />
+                      <div className="text-center">
+                        <p className="text-xs font-medium">Click to upload</p>
+                        <p className="text-[10px] text-muted-foreground mt-0.5">
+                          CSV, TXT, MD, PDF, PPTX, DOCX supported
+                        </p>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="rounded-lg border p-3">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <FileIcon className="h-4 w-4 text-muted-foreground" />
+                          <div>
+                            <p className="text-xs font-medium">{generateFile.name}</p>
+                            <p className="text-[10px] text-muted-foreground">
+                              {(generateFile.size / 1024).toFixed(1)} KB
+                            </p>
+                          </div>
+                        </div>
+                        <Button 
+                          variant="ghost" 
+                          size="sm" 
+                          className="h-7 w-7 p-0"
+                          onClick={() => {
+                            setGenerateFile(null)
+                            setGenerateFileContent("")
+                            if (generateFileInputRef.current) {
+                              generateFileInputRef.current.value = ""
+                            }
+                          }}
+                        >
+                          <X className="h-3.5 w-3.5" />
+                        </Button>
+                      </div>
+                      {generateFileContent && (
+                        <div className="mt-2 rounded bg-muted/30 p-2 max-h-20 overflow-y-auto">
+                          <p className="text-[10px] text-muted-foreground whitespace-pre-wrap">
+                            {generateFileContent.slice(0, 300)}
+                            {generateFileContent.length > 300 && "..."}
+                          </p>
+                        </div>
+                      )}
+                      {extractingFile && (
+                        <div className="mt-2 flex items-center gap-2 text-xs text-muted-foreground">
+                          <Loader2 className="h-3 w-3 animate-spin" />
+                          Extracting content...
+                        </div>
+                      )}
+                    </div>
+                  )}
+                  
+                  <input
+                    ref={generateFileInputRef}
+                    type="file"
+                    accept=".csv,.txt,.md,.pdf,.pptx,.docx,.ppt,.doc"
+                    onChange={async (e) => {
+                      const file = e.target.files?.[0]
+                      if (!file) return
+                      setGenerateFile(file)
+                      setExtractingFile(true)
+                      try {
+                        const formData = new FormData()
+                        formData.append("file", file)
+                        const res = await fetch("/api/ai/extract-file", {
+                          method: "POST",
+                          body: formData,
+                        })
+                        if (!res.ok) throw new Error("Failed to extract")
+                        const data = await res.json()
+                        setGenerateFileContent(data.content)
+                        toast.success(`Content extracted from ${file.name}`)
+                      } catch {
+                        toast.error("Failed to extract file content")
+                        setGenerateFile(null)
+                      } finally {
+                        setExtractingFile(false)
+                      }
+                    }}
+                    className="hidden"
+                  />
+                </TabsContent>
+              </Tabs>
+
               {/* What will be generated */}
               <div className="rounded-lg border border-border bg-muted/30 p-3">
                 <p className="text-sm font-medium text-foreground mb-2">
@@ -650,12 +797,13 @@ export default function JourneyDetailLayout({
                   All current stages, steps, and touchpoints will be deleted and replaced. This action cannot be undone.
                 </p>
               </div>
+              </div>
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel disabled={generating}>Cancel</AlertDialogCancel>
             <AlertDialogAction
-              disabled={generating}
+              disabled={generating || (generateMode === "file" && !generateFileContent)}
               className="bg-primary"
               onClick={async (e) => {
                 e.preventDefault()
@@ -669,6 +817,11 @@ export default function JourneyDetailLayout({
                       title: journey?.title,
                       description: journey?.description,
                       options: generateOptions,
+                      // Include file content if generating from file
+                      ...(generateMode === "file" && generateFileContent ? {
+                        sourceContent: generateFileContent,
+                        sourceType: "file",
+                      } : {}),
                     }),
                   })
                   
@@ -683,6 +836,10 @@ export default function JourneyDetailLayout({
                   })
                   mutate((key: string) => typeof key === "string" && key.includes("/api/journeys"))
                   setAiGenerateOpen(false)
+                  // Reset file state
+                  setGenerateFile(null)
+                  setGenerateFileContent("")
+                  setGenerateMode("metadata")
                 } catch (err) {
                   const errorMsg = err instanceof Error ? err.message : "Failed to generate journey"
                   toast.error("Failed to generate journey", { description: errorMsg })
@@ -706,6 +863,85 @@ export default function JourneyDetailLayout({
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      {/* Enhance with René AI Dialog */}
+      {journey && (
+        <EnhanceJourneyDialog
+          open={enhanceDialogOpen}
+          onOpenChange={setEnhanceDialogOpen}
+          journey={journey as unknown as Journey}
+          onChangesGenerated={(changes, summary) => {
+            setPendingChanges(changes)
+            setChangesSummary(summary)
+            setEnhancementReviewOpen(true)
+          }}
+        />
+      )}
+
+      {/* Enhancement Review Panel */}
+      {journey && (
+        <EnhancementReviewPanel
+          open={enhancementReviewOpen}
+          onOpenChange={setEnhancementReviewOpen}
+          journeyId={journeyId}
+          journeyTitle={journey.title}
+          changes={pendingChanges}
+          summary={changesSummary}
+          onComplete={(appliedChangeIds) => {
+            // Create tour steps from applied changes
+            const steps = createTourSteps(appliedChangeIds, pendingChanges)
+            if (steps.length > 0) {
+              setTourSteps(steps)
+              setShowTour(true)
+            }
+            // Clear pending changes
+            setPendingChanges([])
+            setChangesSummary("")
+            // Refresh journey data
+            mutate((key: string) => typeof key === "string" && key.includes("/api/journeys"))
+          }}
+        />
+      )}
+
+      {/* Enhancement Tour */}
+      {showTour && tourSteps.length > 0 && (
+        <EnhancementTour
+          steps={tourSteps}
+          onComplete={() => {
+            setShowTour(false)
+            setTourSteps([])
+            toast.success("Tour complete! All changes have been applied.")
+          }}
+          onDismiss={() => {
+            setShowTour(false)
+            setTourSteps([])
+          }}
+        />
+      )}
+
+      {/* Transfer Dialog */}
+      {journey && (
+        <TransferDialog
+          open={transferDialogOpen}
+          onOpenChange={setTransferDialogOpen}
+          assetType="journey"
+          assetId={journeyId}
+          assetName={journey.title}
+          currentWorkspaceId={journey.organizationId}
+          onTransferComplete={(newAssetId) => {
+            mutate((key: string) => typeof key === "string" && key.includes("/api/journeys"))
+            if (newAssetId) {
+              // If copied, could navigate to new journey
+              toast.success("Journey copied successfully", {
+                action: {
+                  label: "Open Copy",
+                  onClick: () => router.push(`/journeys/${newAssetId}/overview`),
+                },
+              })
+            }
+          }}
+        />
+      )}
     </div>
   )
 }

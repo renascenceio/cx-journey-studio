@@ -387,7 +387,7 @@
     },
     "seedDemoData": "데모 데이터 생성",
     "seeding": "생성 중...",
-    "recentPlatformActivity": "최근 플랫폼 활동",
+    "recentPlatformActivity": "최근 플���폼 활동",
     "latestActionsDesc": "전체 조직의 최신 작업",
     "noRecentActivity": "최근 활동 없음",
     "downloadTranslations": "번역 다운로드",
@@ -542,10 +542,52 @@
     "stages": "단계",
     "loadingJourneys": "여정 로딩 중..."
   },
-  "impactMetrics": {
+"impactMetrics": {
     "fasterMapping": "더 빠른 여정 매핑",
     "npsImprovement": "NPS 개선",
     "crossTeamAlignment": "팀 간 협력 향상",
     "churnReduction": "이탈률 감소"
+  },
+  "ai": {
+    "selectLanguage": "생성 언어 선택",
+    "searchLanguages": "언어 검색...",
+    "noLanguageFound": "언어를 찾을 수 없음",
+    "autoDetected": "자동 감지됨",
+    "generateIn": "다음 언어로 생성",
+    "generationLanguage": "생성 언어",
+    "generationLanguageDesc": "콘텐츠가 선택한 언어로 생성됩니다",
+    "detectFromName": "이름에서 감지됨",
+    "defaultLanguage": "기본 언어",
+    "willGenerateIn": "콘텐츠가 {language}로 생성됩니다",
+    "generatedBadge": "AI 생성",
+    "generatedBadgeTooltip": "이 콘텐츠는 AI 도움으로 생성되었습니다",
+    "hideBadge": "AI 배지 숨기기",
+    "showBadge": "AI 배지 표시",
+    "badgeHidden": "이 자산에 대한 AI 배지가 숨겨져 있습니다",
+    "privilegedDomain": "특권 도메인",
+    "privilegedDomainDesc": "특권 도메인 사용자는 AI 배지를 표시하지 않습니다",
+    "languageDetectionTitle": "AI 언어 감지",
+    "languageDetectionDesc": "AI 기능 사용 시 출력 언어는 우선순위에 따라 결정됩니다: 1) 프롬프트의 명시적 요청, 2) 제목/설명의 언어, 3) 수동 언어 선택.",
+    "languageDetectionTooltip": "언어는 입력에서 자동 감지되거나 명시적으로 지정할 수 있습니다 (예: 'in Korean', '한국어로')"
+  },
+  "channels": {
+    "website": "웹사이트",
+    "mobileApp": "모바일 앱",
+    "email": "이메일",
+    "phone": "전화",
+    "liveChat": "실시간 채팅",
+    "socialMedia": "소셜 미디어",
+    "physicalStore": "오프라인 매장",
+    "sms": "문자 메시지",
+    "inPerson": "대면",
+    "documentation": "문서",
+    "communityForum": "커뮤니티 포럼",
+    "pushNotification": "푸시 알림",
+    "selfService": "셀프 서비스 포털",
+    "videoCall": "화상 통화",
+    "mail": "우편",
+    "kiosk": "키오스크",
+    "atm": "ATM",
+    "branch": "지점"
   }
 }

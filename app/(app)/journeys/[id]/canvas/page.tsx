@@ -15,7 +15,7 @@ import { getEmotionalArc, getEffectivePainPoints, getEffectiveHighlights } from 
 import { useJourneyComments } from "@/hooks/use-journey"
 import type { TouchPoint, Stage } from "@/lib/types"
 import { CommentSidebar } from "@/components/canvas/comment-sidebar"
-import { Info, ArrowRight, Lightbulb, X as XIcon, Check, Target, Search, Bookmark, Pencil, Loader2 } from "lucide-react"
+import { Info, ArrowRight, Lightbulb, X as XIcon, Check, Target, Search, Bookmark, Pencil, Loader2, Languages, RefreshCw, Bell } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { cn } from "@/lib/utils"
 import useSWR from "swr"
@@ -1681,6 +1681,68 @@ export default function CanvasPage() {
                   </div>
                 )
               })}
+            </div>
+          </div>
+        )}
+
+        {/* ========= LINGO VIEW ========= */}
+        {viewMode === "lingo" && (
+          <div className="flex items-center justify-center min-h-[60vh] p-6">
+            <div className="max-w-md w-full text-center border border-dashed border-border rounded-lg p-8 bg-card">
+              <div className="mx-auto w-16 h-16 rounded-full bg-violet-100 dark:bg-violet-900/30 flex items-center justify-center mb-6">
+                <Languages className="h-8 w-8 text-violet-600 dark:text-violet-400" />
+              </div>
+              
+              <span className="inline-block rounded-full bg-amber-100 dark:bg-amber-900/30 px-3 py-1 text-xs font-medium text-amber-700 dark:text-amber-300 mb-4">
+                Coming Soon
+              </span>
+              
+              <h2 className="text-xl font-semibold mb-3">Lingo</h2>
+              
+              <p className="text-sm text-muted-foreground leading-relaxed mb-6">
+                Create a shared vocabulary for this journey. Define terms, acronyms, and phrases that matter to your customers.
+              </p>
+              
+              <Button 
+                variant="outline" 
+                size="sm" 
+                className="gap-2"
+                onClick={() => toast.success("We'll notify you when Lingo is available!")}
+              >
+                <Bell className="h-3.5 w-3.5" />
+                Notify Me
+              </Button>
+            </div>
+          </div>
+        )}
+
+        {/* ========= RITUALS VIEW ========= */}
+        {viewMode === "rituals" && (
+          <div className="flex items-center justify-center min-h-[60vh] p-6">
+            <div className="max-w-md w-full text-center border border-dashed border-border rounded-lg p-8 bg-card">
+              <div className="mx-auto w-16 h-16 rounded-full bg-rose-100 dark:bg-rose-900/30 flex items-center justify-center mb-6">
+                <RefreshCw className="h-8 w-8 text-rose-600 dark:text-rose-400" />
+              </div>
+              
+              <span className="inline-block rounded-full bg-amber-100 dark:bg-amber-900/30 px-3 py-1 text-xs font-medium text-amber-700 dark:text-amber-300 mb-4">
+                Coming Soon
+              </span>
+              
+              <h2 className="text-xl font-semibold mb-3">Rituals</h2>
+              
+              <p className="text-sm text-muted-foreground leading-relaxed mb-6">
+                Establish recurring customer rituals and ceremonies. Build habits and routines that strengthen customer relationships.
+              </p>
+              
+              <Button 
+                variant="outline" 
+                size="sm" 
+                className="gap-2"
+                onClick={() => toast.success("We'll notify you when Rituals is available!")}
+              >
+                <Bell className="h-3.5 w-3.5" />
+                Notify Me
+              </Button>
             </div>
           </div>
         )}

@@ -29,10 +29,16 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover"
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip"
 import { createJourney } from "@/lib/actions/data"
 import { cn } from "@/lib/utils"
 import { useSound } from "@/components/sound-provider"
-import { ChevronDown } from "lucide-react"
+import { ChevronDown, HelpCircle } from "lucide-react"
 import { INDUSTRIES } from "@/lib/industries"
 
 // Use shared INDUSTRIES from lib/industries.ts
@@ -101,7 +107,25 @@ export function CreateJourneyDialog({ children, defaultType = "current" }: Creat
         </DialogHeader>
         <div className="flex flex-col gap-4 py-2">
           <div className="flex flex-col gap-2">
-            <Label htmlFor="journey-title">Title</Label>
+            <div className="flex items-center gap-1.5">
+              <Label htmlFor="journey-title">Title</Label>
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <HelpCircle className="h-3.5 w-3.5 text-muted-foreground/70 cursor-help" />
+                  </TooltipTrigger>
+                  <TooltipContent side="right" className="max-w-[280px] text-xs leading-relaxed">
+                    <p className="font-medium mb-1">AI Language Detection</p>
+                    <p>When using AI features, the output language is determined by:</p>
+                    <ol className="list-decimal ml-3 mt-1 space-y-0.5">
+                      <li>Explicit requests in your prompt (e.g., "in Spanish")</li>
+                      <li>The language of your title/description</li>
+                      <li>Your manual language selection</li>
+                    </ol>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            </div>
             <Input
               id="journey-title"
               placeholder="e.g., E-Commerce Purchase Journey"
