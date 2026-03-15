@@ -39,6 +39,13 @@ import { EnhanceJourneyDialog } from "@/components/enhance-journey-dialog"
 import { EnhancementReviewPanel } from "@/components/enhancement-review-panel"
 import { EnhancementTour, createTourSteps, type TourStep } from "@/components/enhancement-tour"
 import { TransferDialog } from "@/components/transfer-dialog"
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip"
+import { Info } from "lucide-react"
 import type { EnhancementChange, Journey } from "@/lib/types"
 
 const statusColors: Record<string, string> = {
@@ -413,9 +420,27 @@ const [generating, setGenerating] = useState(false)
           {/* Title + badges */}
           <div className="flex items-start gap-3">
             <div className="flex-1 min-w-0">
-              <h1 className="text-xl font-bold tracking-tight text-foreground text-balance">
-                {journey.title}
-              </h1>
+              <div className="flex items-center gap-2">
+                <h1 className="text-xl font-bold tracking-tight text-foreground text-balance">
+                  {journey.title}
+                </h1>
+                <TooltipProvider delayDuration={200}>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <button className="text-muted-foreground hover:text-foreground transition-colors">
+                        <Info className="h-4 w-4" />
+                      </button>
+                    </TooltipTrigger>
+                    <TooltipContent side="right" className="max-w-xs text-xs">
+                      <p className="font-medium mb-1">Multi-language Support</p>
+                      <p className="text-muted-foreground">
+                        Journey names and content are displayed in your selected language. 
+                        AI-generated content adapts to your locale, while manual edits remain in their original language.
+                      </p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+              </div>
               <div className="mt-2 flex items-center gap-2 flex-wrap">
                 <Badge variant="outline" className="text-[10px] font-medium">
                   {typeLabels[journey.type]}

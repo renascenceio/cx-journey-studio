@@ -64,9 +64,10 @@ export function EnhanceJourneyDialog({
   const mediaRecorderRef = useRef<MediaRecorder | null>(null)
   const recordingIntervalRef = useRef<NodeJS.Timeout | null>(null)
   
-  // File upload state
-  const [uploadedFile, setUploadedFile] = useState<File | null>(null)
+  // File upload state - support multiple files
+  const [uploadedFiles, setUploadedFiles] = useState<File[]>([])
   const [fileContent, setFileContent] = useState("")
+  const [isExtracting, setIsExtracting] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
   
   // Language
@@ -75,9 +76,11 @@ export function EnhanceJourneyDialog({
   const resetState = useCallback(() => {
     setTextInput("")
     setTranscript("")
-    setAudioBlob(null)
-    setUploadedFile(null)
+setAudioBlob(null)
+    setTranscript("")
+    setUploadedFiles([])
     setFileContent("")
+    setIsExtracting(false)
     setProgress(0)
     setRecordingTime(0)
   }, [])
@@ -137,42 +140,105 @@ export function EnhanceJourneyDialog({
     }
   }
 
-  // File upload functions
+  // File upload functions - support multiple files
   const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0]
-    if (!file) return
+    const files = Array.from(e.target.files || [])
+    if (files.length === 0) return
 
-    // Validate file type
-    const isValidType = Object.keys(ACCEPTED_FILE_TYPES).includes(file.type) ||
-      file.name.endsWith(".key") // Keynote files
+    const validFiles: File[] = []
     
-    if (!isValidType) {
-      toast.error("Unsupported file type. Please upload CSV, TXT, PDF, PPTX, DOCX, or Keynote files.")
-      return
-    }
-
-    if (file.size > 10 * 1024 * 1024) { // 10MB limit
-      toast.error("File too large. Maximum size is 10MB.")
-      return
-    }
-
-    setUploadedFile(file)
-
-    // Read file content (for text-based files)
-    if (file.type === "text/plain" || file.type === "text/csv") {
-      const reader = new FileReader()
-      reader.onload = (event) => {
-        setFileContent(event.target?.result as string)
+    for (const file of files) {
+      // Validate file type
+      const fileExt = file.name.split(".").pop()?.toLowerCase() || ""
+      const isValidType = Object.keys(ACCEPTED_FILE_TYPES).includes(file.type) ||
+        ["csv", "txt", "md", "pdf", "pptx", "docx", "ppt", "doc", "key"].includes(fileExt)
+      
+      if (!isValidType) {
+        toast.error(`Unsupported file: ${file.name}`, {
+          description: "Please upload CSV, TXT, PDF, PPTX, DOCX, or Keynote files."
+        })
+        continue
       }
-      reader.readAsText(file)
-    } else {
-      // For binary files, we'll extract text server-side
-      setFileContent(`[Content from ${file.name} will be extracted]`)
+
+      if (file.size > 10 * 1024 * 1024) { // 10MB limit per file
+        toast.error(`File too large: ${file.name}`, {
+          description: "Maximum size is 10MB per file."
+        })
+        continue
+      }
+      
+      validFiles.push(file)
+    }
+    
+    if (validFiles.length === 0) return
+    
+    // Add to existing files
+    const newFiles = [...uploadedFiles, ...validFiles]
+    setUploadedFiles(newFiles)
+    
+    // Extract content from all files
+    await extractFilesContent(newFiles)
+  }
+  
+  const extractFilesContent = async (files: File[]) => {
+    if (files.length === 0) return
+    
+    setIsExtracting(true)
+    setProgress(10)
+    
+    try {
+      const formData = new FormData()
+      files.forEach(file => formData.append("file", file))
+      
+      setProgress(30)
+      
+      const res = await fetch("/api/ai/extract-file", {
+        method: "POST",
+        body: formData,
+      })
+      
+      setProgress(70)
+      
+      if (!res.ok) {
+        throw new Error("Failed to extract file content")
+      }
+      
+      const data = await res.json()
+      setFileContent(data.content)
+      setProgress(100)
+      
+      toast.success("Files processed", {
+        description: `${data.successCount} of ${data.totalFiles} files extracted successfully`
+      })
+    } catch (err) {
+      console.error("File extraction error:", err)
+      toast.error("Failed to extract file content", {
+        description: "Please try uploading the files again."
+      })
+      setUploadedFiles([])
+      setFileContent("")
+    } finally {
+      setIsExtracting(false)
     }
   }
 
-  const removeFile = () => {
-    setUploadedFile(null)
+  const removeFile = (index: number) => {
+    const newFiles = uploadedFiles.filter((_, i) => i !== index)
+    setUploadedFiles(newFiles)
+    
+    if (newFiles.length === 0) {
+      setFileContent("")
+      if (fileInputRef.current) {
+        fileInputRef.current.value = ""
+      }
+    } else {
+      // Re-extract content for remaining files
+      extractFilesContent(newFiles)
+    }
+  }
+  
+  const removeAllFiles = () => {
+    setUploadedFiles([])
     setFileContent("")
     if (fileInputRef.current) {
       fileInputRef.current.value = ""
@@ -201,15 +267,15 @@ export function EnhanceJourneyDialog({
         break
       
       case "file":
-        if (!uploadedFile || !fileContent) {
-          toast.error("Please upload a file first")
+        if (uploadedFiles.length === 0 || !fileContent) {
+          toast.error("Please upload at least one file first")
           return
         }
         input = { 
           type: "file", 
           content: fileContent, 
-          fileName: uploadedFile.name,
-          fileType: uploadedFile.type,
+          fileName: uploadedFiles.map(f => f.name).join(", "),
+          fileType: uploadedFiles[0]?.type || "application/octet-stream",
         }
         break
       
@@ -386,50 +452,89 @@ export function EnhanceJourneyDialog({
 
           {/* File Upload Tab */}
           <TabsContent value="file" className="mt-4 space-y-4">
-            {!uploadedFile ? (
-              <div
-                className={cn(
-                  "border-2 border-dashed rounded-lg p-8 text-center cursor-pointer transition-colors",
-                  "hover:border-primary hover:bg-primary/5"
-                )}
-                onClick={() => fileInputRef.current?.click()}
-              >
-                <Upload className="h-10 w-10 mx-auto text-muted-foreground mb-3" />
-                <p className="text-sm font-medium">Click to upload or drag and drop</p>
-                <p className="text-xs text-muted-foreground mt-1">
-                  CSV, TXT, PDF, PPTX, DOCX, or Keynote (max 10MB)
+            {/* Upload Area - Always visible for adding more files */}
+            <div
+              className={cn(
+                "border-2 border-dashed rounded-lg p-6 text-center cursor-pointer transition-colors",
+                "hover:border-primary hover:bg-primary/5",
+                isExtracting && "opacity-50 pointer-events-none"
+              )}
+              onClick={() => fileInputRef.current?.click()}
+            >
+              <Upload className="h-8 w-8 mx-auto text-muted-foreground mb-2" />
+              <p className="text-sm font-medium">
+                {uploadedFiles.length > 0 ? "Add more files" : "Click to upload or drag and drop"}
+              </p>
+              <p className="text-xs text-muted-foreground mt-1">
+                CSV, TXT, PDF, PPTX, DOCX, or Keynote (max 10MB each)
+              </p>
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept=".csv,.txt,.md,.pdf,.pptx,.ppt,.docx,.doc,.key"
+                onChange={handleFileSelect}
+                className="hidden"
+                disabled={isAnalyzing || isExtracting}
+                multiple
+              />
+            </div>
+            
+            {/* Extracting Progress */}
+            {isExtracting && (
+              <div className="space-y-2">
+                <Progress value={progress} className="h-2" />
+                <p className="text-xs text-center text-muted-foreground">
+                  Extracting content from files...
                 </p>
-                <input
-                  ref={fileInputRef}
-                  type="file"
-                  accept=".csv,.txt,.pdf,.pptx,.ppt,.docx,.doc,.key"
-                  onChange={handleFileSelect}
-                  className="hidden"
-                  disabled={isAnalyzing}
-                />
               </div>
-            ) : (
-              <div className="border rounded-lg p-4">
-                <div className="flex items-center gap-3">
-                  {getFileIcon(uploadedFile.name)}
-                  <div className="flex-1 min-w-0">
-                    <p className="font-medium truncate">{uploadedFile.name}</p>
-                    <p className="text-xs text-muted-foreground">
-                      {(uploadedFile.size / 1024).toFixed(1)} KB
-                    </p>
-                  </div>
+            )}
+            
+            {/* Uploaded Files List */}
+            {uploadedFiles.length > 0 && (
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <p className="text-sm font-medium">{uploadedFiles.length} file(s) uploaded</p>
                   <Button
                     variant="ghost"
-                    size="icon"
-                    onClick={removeFile}
-                    disabled={isAnalyzing}
+                    size="sm"
+                    className="text-xs h-7"
+                    onClick={removeAllFiles}
+                    disabled={isAnalyzing || isExtracting}
                   >
-                    <X className="h-4 w-4" />
+                    Remove all
                   </Button>
                 </div>
-                {fileContent && fileContent.length < 500 && (
-                  <div className="mt-3 p-2 bg-muted rounded text-xs max-h-24 overflow-auto">
-                    {fileContent.substring(0, 500)}
+                <div className="space-y-2 max-h-48 overflow-auto">
+                  {uploadedFiles.map((file, index) => (
+                    <div key={`${file.name}-${index}`} className="border rounded-lg p-3">
+                      <div className="flex items-center gap-3">
+                        {getFileIcon(file.name)}
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-medium truncate">{file.name}</p>
+                          <p className="text-xs text-muted-foreground">
+                            {(file.size / 1024).toFixed(1)} KB
+                          </p>
+                        </div>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-7 w-7"
+                          onClick={() => removeFile(index)}
+                          disabled={isAnalyzing || isExtracting}
+                        >
+                          <X className="h-3.5 w-3.5" />
+                        </Button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+                {fileContent && (
+                  <div className="mt-2 p-2 bg-muted rounded text-xs">
+                    <p className="text-muted-foreground mb-1">Extracted content preview:</p>
+                    <div className="max-h-20 overflow-auto">
+                      {fileContent.substring(0, 300)}
+                      {fileContent.length > 300 && "..."}
+                    </div>
                   </div>
                 )}
               </div>
@@ -469,11 +574,11 @@ export function EnhanceJourneyDialog({
           </Button>
           <Button
             onClick={handleAnalyze}
-            disabled={isAnalyzing || (
-              activeTab === "text" && !textInput.trim() ||
-              activeTab === "voice" && !transcript ||
-              activeTab === "file" && !uploadedFile
-            )}
+disabled={isAnalyzing || isExtracting || (
+                activeTab === "text" && !textInput.trim() ||
+                activeTab === "voice" && !transcript ||
+                activeTab === "file" && (uploadedFiles.length === 0 || !fileContent)
+              )}
           >
             {isAnalyzing ? (
               <>
