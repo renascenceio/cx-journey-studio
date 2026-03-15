@@ -115,12 +115,12 @@ const faqs: FaqItem[] = [
   {
     category: "roles",
     question: "What roles are available?",
-    answer: "Journey Master (full access, can manage workspace and all journeys), Admin (can manage team members and settings), Contributor (can edit journeys they are assigned to), Viewer (read-only access), and Project Manager (can edit the Roadmap and approve items).",
+    answer: "Master (full access, can manage workspace and all journeys), Admin (can manage team members and settings), Contributor (can edit journeys they are assigned to), Viewer (read-only access), and Project Manager (can edit the Roadmap and approve items).",
   },
   {
     category: "roles",
     question: "What can a Viewer do?",
-    answer: "Viewers have read-only access. They can browse journeys, archetypes, templates, and solutions, and view analytics. They cannot create, edit, or delete any content. To get editing access, ask a Journey Master or Admin to upgrade your role.",
+    answer: "Viewers have read-only access. They can browse journeys, archetypes, templates, and solutions, and view analytics. They cannot create, edit, or delete any content. To get editing access, ask a Master or Admin to upgrade your role.",
   },
   // AI Features
   {

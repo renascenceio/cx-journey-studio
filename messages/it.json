@@ -971,7 +971,7 @@
   "roles": {
     "admin": "Admin",
     "project_manager": "Project Manager",
-    "journey_master": "Journey Master",
+    "journey_master": "Master",
     "contributor": "Contributor",
     "viewer": "Viewer",
     "external": "External"
@@ -1219,7 +1219,7 @@
     "pendingInvitations": "Pending Invitations",
     "resend": "Resend",
     "revoke": "Revoke",
-    "makeJourneyMaster": "Make Journey Master",
+    "makeJourneyMaster": "Make Master",
     "makeContributor": "Make Contributor",
     "makeViewer": "Make Viewer",
     "removeMember": "Remove Member",
@@ -1235,7 +1235,7 @@
     "resolves": "Resolves",
     "roleDescriptions": "Role Descriptions",
     "roleDescriptionsDesc": "Understanding workspace roles and permissions",
-    "journeyMaster": "Journey Master",
+    "journeyMaster": "Master",
     "journeyMasterDesc": "Full access to all features including team management, billing, and deployment",
     "contributor": "Contributor",
     "contributorDesc": "Can edit journeys and archetypes, import data, and export reports",

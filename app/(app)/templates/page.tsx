@@ -46,6 +46,8 @@ const CATEGORIES = INDUSTRIES
 export default function TemplatesPage() {
   const t = useTranslations()
   const [templates, setTemplates] = useState<JourneyTemplate[]>([])
+  const [publicCount, setPublicCount] = useState(0)
+  const [myCount, setMyCount] = useState(0)
   const [isLoading, setIsLoading] = useState(true)
   const [search, setSearch] = useState("")
   const [selectedCategory, setSelectedCategory] = useState("all")
@@ -114,15 +116,29 @@ export default function TemplatesPage() {
     }
   }
 
+// Fetch counts for both tabs on mount
   useEffect(() => {
-    setIsLoading(true)
-    fetch(`/api/admin/templates?scope=${scope}`)
-      .then((r) => r.json())
-      .then((data) => {
-        setTemplates(Array.isArray(data) ? data : [])
-        setIsLoading(false)
-      })
-      .catch(() => setIsLoading(false))
+    Promise.all([
+      fetch("/api/admin/templates?scope=public").then(r => r.json()),
+      fetch("/api/admin/templates?scope=my").then(r => r.json()),
+    ]).then(([publicData, myData]) => {
+      setPublicCount(Array.isArray(publicData) ? publicData.length : 0)
+      setMyCount(Array.isArray(myData) ? myData.length : 0)
+    }).catch(() => {})
+  }, [])
+
+  useEffect(() => {
+  setIsLoading(true)
+  fetch(`/api/admin/templates?scope=${scope}`)
+  .then((r) => r.json())
+  .then((data) => {
+  setTemplates(Array.isArray(data) ? data : [])
+  // Update the count for the current scope
+  if (scope === "public") setPublicCount(data.length)
+  else setMyCount(data.length)
+  setIsLoading(false)
+  })
+  .catch(() => setIsLoading(false))
   }, [scope])
 
   // JDS-014: Order categories by frequency of use (most templates first)
@@ -326,20 +342,20 @@ export default function TemplatesPage() {
       {/* Scope Tabs: Studio Templates / My Templates */}
       <Tabs value={scope} onValueChange={(v) => setScope(v as typeof scope)}>
         <TabsList className="h-auto p-1 w-fit">
-          <TabsTrigger value="public" className="gap-2 px-4 py-2 data-[state=active]:bg-background">
-            <Crown className="h-3.5 w-3.5" />
-            <span>{t("templates.studio")}</span>
-            <Badge variant="secondary" className="ml-1 text-[9px] px-1.5 h-5">
-              {scope === "public" ? filtered.length : ""}
-            </Badge>
-          </TabsTrigger>
-          <TabsTrigger value="my" className="gap-2 px-4 py-2 data-[state=active]:bg-background">
-            <User className="h-3.5 w-3.5" />
-            <span>{t("templates.myTemplates")}</span>
-            <Badge variant="secondary" className="ml-1 text-[9px] px-1.5 h-5">
-              {scope === "my" ? filtered.length : ""}
-            </Badge>
-          </TabsTrigger>
+<TabsTrigger value="public" className="gap-2 px-4 py-2 data-[state=active]:bg-background">
+  <Crown className="h-3.5 w-3.5" />
+  <span>{t("templates.studio")}</span>
+  <Badge variant="secondary" className={cn("ml-1 text-[9px] px-1.5 h-5", scope !== "public" && "opacity-50")}>
+  {scope === "public" ? filtered.length : publicCount}
+  </Badge>
+  </TabsTrigger>
+  <TabsTrigger value="my" className="gap-2 px-4 py-2 data-[state=active]:bg-background">
+  <User className="h-3.5 w-3.5" />
+  <span>{t("templates.myTemplates")}</span>
+  <Badge variant="secondary" className={cn("ml-1 text-[9px] px-1.5 h-5", scope !== "my" && "opacity-50")}>
+  {scope === "my" ? filtered.length : myCount}
+  </Badge>
+  </TabsTrigger>
         </TabsList>
       </Tabs>
 

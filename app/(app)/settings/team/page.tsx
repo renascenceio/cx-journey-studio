@@ -118,7 +118,7 @@ export default function TeamSettingsPage() {
                       </Button>
                     </DropdownMenuTrigger>
 <DropdownMenuContent align="end">
-                                      <DropdownMenuItem onClick={() => toast.success(`${member.name} updated to Journey Master`)}>
+                                      <DropdownMenuItem onClick={() => toast.success(`${member.name} updated to Master`)}>
                                         <Shield className="mr-2 h-3.5 w-3.5" />
                                         {t("makeJourneyMaster")}
                                       </DropdownMenuItem>

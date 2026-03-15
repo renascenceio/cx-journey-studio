@@ -199,7 +199,7 @@ export default function AdminUsersPage() {
           <SelectContent>
             <SelectItem value="all">All Roles</SelectItem>
             <SelectItem value="admin">Admin</SelectItem>
-            <SelectItem value="journey_master">Journey Master</SelectItem>
+            <SelectItem value="journey_master">Master</SelectItem>
             <SelectItem value="contributor">Contributor</SelectItem>
             <SelectItem value="viewer">Viewer</SelectItem>
             <SelectItem value="external">External</SelectItem>
@@ -271,7 +271,7 @@ export default function AdminUsersPage() {
                       </SelectTrigger>
                       <SelectContent>
                         <SelectItem value="admin">Admin</SelectItem>
-                        <SelectItem value="journey_master">Journey Master</SelectItem>
+                        <SelectItem value="journey_master">Master</SelectItem>
                         <SelectItem value="contributor">Contributor</SelectItem>
                         <SelectItem value="viewer">Viewer</SelectItem>
                         <SelectItem value="external">External</SelectItem>
@@ -502,7 +502,7 @@ export default function AdminUsersPage() {
                           </SelectTrigger>
                           <SelectContent>
                             <SelectItem value="admin">Admin</SelectItem>
-                            <SelectItem value="journey_master">Journey Master</SelectItem>
+                            <SelectItem value="journey_master">Master</SelectItem>
                             <SelectItem value="contributor">Contributor</SelectItem>
                             <SelectItem value="viewer">Viewer</SelectItem>
                             <SelectItem value="external">External</SelectItem>
