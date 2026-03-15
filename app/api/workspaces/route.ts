@@ -37,10 +37,10 @@ export async function GET() {
     return NextResponse.json({ workspaces: [], activeWorkspaceId: null })
   }
 
-  // Get all organizations with payment and AI settings
+  // Get all organizations with payment, trial, and AI settings
   const { data: orgs } = await adminClient
     .from("organizations")
-    .select("id, name, slug, plan, logo, created_at, preferred_ai_model, ai_settings, payment_failed_at, grace_period_ends_at, previous_plan_id")
+    .select("id, name, slug, plan, logo, created_at, preferred_ai_model, ai_settings, payment_failed_at, grace_period_ends_at, previous_plan_id, stripe_customer_id, stripe_subscription_id, subscription_status, trial_started_at, trial_ends_at")
     .in("id", orgIds)
 
   if (!orgs || orgs.length === 0) {
@@ -77,6 +77,7 @@ export async function GET() {
         slug: org.slug,
         logo: org.logo || null,
         plan: org.plan,
+        plan_id: org.plan,
         createdAt: org.created_at,
         memberCount: memberCount.count || 1,
         journeyCount: journeyCount.count || 0,
@@ -85,6 +86,12 @@ export async function GET() {
         preferredAiModel: org.preferred_ai_model || "openai/gpt-4o-mini",
         aiSettings: org.ai_settings || {},
         paymentStatus,
+        // Trial & subscription fields
+        stripe_customer_id: org.stripe_customer_id || null,
+        stripe_subscription_id: org.stripe_subscription_id || null,
+        subscription_status: org.subscription_status || "inactive",
+        trial_started_at: org.trial_started_at || null,
+        trial_ends_at: org.trial_ends_at || null,
       }
     })
   )

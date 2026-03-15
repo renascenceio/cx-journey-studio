@@ -26,14 +26,33 @@ export interface Team {
   createdAt: string
 }
 
+export type SubscriptionStatus = 
+  | "trialing" 
+  | "active" 
+  | "past_due" 
+  | "canceled" 
+  | "unpaid" 
+  | "incomplete" 
+  | "incomplete_expired" 
+  | "paused" 
+  | "inactive"
+
 export interface Organization {
   id: string
   name: string
   slug: string
   logo?: string
-  plan: "free" | "pro" | "enterprise"
+  plan: "free" | "starter" | "business" | "enterprise" | "pro"
+  plan_id?: string
   teamIds: string[]
   createdAt: string
+  // Stripe integration
+  stripe_customer_id?: string
+  stripe_subscription_id?: string
+  subscription_status?: SubscriptionStatus
+  // Trial tracking
+  trial_started_at?: string
+  trial_ends_at?: string
 }
 
 // --- Journey Architecture ---

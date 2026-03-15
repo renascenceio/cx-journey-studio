@@ -156,12 +156,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         name: w.name as string,
         slug: w.slug as string,
         logo: (w.logo as string) || undefined,
-        plan: (w.plan as "free" | "pro" | "enterprise") || "free",
+        plan: (w.plan as "free" | "starter" | "business" | "enterprise" | "pro") || "free",
+        plan_id: (w.plan_id as string) || (w.plan as string) || "free",
         teamIds: [],
         createdAt: w.createdAt as string,
         memberCount: (w.memberCount as number) || 1,
         journeyCount: (w.journeyCount as number) || 0,
         archetypeCount: 0,
+        // Trial & subscription fields
+        stripe_customer_id: (w.stripe_customer_id as string) || undefined,
+        stripe_subscription_id: (w.stripe_subscription_id as string) || undefined,
+        subscription_status: (w.subscription_status as string) || "inactive",
+        trial_started_at: (w.trial_started_at as string) || undefined,
+        trial_ends_at: (w.trial_ends_at as string) || undefined,
       }))
       return { workspaces: wsList, activeWorkspaceId: data.activeWorkspaceId }
     } catch {

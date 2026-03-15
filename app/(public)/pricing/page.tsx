@@ -1,9 +1,9 @@
 import type { Metadata } from "next"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { Check, X, Sparkles, Zap, Building2, Crown } from "lucide-react"
+import { Check, X } from "lucide-react"
+import { PricingCards } from "@/components/pricing-cards"
 
 export const metadata: Metadata = {
   title: "Pricing - René Studio",
@@ -158,8 +158,6 @@ const featureComparison = [
 ]
 
 export default function PricingPage() {
-  const plansList = [PLANS.free, PLANS.starter, PLANS.business, PLANS.enterprise]
-
   return (
     <div className="mx-auto max-w-6xl px-6 py-20 md:py-28">
       {/* Header */}
@@ -174,97 +172,7 @@ export default function PricingPage() {
       </div>
 
       {/* Pricing Cards */}
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
-        {plansList.map((plan) => {
-          const Icon = plan.icon
-          return (
-            <Card
-              key={plan.id}
-              className={`relative flex flex-col ${
-                plan.popular ? "border-primary shadow-lg shadow-primary/10 scale-[1.02]" : "border-border/60"
-              }`}
-            >
-              {plan.popular && (
-                <div className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-primary px-3 py-0.5 text-xs font-medium text-primary-foreground">
-                  Most Popular
-                </div>
-              )}
-              <CardHeader className="pb-4">
-                <div className="flex items-center gap-2 mb-2">
-                  <div className={`flex h-8 w-8 items-center justify-center rounded-lg ${plan.popular ? "bg-primary/10" : "bg-muted"}`}>
-                    <Icon className={`h-4 w-4 ${plan.popular ? "text-primary" : "text-muted-foreground"}`} />
-                  </div>
-                  <CardTitle className="text-lg font-semibold text-foreground">
-                    {plan.name}
-                  </CardTitle>
-                </div>
-                <div className="mt-2 flex items-baseline gap-1">
-                  <span className="text-3xl font-bold text-foreground">
-                    {plan.price === -1 ? "Custom" : plan.price === 0 ? "$0" : `$${plan.price}`}
-                  </span>
-                  <span className="text-sm text-muted-foreground">
-                    {plan.period}
-                  </span>
-                </div>
-                <p className="mt-2 text-sm text-muted-foreground">
-                  {plan.description}
-                </p>
-              </CardHeader>
-              <CardContent className="flex flex-1 flex-col">
-                <ul className="flex flex-1 flex-col gap-2.5">
-                  <li className="flex items-start gap-2.5 text-sm text-foreground">
-                    <Check className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
-                    {plan.features.journeys}
-                  </li>
-                  <li className="flex items-start gap-2.5 text-sm text-foreground">
-                    <Check className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
-                    {plan.features.teamMembers}
-                  </li>
-                  <li className="flex items-start gap-2.5 text-sm text-foreground">
-                    <Check className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
-                    {plan.features.aiInsights}
-                  </li>
-                  <li className="flex items-start gap-2.5 text-sm text-foreground">
-                    <Check className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
-                    {plan.features.versioning}
-                  </li>
-                  {plan.features.collaboration && (
-                    <li className="flex items-start gap-2.5 text-sm text-foreground">
-                      <Check className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
-                      {plan.features.collaboration}
-                    </li>
-                  )}
-                  {plan.features.analytics && (
-                    <li className="flex items-start gap-2.5 text-sm text-foreground">
-                      <Check className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
-                      {plan.features.analytics}
-                    </li>
-                  )}
-                  {plan.features.sso && (
-                    <li className="flex items-start gap-2.5 text-sm text-foreground">
-                      <Check className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
-                      {plan.features.sso}
-                    </li>
-                  )}
-                  {plan.features.dedicatedManager && (
-                    <li className="flex items-start gap-2.5 text-sm text-foreground">
-                      <Check className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
-                      {plan.features.dedicatedManager}
-                    </li>
-                  )}
-                </ul>
-                <Button
-                  variant={plan.variant}
-                  className={`mt-6 w-full ${plan.popular ? "" : ""}`}
-                  asChild
-                >
-                  <Link href={plan.ctaHref}>{plan.cta}</Link>
-                </Button>
-              </CardContent>
-            </Card>
-          )
-        })}
-      </div>
+      <PricingCards />
 
       {/* AI Credits Note */}
       <div className="mt-8 text-center">

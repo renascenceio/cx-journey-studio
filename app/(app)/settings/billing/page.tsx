@@ -30,6 +30,8 @@ import {
   Crown,
   Loader2,
   Download,
+  Clock,
+  Gift,
 } from "lucide-react"
 import { toast } from "sonner"
 import Link from "next/link"
@@ -57,12 +59,20 @@ const mockInvoices = [
 
 export default function BillingSettingsPage() {
   const t = useTranslations("billing")
-  const { organization } = useAuth()
+  const { workspace: organization } = useAuth()
   const [topUpOpen, setTopUpOpen] = useState(false)
   const [selectedPackage, setSelectedPackage] = useState("medium")
   const [purchasing, setPurchasing] = useState(false)
+  const [startingTrial, setStartingTrial] = useState(false)
   const [credits, setCredits] = useState({ used: 23, total: 500, purchased: 0 })
   const [loading, setLoading] = useState(true)
+  
+  // Trial state
+  const trialStatus = organization?.subscription_status
+  const isTrialing = trialStatus === "trialing"
+  const trialEndsAt = organization?.trial_ends_at ? new Date(organization.trial_ends_at) : null
+  const trialDaysLeft = trialEndsAt ? Math.max(0, Math.ceil((trialEndsAt.getTime() - Date.now()) / (1000 * 60 * 60 * 24))) : 0
+  const hadTrial = organization?.trial_started_at !== null
   
   const currentPlan = organization?.plan_id || "free"
   const planInfo = PLAN_DETAILS[currentPlan] || PLAN_DETAILS.free
@@ -90,6 +100,28 @@ export default function BillingSettingsPage() {
   const creditsPercentUsed = credits.total > 0 ? Math.min(100, (credits.used / (credits.total + credits.purchased)) * 100) : 0
   const isLowCredits = creditsRemaining < 20
   
+  async function handleStartTrial(planId: string) {
+    setStartingTrial(true)
+    try {
+      const res = await fetch("/api/checkout", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ planId }),
+      })
+      
+      if (!res.ok) throw new Error("Failed to create checkout session")
+      
+      const { url } = await res.json()
+      if (url) {
+        window.location.href = url
+      }
+    } catch {
+      toast.error("Failed to start trial. Please try again.")
+    } finally {
+      setStartingTrial(false)
+    }
+  }
+  
   async function handlePurchaseCredits() {
     const pkg = CREDIT_PACKAGES.find(p => p.id === selectedPackage)
     if (!pkg) return
@@ -116,8 +148,68 @@ export default function BillingSettingsPage() {
     }
   }
   
-  return (
+return (
     <div className="flex flex-col gap-6">
+      {/* Trial Status Banner */}
+      {isTrialing && trialEndsAt && (
+        <Card className="border-primary/50 bg-primary/5">
+          <CardContent className="py-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10">
+                  <Gift className="h-5 w-5 text-primary" />
+                </div>
+                <div>
+                  <p className="font-semibold text-foreground">
+                    {trialDaysLeft} {trialDaysLeft === 1 ? "day" : "days"} left in your trial
+                  </p>
+                  <p className="text-sm text-muted-foreground">
+                    Trial ends on {trialEndsAt.toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" })}
+                  </p>
+                </div>
+              </div>
+              <Badge variant="outline" className="border-primary text-primary">
+                <Clock className="h-3 w-3 mr-1" />
+                Trial Active
+              </Badge>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Start Trial CTA for Free users */}
+      {currentPlan === "free" && !hadTrial && (
+        <Card className="border-primary/50 bg-gradient-to-r from-primary/5 to-purple-500/5">
+          <CardContent className="py-6">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-4">
+                <div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary/10">
+                  <Sparkles className="h-6 w-6 text-primary" />
+                </div>
+                <div>
+                  <p className="text-lg font-semibold text-foreground">
+                    Start your 14-day free trial
+                  </p>
+                  <p className="text-sm text-muted-foreground">
+                    Unlock unlimited journeys, team collaboration, and advanced AI features. No credit card required.
+                  </p>
+                </div>
+              </div>
+              <div className="flex gap-2">
+                <Button variant="outline" onClick={() => handleStartTrial("starter")} disabled={startingTrial}>
+                  {startingTrial ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
+                  Try Starter
+                </Button>
+                <Button onClick={() => handleStartTrial("business")} disabled={startingTrial}>
+                  {startingTrial ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
+                  Try Business
+                </Button>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
       {/* Current Plan */}
       <Card className="border-border/60">
         <CardHeader>

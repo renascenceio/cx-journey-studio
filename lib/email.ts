@@ -509,22 +509,110 @@ export const emailTemplates = {
     </div>
   `, { headerTitle: "Subscription Started", headerIcon: "🎉", showPreferencesLink: true }),
 
-  trialEnding: (name: string, daysLeft: number, upgradeUrl: string) => wrapEmailTemplate(`
+  trialEnding: (name: string, trialEndDate: string, upgradeUrl: string) => wrapEmailTemplate(`
     <p style="margin: 0 0 24px; font-size: 16px; line-height: 1.6; color: #52525b;">
       Hi ${name},
     </p>
     <p style="margin: 0 0 24px; font-size: 16px; line-height: 1.6; color: #52525b;">
-      Your René Studio trial ends in <strong>${daysLeft} day${daysLeft === 1 ? '' : 's'}</strong>. Upgrade now to keep access to all features.
+      Your René Studio free trial ends on <strong>${trialEndDate}</strong>. That's just 3 days away!
+    </p>
+    <p style="margin: 0 0 24px; font-size: 16px; line-height: 1.6; color: #52525b;">
+      To continue using all premium features without interruption, make sure you have a valid payment method on file.
     </p>
     <div style="margin: 24px 0; padding: 16px; background: #fef3c7; border-radius: 8px; border-left: 4px solid #f59e0b;">
       <p style="margin: 0; font-size: 13px; color: #92400e;">
-        After your trial ends, you'll lose access to premium features.
+        After your trial ends, your account will be charged automatically. If no payment method is on file, you'll be downgraded to the Free plan.
       </p>
     </div>
     <div style="text-align: center; margin: 32px 0;">
       <a href="${upgradeUrl}" style="display: inline-block; padding: 14px 32px; background: #18181b; color: #ffffff; text-decoration: none; border-radius: 8px; font-weight: 500; font-size: 14px;">
-        Upgrade Now
+        Manage Billing
       </a>
     </div>
   `, { headerTitle: "Trial Ending Soon", headerIcon: "⏰", showPreferencesLink: true }),
+
+  // Trial started - welcome email
+  trialStarted: (name: string, trialEndDate: string) => wrapEmailTemplate(`
+    <p style="margin: 0 0 24px; font-size: 16px; line-height: 1.6; color: #52525b;">
+      Hi ${name},
+    </p>
+    <p style="margin: 0 0 24px; font-size: 16px; line-height: 1.6; color: #52525b;">
+      Welcome to your <strong>14-day free trial</strong> of René Studio! You now have full access to all premium features.
+    </p>
+    <div style="margin: 24px 0; padding: 20px; background: #ecfdf5; border-radius: 12px; border: 1px solid #a7f3d0;">
+      <p style="margin: 0 0 12px; font-size: 14px; color: #047857; font-weight: 500;">
+        What's included in your trial:
+      </p>
+      <ul style="margin: 0; padding-left: 20px; font-size: 14px; line-height: 1.8; color: #047857;">
+        <li>Unlimited journeys</li>
+        <li>Full team collaboration</li>
+        <li>Advanced AI features</li>
+        <li>Premium templates</li>
+        <li>Advanced analytics</li>
+      </ul>
+    </div>
+    <p style="margin: 0 0 24px; font-size: 16px; line-height: 1.6; color: #52525b;">
+      Your trial ends on <strong>${trialEndDate}</strong>. We'll send you a reminder before it expires.
+    </p>
+    <div style="text-align: center; margin: 32px 0;">
+      <a href="https://rene.cx/dashboard" style="display: inline-block; padding: 14px 32px; background: #18181b; color: #ffffff; text-decoration: none; border-radius: 8px; font-weight: 500; font-size: 14px;">
+        Start Exploring
+      </a>
+    </div>
+    <p style="margin: 0; font-size: 13px; color: #71717a;">
+      No credit card was charged. You can cancel anytime before your trial ends.
+    </p>
+  `, { headerTitle: "Your Trial Has Started!", headerIcon: "🎉", showPreferencesLink: false }),
+
+  // Trial converted to paid subscription
+  trialConverted: (name: string) => wrapEmailTemplate(`
+    <p style="margin: 0 0 24px; font-size: 16px; line-height: 1.6; color: #52525b;">
+      Hi ${name},
+    </p>
+    <p style="margin: 0 0 24px; font-size: 16px; line-height: 1.6; color: #52525b;">
+      Great news! Your trial has ended and your René Studio subscription is now <strong>fully active</strong>.
+    </p>
+    <div style="margin: 24px 0; padding: 20px; background: #ecfdf5; border-radius: 12px; border: 1px solid #a7f3d0;">
+      <p style="margin: 0; font-size: 14px; color: #047857; font-weight: 500;">
+        ✓ Your subscription is now active
+      </p>
+      <p style="margin: 8px 0 0; font-size: 13px; color: #059669;">
+        Thank you for choosing René Studio. We're excited to have you on board!
+      </p>
+    </div>
+    <p style="margin: 0 0 24px; font-size: 16px; line-height: 1.6; color: #52525b;">
+      Continue building amazing customer experiences with all the premium features at your disposal.
+    </p>
+    <div style="text-align: center; margin: 32px 0;">
+      <a href="https://rene.cx/dashboard" style="display: inline-block; padding: 14px 32px; background: #18181b; color: #ffffff; text-decoration: none; border-radius: 8px; font-weight: 500; font-size: 14px;">
+        Go to Dashboard
+      </a>
+    </div>
+  `, { headerTitle: "Subscription Active", headerIcon: "✅", showPreferencesLink: true }),
+
+  // Trial expired without conversion
+  trialExpired: (name: string, upgradeUrl: string) => wrapEmailTemplate(`
+    <p style="margin: 0 0 24px; font-size: 16px; line-height: 1.6; color: #52525b;">
+      Hi ${name},
+    </p>
+    <p style="margin: 0 0 24px; font-size: 16px; line-height: 1.6; color: #52525b;">
+      Your René Studio free trial has ended. Your account has been moved to the <strong>Free</strong> plan.
+    </p>
+    <div style="margin: 24px 0; padding: 20px; background: #f4f4f5; border-radius: 12px; border: 1px solid #e4e4e7;">
+      <p style="margin: 0 0 12px; font-size: 14px; font-weight: 600; color: #18181b;">What this means:</p>
+      <ul style="margin: 0; padding-left: 20px; font-size: 14px; line-height: 1.8; color: #52525b;">
+        <li>Your content is safe - all journeys and data remain intact</li>
+        <li>You're now limited to Free plan features</li>
+        <li>Some premium features may no longer be accessible</li>
+      </ul>
+    </div>
+    <p style="margin: 0 0 24px; font-size: 16px; line-height: 1.6; color: #52525b;">
+      Ready to unlock all features again? Upgrade to continue where you left off.
+    </p>
+    <div style="text-align: center; margin: 32px 0;">
+      <a href="${upgradeUrl}" style="display: inline-block; padding: 14px 32px; background: #18181b; color: #ffffff; text-decoration: none; border-radius: 8px; font-weight: 500; font-size: 14px;">
+        Upgrade Your Plan
+      </a>
+    </div>
+  `, { headerTitle: "Trial Ended", headerIcon: "📦", showPreferencesLink: true }),
 }
