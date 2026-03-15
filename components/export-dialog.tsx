@@ -13,7 +13,9 @@ import {
   journeyMetadataToCSV, 
   archetypeToCSV, 
   downloadCSV, 
-  downloadPNG, 
+  downloadPNG,
+  downloadPDF,
+  downloadSVGFromElement,
   sanitizeFilename 
 } from "@/lib/export-utils"
 import type { Journey, Archetype } from "@/lib/types"
@@ -59,8 +61,14 @@ export function ExportDialog({ children, type, data, elementRef, title }: Export
           break
           
         case "pdf":
-          window.print()
-          toast.success("Print dialog opened")
+          if (elementRef?.current) {
+            await downloadPDF(elementRef.current, `${filename}.pdf`, itemName)
+            toast.success("PDF exported successfully")
+          } else {
+            // Fallback to print for archetypes or when no element
+            window.print()
+            toast.success("Print dialog opened")
+          }
           break
           
         case "png":
@@ -74,14 +82,7 @@ export function ExportDialog({ children, type, data, elementRef, title }: Export
           
         case "svg":
           if (elementRef?.current) {
-            const { toSvg } = await import("html-to-image")
-            const dataUrl = await toSvg(elementRef.current, { backgroundColor: "#ffffff" })
-            const link = document.createElement("a")
-            link.href = dataUrl
-            link.download = `${filename}.svg`
-            document.body.appendChild(link)
-            link.click()
-            document.body.removeChild(link)
+            await downloadSVGFromElement(elementRef.current, `${filename}.svg`)
             toast.success("SVG exported successfully")
           } else {
             toast.error("No content element available for export")
@@ -194,7 +195,7 @@ export function ExportDialog({ children, type, data, elementRef, title }: Export
           
           {format === "pdf" && (
             <p className="text-xs text-muted-foreground">
-              This will open your browser&apos;s print dialog. Select &quot;Save as PDF&quot; to download.
+              Exports the full journey canvas as a high-quality PDF document with title and date.
             </p>
           )}
         </div>

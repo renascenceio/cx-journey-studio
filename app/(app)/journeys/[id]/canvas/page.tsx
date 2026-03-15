@@ -392,6 +392,7 @@ export default function CanvasPage() {
         {/* ========= DEFAULT: Column View ========= */}
         {viewMode === "default" && (
           <div
+            data-export-target="journey-canvas"
             className="flex gap-4 p-4"
             style={{ transform: `scale(${zoom / 100})`, transformOrigin: "top left" }}
           >
@@ -482,6 +483,7 @@ export default function CanvasPage() {
         {/* ========= SWIMLANE VIEW ========= */}
         {viewMode === "swimlane" && (
           <div
+            data-export-target="journey-canvas"
             className="p-4"
             style={{ transform: `scale(${zoom / 100})`, transformOrigin: "top left" }}
           >
@@ -556,6 +558,7 @@ export default function CanvasPage() {
         {/* ========= TIMELINE VIEW ========= */}
         {viewMode === "timeline" && (
           <div
+            data-export-target="journey-canvas"
             className="p-6"
             style={{ transform: `scale(${zoom / 100})`, transformOrigin: "top left" }}
           >
@@ -2084,7 +2087,7 @@ function ExportDialogContent({
   
   async function handleExport() {
     setExporting(true)
-    const { journeyToCSV, journeyMetadataToCSV, downloadCSV, downloadPNG, sanitizeFilename } = await import("@/lib/export-utils")
+    const { journeyToCSV, journeyMetadataToCSV, downloadCSV, downloadPNG, downloadPDF, downloadSVGFromElement, sanitizeFilename } = await import("@/lib/export-utils")
     const filename = sanitizeFilename(itemName)
     
     try {
@@ -2102,8 +2105,13 @@ function ExportDialogContent({
           break
           
         case "pdf":
-          window.print()
-          toast.success("Print dialog opened")
+          if (elementRef?.current) {
+            await downloadPDF(elementRef.current, `${filename}.pdf`, itemName)
+            toast.success("PDF exported successfully")
+          } else {
+            window.print()
+            toast.success("Print dialog opened")
+          }
           break
           
         case "png":
@@ -2117,14 +2125,7 @@ function ExportDialogContent({
           
         case "svg":
           if (elementRef?.current) {
-            const { toSvg } = await import("html-to-image")
-            const dataUrl = await toSvg(elementRef.current, { backgroundColor: "#ffffff" })
-            const link = document.createElement("a")
-            link.href = dataUrl
-            link.download = `${filename}.svg`
-            document.body.appendChild(link)
-            link.click()
-            document.body.removeChild(link)
+            await downloadSVGFromElement(elementRef.current, `${filename}.svg`)
             toast.success("SVG exported successfully")
           } else {
             toast.error("No content element available for export")

@@ -23,7 +23,8 @@ export function journeyToCSV(journey: Journey): string {
     "Highlight Impacts",
   ])
   
-  // Data rows
+  // Data rows - Note: stage.order and step.order are 0-based in the database,
+  // so we add 1 to make them 1-based (human-readable) in the export
   for (const stage of journey.stages || []) {
     for (const step of stage.steps || []) {
       for (const tp of step.touchPoints || []) {
@@ -34,9 +35,9 @@ export function journeyToCSV(journey: Journey): string {
         
         rows.push([
           stage.name,
-          String(stage.order),
+          String((stage.order ?? 0) + 1),  // 1-based for human readability
           step.name,
-          String(step.order),
+          String((step.order ?? 0) + 1),   // 1-based for human readability
           tp.channel,
           tp.description || "",
           String(tp.emotionalScore),
@@ -170,11 +171,55 @@ export async function downloadPNG(element: HTMLElement, filename: string, scale:
   const { toPng } = await import("html-to-image")
   
   try {
-    const dataUrl = await toPng(element, {
+    // Find the actual canvas content (the flex container with stages), not the scroll wrapper
+    // Look for the inner content that has the full width/height
+    const canvasContent = element.querySelector('[data-export-target="journey-canvas"]') as HTMLElement
+      || element.querySelector('.flex.gap-4') as HTMLElement  // Fallback to stage container
+      || element.firstElementChild as HTMLElement
+      || element
+    
+    // Get the actual scroll dimensions of the content
+    const scrollWidth = canvasContent.scrollWidth || canvasContent.offsetWidth
+    const scrollHeight = canvasContent.scrollHeight || canvasContent.offsetHeight
+    
+    // Create a temporary wrapper that can hold the full content without clipping
+    const tempWrapper = document.createElement('div')
+    tempWrapper.style.position = 'absolute'
+    tempWrapper.style.left = '-9999px'
+    tempWrapper.style.top = '0'
+    tempWrapper.style.width = `${scrollWidth}px`
+    tempWrapper.style.height = `${scrollHeight}px`
+    tempWrapper.style.overflow = 'visible'
+    tempWrapper.style.backgroundColor = '#ffffff'
+    tempWrapper.style.padding = '24px'
+    
+    // Clone the canvas content
+    const clonedContent = canvasContent.cloneNode(true) as HTMLElement
+    clonedContent.style.transform = 'none'  // Remove any zoom transform
+    clonedContent.style.transformOrigin = 'top left'
+    clonedContent.style.width = 'auto'
+    clonedContent.style.height = 'auto'
+    clonedContent.style.overflow = 'visible'
+    
+    tempWrapper.appendChild(clonedContent)
+    document.body.appendChild(tempWrapper)
+    
+    // Wait for styles to apply
+    await new Promise(resolve => setTimeout(resolve, 100))
+    
+    const dataUrl = await toPng(tempWrapper, {
       quality: 1,
       pixelRatio: scale,
       backgroundColor: "#ffffff",
+      width: scrollWidth + 48,  // Add padding
+      height: scrollHeight + 48,
+      style: {
+        overflow: 'visible',
+      },
     })
+    
+    // Clean up
+    document.body.removeChild(tempWrapper)
     
     const link = document.createElement("a")
     link.href = dataUrl
@@ -192,15 +237,153 @@ export async function downloadSVGFromElement(element: HTMLElement, filename: str
   const { toSvg } = await import("html-to-image")
   
   try {
-    const dataUrl = await toSvg(element, {
+    // Find the actual canvas content, not the scroll wrapper
+    const canvasContent = element.querySelector('[data-export-target="journey-canvas"]') as HTMLElement
+      || element.querySelector('.flex.gap-4') as HTMLElement
+      || element.firstElementChild as HTMLElement
+      || element
+    
+    // Get the actual scroll dimensions
+    const scrollWidth = canvasContent.scrollWidth || canvasContent.offsetWidth
+    const scrollHeight = canvasContent.scrollHeight || canvasContent.offsetHeight
+    
+    // Create a temporary wrapper for the full content
+    const tempWrapper = document.createElement('div')
+    tempWrapper.style.position = 'absolute'
+    tempWrapper.style.left = '-9999px'
+    tempWrapper.style.top = '0'
+    tempWrapper.style.width = `${scrollWidth}px`
+    tempWrapper.style.height = `${scrollHeight}px`
+    tempWrapper.style.overflow = 'visible'
+    tempWrapper.style.backgroundColor = '#ffffff'
+    tempWrapper.style.padding = '24px'
+    
+    // Clone the canvas content
+    const clonedContent = canvasContent.cloneNode(true) as HTMLElement
+    clonedContent.style.transform = 'none'
+    clonedContent.style.transformOrigin = 'top left'
+    clonedContent.style.width = 'auto'
+    clonedContent.style.height = 'auto'
+    clonedContent.style.overflow = 'visible'
+    
+    tempWrapper.appendChild(clonedContent)
+    document.body.appendChild(tempWrapper)
+    
+    // Wait for styles to apply
+    await new Promise(resolve => setTimeout(resolve, 100))
+    
+    const dataUrl = await toSvg(tempWrapper, {
       backgroundColor: "#ffffff",
+      width: scrollWidth + 48,
+      height: scrollHeight + 48,
     })
+    
+    // Clean up
+    document.body.removeChild(tempWrapper)
     
     // Convert data URL to actual SVG content
     const svgContent = decodeURIComponent(dataUrl.split(",")[1])
     downloadSVG(svgContent, filename)
   } catch (error) {
     console.error("Failed to generate SVG:", error)
+    throw error
+  }
+}
+
+// ============================================
+// PDF Export (full canvas capture)
+// ============================================
+
+export async function downloadPDF(element: HTMLElement, filename: string, title?: string) {
+  const { toPng } = await import("html-to-image")
+  const { jsPDF } = await import("jspdf")
+  
+  try {
+    // Find the actual canvas content
+    const canvasContent = element.querySelector('[data-export-target="journey-canvas"]') as HTMLElement
+      || element.querySelector('.flex.gap-4') as HTMLElement
+      || element.firstElementChild as HTMLElement
+      || element
+    
+    // Get the actual scroll dimensions
+    const scrollWidth = canvasContent.scrollWidth || canvasContent.offsetWidth
+    const scrollHeight = canvasContent.scrollHeight || canvasContent.offsetHeight
+    
+    // Create a temporary wrapper for the full content
+    const tempWrapper = document.createElement('div')
+    tempWrapper.style.position = 'absolute'
+    tempWrapper.style.left = '-9999px'
+    tempWrapper.style.top = '0'
+    tempWrapper.style.width = `${scrollWidth}px`
+    tempWrapper.style.height = `${scrollHeight}px`
+    tempWrapper.style.overflow = 'visible'
+    tempWrapper.style.backgroundColor = '#ffffff'
+    tempWrapper.style.padding = '24px'
+    
+    // Clone the canvas content
+    const clonedContent = canvasContent.cloneNode(true) as HTMLElement
+    clonedContent.style.transform = 'none'
+    clonedContent.style.transformOrigin = 'top left'
+    clonedContent.style.width = 'auto'
+    clonedContent.style.height = 'auto'
+    clonedContent.style.overflow = 'visible'
+    
+    tempWrapper.appendChild(clonedContent)
+    document.body.appendChild(tempWrapper)
+    
+    // Wait for styles to apply
+    await new Promise(resolve => setTimeout(resolve, 100))
+    
+    // Capture as PNG with high quality
+    const dataUrl = await toPng(tempWrapper, {
+      quality: 1,
+      pixelRatio: 2,
+      backgroundColor: "#ffffff",
+      width: scrollWidth + 48,
+      height: scrollHeight + 48,
+    })
+    
+    // Clean up temp element
+    document.body.removeChild(tempWrapper)
+    
+    // Calculate PDF dimensions - landscape orientation for journey maps
+    const imgWidth = scrollWidth + 48
+    const imgHeight = scrollHeight + 48
+    
+    // Use landscape format with custom page size to fit content
+    // Add some margins (50px on each side)
+    const pdfWidth = imgWidth + 100
+    const pdfHeight = imgHeight + 150 // Extra space for title
+    
+    const pdf = new jsPDF({
+      orientation: pdfWidth > pdfHeight ? 'landscape' : 'portrait',
+      unit: 'px',
+      format: [pdfWidth, pdfHeight],
+      compress: true,
+    })
+    
+    // Add title if provided
+    if (title) {
+      pdf.setFontSize(24)
+      pdf.setTextColor(0, 0, 0)
+      pdf.text(title, 50, 50)
+      
+      // Add export date
+      pdf.setFontSize(12)
+      pdf.setTextColor(100, 100, 100)
+      pdf.text(`Exported on ${new Date().toLocaleDateString()}`, 50, 75)
+      
+      // Add the image below title
+      pdf.addImage(dataUrl, 'PNG', 50, 100, imgWidth, imgHeight)
+    } else {
+      // Add the image with margins
+      pdf.addImage(dataUrl, 'PNG', 50, 50, imgWidth, imgHeight)
+    }
+    
+    // Download
+    pdf.save(filename.endsWith('.pdf') ? filename : `${filename}.pdf`)
+  } catch (error) {
+    console.error("Failed to generate PDF:", error)
     throw error
   }
 }
