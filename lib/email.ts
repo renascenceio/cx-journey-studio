@@ -66,10 +66,27 @@ export async function sendEmail(options: EmailOptions): Promise<{ success: boole
   }
 }
 
-// Email template helper
-export function wrapEmailTemplate(content: string, options?: { siteName?: string; logoUrl?: string }): string {
-  const siteName = options?.siteName || "René Studio"
-  const logoUrl = options?.logoUrl || "https://rene.cx/logo.png"
+// Rene Logo as inline SVG for emails (works better than external images)
+const RENE_LOGO_SVG = `
+<svg width="120" height="32" viewBox="0 0 120 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect x="4" y="4" width="24" height="24" rx="4" fill="white"/>
+  <rect x="10" y="12" width="4" height="8" fill="#18181B"/>
+  <rect x="16" y="10" width="4" height="10" fill="#18181B"/>
+  <text x="36" y="22" font-family="system-ui, -apple-system, sans-serif" font-size="18" font-weight="600" fill="white">Rene</text>
+</svg>
+`
+
+// Email template helper with modern design matching admin preview
+export function wrapEmailTemplate(content: string, options?: { 
+  siteName?: string
+  headerIcon?: string
+  headerTitle?: string
+  unsubscribeUrl?: string
+  preferencesUrl?: string
+}): string {
+  const siteName = options?.siteName || "Rene"
+  const unsubscribeUrl = options?.unsubscribeUrl || "https://rene.cx/settings/notifications"
+  const preferencesUrl = options?.preferencesUrl || "https://rene.cx/settings/notifications"
   
   return `
 <!DOCTYPE html>
@@ -77,17 +94,39 @@ export function wrapEmailTemplate(content: string, options?: { siteName?: string
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="color-scheme" content="light">
+  <meta name="supported-color-schemes" content="light">
   <title>${siteName}</title>
+  <!--[if mso]>
+  <style type="text/css">
+    table, td { font-family: Arial, sans-serif !important; }
+  </style>
+  <![endif]-->
 </head>
-<body style="margin: 0; padding: 0; background-color: #f4f4f5; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;">
-  <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0">
+<body style="margin: 0; padding: 0; background-color: #f4f4f5; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; -webkit-font-smoothing: antialiased;">
+  <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="background-color: #f4f4f5;">
     <tr>
       <td align="center" style="padding: 40px 20px;">
-        <table role="presentation" width="600" cellspacing="0" cellpadding="0" border="0" style="background: #ffffff; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);">
-          <!-- Header -->
+        <table role="presentation" width="600" cellspacing="0" cellpadding="0" border="0" style="max-width: 600px; width: 100%; background: #ffffff; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06);">
+          <!-- Dark Header with Logo -->
           <tr>
-            <td style="padding: 32px 40px; text-align: center; border-bottom: 1px solid #e4e4e7;">
-              <img src="${logoUrl}" alt="${siteName}" height="40" style="max-width: 200px; height: auto;" />
+            <td style="background-color: #18181B; padding: 32px 40px; text-align: center;">
+              <!-- Logo -->
+              <div style="margin-bottom: 24px;">
+                ${RENE_LOGO_SVG}
+              </div>
+              ${options?.headerIcon ? `
+              <!-- Icon Circle -->
+              <div style="display: inline-block; width: 56px; height: 56px; background: rgba(255,255,255,0.1); border-radius: 16px; line-height: 56px; margin-bottom: 16px;">
+                <span style="font-size: 28px;">${options.headerIcon}</span>
+              </div>
+              ` : ''}
+              ${options?.headerTitle ? `
+              <!-- Header Title -->
+              <h1 style="margin: 0; font-size: 22px; font-weight: 600; color: #ffffff; letter-spacing: -0.01em;">
+                ${options.headerTitle}
+              </h1>
+              ` : ''}
             </td>
           </tr>
           <!-- Content -->
@@ -98,12 +137,34 @@ export function wrapEmailTemplate(content: string, options?: { siteName?: string
           </tr>
           <!-- Footer -->
           <tr>
-            <td style="padding: 24px 40px; background: #fafafa; border-top: 1px solid #e4e4e7; text-align: center;">
-              <p style="margin: 0; font-size: 13px; color: #71717a;">
-                ${siteName} by Renascence
-              </p>
-              <p style="margin: 8px 0 0; font-size: 12px; color: #a1a1aa;">
-                If you didn't request this email, you can safely ignore it.
+            <td style="padding: 24px 40px; background: #fafafa; border-top: 1px solid #e4e4e7;">
+              <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0">
+                <tr>
+                  <td align="center">
+                    <p style="margin: 0 0 12px; font-size: 13px; color: #71717a;">
+                      ${siteName} by Renascence
+                    </p>
+                    <p style="margin: 0 0 16px; font-size: 12px; color: #a1a1aa;">
+                      You're receiving this because you have an account at rene.cx
+                    </p>
+                    <p style="margin: 0; font-size: 12px;">
+                      <a href="${preferencesUrl}" style="color: #71717a; text-decoration: underline;">Notification Preferences</a>
+                      <span style="color: #d4d4d8; margin: 0 8px;">|</span>
+                      <a href="${unsubscribeUrl}" style="color: #71717a; text-decoration: underline;">Unsubscribe</a>
+                    </p>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+        </table>
+        <!-- Additional Footer -->
+        <table role="presentation" width="600" cellspacing="0" cellpadding="0" border="0" style="max-width: 600px; width: 100%;">
+          <tr>
+            <td align="center" style="padding: 24px 20px;">
+              <p style="margin: 0; font-size: 11px; color: #a1a1aa;">
+                Renascence Journey Design Studio<br>
+                Simplifying customer experience mapping
               </p>
             </td>
           </tr>
@@ -119,12 +180,11 @@ export function wrapEmailTemplate(content: string, options?: { siteName?: string
 // Pre-built email templates
 export const emailTemplates = {
   welcome: (name: string, verifyUrl?: string) => wrapEmailTemplate(`
-    <h1 style="margin: 0 0 16px; font-size: 24px; font-weight: 600; color: #18181b;">
-      Welcome to René Studio!
-    </h1>
-    <p style="margin: 0 0 24px; font-size: 15px; line-height: 1.6; color: #52525b;">
-      Hi ${name},<br><br>
-      Thank you for joining René Studio! We're excited to have you on board.
+    <p style="margin: 0 0 24px; font-size: 16px; line-height: 1.6; color: #52525b;">
+      Hi ${name},
+    </p>
+    <p style="margin: 0 0 24px; font-size: 16px; line-height: 1.6; color: #52525b;">
+      Thank you for joining Rene! We're excited to have you on board. Start creating amazing customer journey maps and transform how you understand your customers.
     </p>
     ${verifyUrl ? `
     <div style="text-align: center; margin: 32px 0;">
@@ -132,18 +192,23 @@ export const emailTemplates = {
         Verify Email Address
       </a>
     </div>
-    ` : ''}
-    <p style="margin: 0; font-size: 15px; line-height: 1.6; color: #52525b;">
-      Start creating amazing customer journey maps today!
+    ` : `
+    <div style="text-align: center; margin: 32px 0;">
+      <a href="https://rene.cx/dashboard" style="display: inline-block; padding: 14px 32px; background: #18181b; color: #ffffff; text-decoration: none; border-radius: 8px; font-weight: 500; font-size: 14px;">
+        Go to Dashboard
+      </a>
+    </div>
+    `}
+    <p style="margin: 0; font-size: 14px; line-height: 1.6; color: #71717a;">
+      Need help getting started? Check out our <a href="https://rene.cx/docs" style="color: #18181b; text-decoration: underline;">documentation</a> or reach out to our support team.
     </p>
-  `),
+  `, { headerTitle: "Welcome to Rene", headerIcon: "👋" }),
 
   passwordReset: (name: string, resetUrl: string) => wrapEmailTemplate(`
-    <h1 style="margin: 0 0 16px; font-size: 24px; font-weight: 600; color: #18181b;">
-      Reset Your Password
-    </h1>
-    <p style="margin: 0 0 24px; font-size: 15px; line-height: 1.6; color: #52525b;">
-      Hi ${name},<br><br>
+    <p style="margin: 0 0 24px; font-size: 16px; line-height: 1.6; color: #52525b;">
+      Hi ${name},
+    </p>
+    <p style="margin: 0 0 24px; font-size: 16px; line-height: 1.6; color: #52525b;">
       We received a request to reset your password. Click the button below to create a new password.
     </p>
     <div style="text-align: center; margin: 32px 0;">
@@ -151,60 +216,131 @@ export const emailTemplates = {
         Reset Password
       </a>
     </div>
-    <p style="margin: 0; font-size: 13px; color: #71717a;">
-      This link will expire in 1 hour. If you didn't request this, please ignore this email.
-    </p>
-  `),
+    <div style="margin: 24px 0; padding: 16px; background: #fef3c7; border-radius: 8px; border-left: 4px solid #f59e0b;">
+      <p style="margin: 0; font-size: 13px; color: #92400e;">
+        This link will expire in 1 hour. If you didn't request this password reset, you can safely ignore this email.
+      </p>
+    </div>
+  `, { headerTitle: "Reset Your Password", headerIcon: "🔐" }),
 
   magicLink: (email: string, loginUrl: string) => wrapEmailTemplate(`
-    <h1 style="margin: 0 0 16px; font-size: 24px; font-weight: 600; color: #18181b;">
-      Sign In to René Studio
-    </h1>
-    <p style="margin: 0 0 24px; font-size: 15px; line-height: 1.6; color: #52525b;">
+    <p style="margin: 0 0 24px; font-size: 16px; line-height: 1.6; color: #52525b;">
       Click the button below to sign in as <strong>${email}</strong>.
     </p>
     <div style="text-align: center; margin: 32px 0;">
       <a href="${loginUrl}" style="display: inline-block; padding: 14px 32px; background: #18181b; color: #ffffff; text-decoration: none; border-radius: 8px; font-weight: 500; font-size: 14px;">
-        Sign In
+        Sign In to Rene
       </a>
     </div>
-    <p style="margin: 0; font-size: 13px; color: #71717a;">
+    <p style="margin: 0; font-size: 13px; color: #71717a; text-align: center;">
       This link will expire in 10 minutes and can only be used once.
     </p>
-  `),
+  `, { headerTitle: "Sign In to Rene", headerIcon: "🔑" }),
 
   journeyShared: (inviterName: string, journeyTitle: string, journeyUrl: string) => wrapEmailTemplate(`
-    <h1 style="margin: 0 0 16px; font-size: 24px; font-weight: 600; color: #18181b;">
-      Journey Shared With You
-    </h1>
-    <p style="margin: 0 0 24px; font-size: 15px; line-height: 1.6; color: #52525b;">
-      <strong>${inviterName}</strong> has shared a journey with you:
+    <p style="margin: 0 0 24px; font-size: 16px; line-height: 1.6; color: #52525b;">
+      <strong>${inviterName}</strong> has shared a journey with you.
     </p>
-    <div style="margin: 24px 0; padding: 20px; background: #fafafa; border-radius: 12px; border: 1px solid #e4e4e7;">
-      <p style="margin: 0; font-size: 16px; font-weight: 600; color: #18181b;">${journeyTitle}</p>
+    <div style="margin: 24px 0; padding: 20px; background: #f4f4f5; border-radius: 12px; border: 1px solid #e4e4e7;">
+      <p style="margin: 0 0 4px; font-size: 12px; color: #71717a; text-transform: uppercase; letter-spacing: 0.05em;">Journey</p>
+      <p style="margin: 0; font-size: 18px; font-weight: 600; color: #18181b;">${journeyTitle}</p>
     </div>
     <div style="text-align: center; margin: 32px 0;">
       <a href="${journeyUrl}" style="display: inline-block; padding: 14px 32px; background: #18181b; color: #ffffff; text-decoration: none; border-radius: 8px; font-weight: 500; font-size: 14px;">
         View Journey
       </a>
     </div>
-  `),
+    <p style="margin: 0; font-size: 13px; color: #71717a;">
+      You can now collaborate on this journey and provide feedback.
+    </p>
+  `, { headerTitle: "Journey Shared With You", headerIcon: "🗺️" }),
 
   testEmail: (recipientName: string) => wrapEmailTemplate(`
-    <h1 style="margin: 0 0 16px; font-size: 24px; font-weight: 600; color: #18181b;">
-      Test Email
-    </h1>
-    <p style="margin: 0 0 24px; font-size: 15px; line-height: 1.6; color: #52525b;">
-      Hi ${recipientName},<br><br>
-      This is a test email from René Studio. If you received this, your email notifications are working correctly!
+    <p style="margin: 0 0 24px; font-size: 16px; line-height: 1.6; color: #52525b;">
+      Hi ${recipientName},
+    </p>
+    <p style="margin: 0 0 24px; font-size: 16px; line-height: 1.6; color: #52525b;">
+      This is a test email from Rene. If you received this, your email notifications are working correctly!
     </p>
     <div style="margin: 24px 0; padding: 20px; background: #ecfdf5; border-radius: 12px; border: 1px solid #a7f3d0;">
-      <p style="margin: 0; font-size: 14px; color: #047857; font-weight: 500;">
-        ✓ Email delivery successful
-      </p>
+      <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0">
+        <tr>
+          <td width="24" valign="top">
+            <span style="font-size: 16px;">✓</span>
+          </td>
+          <td>
+            <p style="margin: 0; font-size: 14px; color: #047857; font-weight: 500;">
+              Email delivery successful
+            </p>
+          </td>
+        </tr>
+      </table>
     </div>
     <p style="margin: 0; font-size: 13px; color: #71717a;">
-      Sent at: ${new Date().toISOString()}
+      Sent at: ${new Date().toLocaleString()}
     </p>
-  `),
+  `, { headerTitle: "Test Email", headerIcon: "✉️" }),
+
+  // Additional email templates
+  emailVerification: (name: string, verifyUrl: string) => wrapEmailTemplate(`
+    <p style="margin: 0 0 24px; font-size: 16px; line-height: 1.6; color: #52525b;">
+      Hi ${name},
+    </p>
+    <p style="margin: 0 0 24px; font-size: 16px; line-height: 1.6; color: #52525b;">
+      Please verify your email address to complete your account setup.
+    </p>
+    <div style="text-align: center; margin: 32px 0;">
+      <a href="${verifyUrl}" style="display: inline-block; padding: 14px 32px; background: #18181b; color: #ffffff; text-decoration: none; border-radius: 8px; font-weight: 500; font-size: 14px;">
+        Verify Email Address
+      </a>
+    </div>
+    <p style="margin: 0; font-size: 13px; color: #71717a; text-align: center;">
+      This link will expire in 24 hours.
+    </p>
+  `, { headerTitle: "Verify Your Email", headerIcon: "📧" }),
+
+  collaboratorJoined: (collaboratorName: string, journeyTitle: string, journeyUrl: string) => wrapEmailTemplate(`
+    <p style="margin: 0 0 24px; font-size: 16px; line-height: 1.6; color: #52525b;">
+      <strong>${collaboratorName}</strong> has joined your journey as a collaborator.
+    </p>
+    <div style="margin: 24px 0; padding: 20px; background: #f4f4f5; border-radius: 12px; border: 1px solid #e4e4e7;">
+      <p style="margin: 0 0 4px; font-size: 12px; color: #71717a; text-transform: uppercase; letter-spacing: 0.05em;">Journey</p>
+      <p style="margin: 0; font-size: 18px; font-weight: 600; color: #18181b;">${journeyTitle}</p>
+    </div>
+    <div style="text-align: center; margin: 32px 0;">
+      <a href="${journeyUrl}" style="display: inline-block; padding: 14px 32px; background: #18181b; color: #ffffff; text-decoration: none; border-radius: 8px; font-weight: 500; font-size: 14px;">
+        View Journey
+      </a>
+    </div>
+  `, { headerTitle: "New Collaborator Joined", headerIcon: "👥" }),
+
+  newComment: (commenterName: string, journeyTitle: string, commentPreview: string, journeyUrl: string) => wrapEmailTemplate(`
+    <p style="margin: 0 0 24px; font-size: 16px; line-height: 1.6; color: #52525b;">
+      <strong>${commenterName}</strong> commented on your journey.
+    </p>
+    <div style="margin: 24px 0; padding: 20px; background: #f4f4f5; border-radius: 12px; border: 1px solid #e4e4e7;">
+      <p style="margin: 0 0 8px; font-size: 12px; color: #71717a; text-transform: uppercase; letter-spacing: 0.05em;">${journeyTitle}</p>
+      <p style="margin: 0; font-size: 15px; color: #52525b; font-style: italic;">"${commentPreview}"</p>
+    </div>
+    <div style="text-align: center; margin: 32px 0;">
+      <a href="${journeyUrl}" style="display: inline-block; padding: 14px 32px; background: #18181b; color: #ffffff; text-decoration: none; border-radius: 8px; font-weight: 500; font-size: 14px;">
+        View Comment
+      </a>
+    </div>
+  `, { headerTitle: "New Comment", headerIcon: "💬" }),
+
+  mentioned: (mentionerName: string, journeyTitle: string, commentPreview: string, journeyUrl: string) => wrapEmailTemplate(`
+    <p style="margin: 0 0 24px; font-size: 16px; line-height: 1.6; color: #52525b;">
+      <strong>${mentionerName}</strong> mentioned you in a comment.
+    </p>
+    <div style="margin: 24px 0; padding: 20px; background: #f4f4f5; border-radius: 12px; border: 1px solid #e4e4e7;">
+      <p style="margin: 0 0 8px; font-size: 12px; color: #71717a; text-transform: uppercase; letter-spacing: 0.05em;">${journeyTitle}</p>
+      <p style="margin: 0; font-size: 15px; color: #52525b; font-style: italic;">"${commentPreview}"</p>
+    </div>
+    <div style="text-align: center; margin: 32px 0;">
+      <a href="${journeyUrl}" style="display: inline-block; padding: 14px 32px; background: #18181b; color: #ffffff; text-decoration: none; border-radius: 8px; font-weight: 500; font-size: 14px;">
+        View Comment
+      </a>
+    </div>
+  `, { headerTitle: "You Were Mentioned", headerIcon: "@" }),
 }
