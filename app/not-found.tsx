@@ -44,7 +44,7 @@ export default function NotFound() {
       <div className="relative z-10 flex min-h-screen flex-col items-center justify-center px-4 py-16">
         
         {/* Journey Path SVG */}
-        <div className="relative mb-8 w-full max-w-lg h-32 animate-fade-in">
+        <div className="relative mb-8 w-full max-w-lg h-32 animate-in fade-in duration-500">
           <svg 
             viewBox="0 0 100 80" 
             className="w-full h-full"
@@ -82,14 +82,12 @@ export default function NotFound() {
                   fill="hsl(var(--background))"
                   stroke="hsl(var(--primary))"
                   strokeWidth="2"
-                  className="animate-scale-in"
-                  style={{ animationDelay: `${i * 0.1 + 0.3}s` }}
                 />
               </g>
             ))}
             
             {/* Lost indicator (broken connection) */}
-            <g className="animate-bounce-subtle">
+            <g className="animate-bounce">
               <circle cx="55" cy="25" r="8" fill="hsl(var(--destructive) / 0.15)" />
               <text x="55" y="29" textAnchor="middle" fill="hsl(var(--destructive))" className="text-[10px] font-bold">?</text>
             </g>
@@ -97,7 +95,7 @@ export default function NotFound() {
         </div>
 
         {/* 404 Text */}
-        <div className="text-center mb-8 animate-fade-in-up" style={{ animationDelay: "0.2s" }}>
+        <div className="text-center mb-8 animate-in fade-in slide-in-from-bottom-4 duration-500 delay-200">
           <h1 className="text-8xl font-bold tracking-tighter bg-gradient-to-b from-foreground to-foreground/50 bg-clip-text text-transparent mb-4">
             404
           </h1>
@@ -110,10 +108,7 @@ export default function NotFound() {
         </div>
 
         {/* Quick Navigation Card */}
-        <div 
-          className="w-full max-w-xl mb-8 animate-fade-in-up"
-          style={{ animationDelay: "0.4s" }}
-        >
+        <div className="w-full max-w-xl mb-8 animate-in fade-in slide-in-from-bottom-4 duration-500 delay-300">
           <div className="relative rounded-2xl border border-border/50 bg-background/80 backdrop-blur-xl shadow-2xl">
             {/* Header */}
             <div className="flex items-center gap-3 px-4 py-3 border-b border-border/50">
@@ -163,7 +158,7 @@ export default function NotFound() {
         </div>
 
         {/* Home Button */}
-        <div className="animate-fade-in" style={{ animationDelay: "0.6s" }}>
+        <div className="animate-in fade-in duration-500 delay-500">
           <Button asChild variant="outline" size="lg" className="gap-2 rounded-xl">
             <Link href="/">
               <Home className="h-4 w-4" />
@@ -173,40 +168,6 @@ export default function NotFound() {
         </div>
       </div>
       
-      {/* CSS animations via style tag */}
-      <style jsx>{`
-        @keyframes fade-in {
-          from { opacity: 0; }
-          to { opacity: 1; }
-        }
-        @keyframes fade-in-up {
-          from { opacity: 0; transform: translateY(20px); }
-          to { opacity: 1; transform: translateY(0); }
-        }
-        @keyframes scale-in {
-          from { transform: scale(0); opacity: 0; }
-          to { transform: scale(1); opacity: 1; }
-        }
-        @keyframes bounce-subtle {
-          0%, 100% { transform: translateY(0); }
-          50% { transform: translateY(-3px); }
-        }
-        .animate-fade-in {
-          animation: fade-in 0.5s ease-out forwards;
-          opacity: 0;
-        }
-        .animate-fade-in-up {
-          animation: fade-in-up 0.5s ease-out forwards;
-          opacity: 0;
-        }
-        .animate-scale-in {
-          animation: scale-in 0.3s ease-out forwards;
-          transform: scale(0);
-        }
-        .animate-bounce-subtle {
-          animation: bounce-subtle 2s ease-in-out infinite;
-        }
-      `}</style>
-    </div>
+      </div>
   )
 }
