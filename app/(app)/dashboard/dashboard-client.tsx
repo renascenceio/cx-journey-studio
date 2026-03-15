@@ -101,8 +101,7 @@ export function DashboardClient({
           </h1>
           <p className="text-sm text-muted-foreground">{today}</p>
         </div>
-        <div className="flex items-center gap-3">
-          <Tabs value={activeTab} onValueChange={handleTabChange}>
+        <Tabs value={activeTab} onValueChange={handleTabChange}>
             <TabsList>
               <TabsTrigger value="overview" className="gap-1.5">
                 <LayoutDashboard className="h-4 w-4" />
@@ -114,13 +113,6 @@ export function DashboardClient({
               </TabsTrigger>
             </TabsList>
           </Tabs>
-          <CreateJourneyDialog>
-            <Button>
-              <Plus className="mr-2 h-4 w-4" />
-              {t("dashboard.newJourney")}
-            </Button>
-          </CreateJourneyDialog>
-        </div>
       </div>
 
       {activeTab === "overview" ? (
