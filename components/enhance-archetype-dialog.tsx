@@ -305,7 +305,14 @@ export function EnhanceArchetypeDialog({
       }
 
       const data = await res.json()
+      console.log("[v0] Archetype enhance response:", data)
       setProgress(100)
+      
+      if (!data.changes || !Array.isArray(data.changes)) {
+        console.log("[v0] No changes in response or invalid format")
+        toast.info("No specific changes identified from the input")
+        return
+      }
       
       // Transform API response to changes
       const suggestedChanges: ArchetypeChange[] = data.changes.map((change: any, idx: number) => ({

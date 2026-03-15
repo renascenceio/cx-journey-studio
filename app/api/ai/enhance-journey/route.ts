@@ -206,14 +206,17 @@ IMPORTANT: Return ONLY valid JSON, no markdown code blocks, no explanation outsi
     let aiResponse: { changes: AIChange[]; summary: string }
     try {
       const text = result.text.trim()
+      console.log("[v0] Raw AI response text:", text.substring(0, 500))
       const jsonStr = text.replace(/```json\n?/g, "").replace(/```\n?/g, "").trim()
       aiResponse = JSON.parse(jsonStr)
+      console.log("[v0] Parsed AI response - changes:", aiResponse.changes?.length, "summary:", aiResponse.summary?.substring(0, 100))
     } catch (parseError) {
       console.error("[v0] JSON parse error:", parseError, "Text:", result.text)
       return NextResponse.json({ error: "Failed to parse AI response" }, { status: 500 })
     }
 
     if (!aiResponse.changes || !Array.isArray(aiResponse.changes)) {
+      console.log("[v0] Invalid response format - changes:", aiResponse.changes)
       return NextResponse.json({ error: "Invalid AI response format" }, { status: 500 })
     }
 

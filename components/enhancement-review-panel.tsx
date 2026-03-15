@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useMemo } from "react"
+import { useState, useMemo, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { ScrollArea } from "@/components/ui/scroll-area"
@@ -90,12 +90,18 @@ export function EnhancementReviewPanel({
   summary,
   onComplete,
 }: EnhancementReviewPanelProps) {
-  const [changesWithStatus, setChangesWithStatus] = useState<ChangeWithStatus[]>(() =>
-    initialChanges.map(c => ({ ...c, status: "pending" }))
-  )
+  const [changesWithStatus, setChangesWithStatus] = useState<ChangeWithStatus[]>([])
   const [isApplying, setIsApplying] = useState(false)
   const [expandedIds, setExpandedIds] = useState<Set<string>>(new Set())
   const [editingId, setEditingId] = useState<string | null>(null)
+  
+  // Sync changes when initialChanges prop updates
+  useEffect(() => {
+    console.log("[v0] EnhancementReviewPanel received changes:", initialChanges?.length)
+    if (initialChanges && initialChanges.length > 0) {
+      setChangesWithStatus(initialChanges.map(c => ({ ...c, status: "pending" })))
+    }
+  }, [initialChanges])
 
   // Group changes by stage for better organization
   const groupedChanges = useMemo(() => {

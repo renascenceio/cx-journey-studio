@@ -71,6 +71,8 @@ ${archetype.background ? `Background: ${archetype.background}` : ""}
 ${archetype.demographics ? `Demographics: ${archetype.demographics}` : ""}
 `.trim()
 
+    console.log("[v0] Enhance archetype - calling AI with context length:", archetypeContext.length, "input length:", inputContent.length)
+    
     const { output } = await generateText({
       model: anthropic("claude-sonnet-4-20250514"),
       output: Output.object({ schema: enhancementSchema }),
@@ -117,6 +119,8 @@ ${inputContent}
 Based on this input, suggest specific improvements to the archetype fields. Only suggest changes where you have meaningful new information to add.`,
     })
 
+    console.log("[v0] Enhance archetype - AI output:", output ? `${output.changes?.length} changes` : "null")
+    
     if (!output) {
       return NextResponse.json(
         { error: "Failed to generate enhancements" },
@@ -124,6 +128,8 @@ Based on this input, suggest specific improvements to the archetype fields. Only
       )
     }
 
+    console.log("[v0] Enhance archetype - returning changes:", output.changes?.length, "summary:", output.summary?.substring(0, 50))
+    
     return NextResponse.json({
       changes: output.changes,
       summary: output.summary,
