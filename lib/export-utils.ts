@@ -171,55 +171,43 @@ export async function downloadPNG(element: HTMLElement, filename: string, scale:
   const { toPng } = await import("html-to-image")
   
   try {
-    // Find the actual canvas content (the flex container with stages), not the scroll wrapper
-    // Look for the inner content that has the full width/height
+    // Find the actual canvas content (the flex container with stages)
     const canvasContent = element.querySelector('[data-export-target="journey-canvas"]') as HTMLElement
-      || element.querySelector('.flex.gap-4') as HTMLElement  // Fallback to stage container
-      || element.firstElementChild as HTMLElement
       || element
     
-    // Get the actual scroll dimensions of the content
+    // Get the full scroll dimensions
     const scrollWidth = canvasContent.scrollWidth || canvasContent.offsetWidth
     const scrollHeight = canvasContent.scrollHeight || canvasContent.offsetHeight
     
-    // Create a temporary wrapper that can hold the full content without clipping
-    const tempWrapper = document.createElement('div')
-    tempWrapper.style.position = 'absolute'
-    tempWrapper.style.left = '-9999px'
-    tempWrapper.style.top = '0'
-    tempWrapper.style.width = `${scrollWidth}px`
-    tempWrapper.style.height = `${scrollHeight}px`
-    tempWrapper.style.overflow = 'visible'
-    tempWrapper.style.backgroundColor = '#ffffff'
-    tempWrapper.style.padding = '24px'
+    // Store original styles to restore later
+    const originalOverflow = element.style.overflow
+    const originalWidth = element.style.width
+    const originalHeight = element.style.height
+    const originalTransform = canvasContent.style.transform
     
-    // Clone the canvas content
-    const clonedContent = canvasContent.cloneNode(true) as HTMLElement
-    clonedContent.style.transform = 'none'  // Remove any zoom transform
-    clonedContent.style.transformOrigin = 'top left'
-    clonedContent.style.width = 'auto'
-    clonedContent.style.height = 'auto'
-    clonedContent.style.overflow = 'visible'
+    // Temporarily expand the container and reset zoom for capture
+    element.style.overflow = 'visible'
+    element.style.width = `${scrollWidth + 48}px`
+    element.style.height = `${scrollHeight + 48}px`
+    canvasContent.style.transform = 'none'
     
-    tempWrapper.appendChild(clonedContent)
-    document.body.appendChild(tempWrapper)
+    // Wait for reflow
+    await new Promise(resolve => setTimeout(resolve, 50))
     
-    // Wait for styles to apply
-    await new Promise(resolve => setTimeout(resolve, 100))
-    
-    const dataUrl = await toPng(tempWrapper, {
+    const dataUrl = await toPng(canvasContent, {
       quality: 1,
       pixelRatio: scale,
       backgroundColor: "#ffffff",
-      width: scrollWidth + 48,  // Add padding
-      height: scrollHeight + 48,
-      style: {
-        overflow: 'visible',
-      },
+      width: scrollWidth,
+      height: scrollHeight,
+      cacheBust: true,
     })
     
-    // Clean up
-    document.body.removeChild(tempWrapper)
+    // Restore original styles
+    element.style.overflow = originalOverflow
+    element.style.width = originalWidth
+    element.style.height = originalHeight
+    canvasContent.style.transform = originalTransform
     
     const link = document.createElement("a")
     link.href = dataUrl
@@ -237,49 +225,41 @@ export async function downloadSVGFromElement(element: HTMLElement, filename: str
   const { toSvg } = await import("html-to-image")
   
   try {
-    // Find the actual canvas content, not the scroll wrapper
+    // Find the actual canvas content
     const canvasContent = element.querySelector('[data-export-target="journey-canvas"]') as HTMLElement
-      || element.querySelector('.flex.gap-4') as HTMLElement
-      || element.firstElementChild as HTMLElement
       || element
     
-    // Get the actual scroll dimensions
+    // Get the full scroll dimensions
     const scrollWidth = canvasContent.scrollWidth || canvasContent.offsetWidth
     const scrollHeight = canvasContent.scrollHeight || canvasContent.offsetHeight
     
-    // Create a temporary wrapper for the full content
-    const tempWrapper = document.createElement('div')
-    tempWrapper.style.position = 'absolute'
-    tempWrapper.style.left = '-9999px'
-    tempWrapper.style.top = '0'
-    tempWrapper.style.width = `${scrollWidth}px`
-    tempWrapper.style.height = `${scrollHeight}px`
-    tempWrapper.style.overflow = 'visible'
-    tempWrapper.style.backgroundColor = '#ffffff'
-    tempWrapper.style.padding = '24px'
+    // Store original styles to restore later
+    const originalOverflow = element.style.overflow
+    const originalWidth = element.style.width
+    const originalHeight = element.style.height
+    const originalTransform = canvasContent.style.transform
     
-    // Clone the canvas content
-    const clonedContent = canvasContent.cloneNode(true) as HTMLElement
-    clonedContent.style.transform = 'none'
-    clonedContent.style.transformOrigin = 'top left'
-    clonedContent.style.width = 'auto'
-    clonedContent.style.height = 'auto'
-    clonedContent.style.overflow = 'visible'
+    // Temporarily expand the container and reset zoom for capture
+    element.style.overflow = 'visible'
+    element.style.width = `${scrollWidth + 48}px`
+    element.style.height = `${scrollHeight + 48}px`
+    canvasContent.style.transform = 'none'
     
-    tempWrapper.appendChild(clonedContent)
-    document.body.appendChild(tempWrapper)
+    // Wait for reflow
+    await new Promise(resolve => setTimeout(resolve, 50))
     
-    // Wait for styles to apply
-    await new Promise(resolve => setTimeout(resolve, 100))
-    
-    const dataUrl = await toSvg(tempWrapper, {
+    const dataUrl = await toSvg(canvasContent, {
       backgroundColor: "#ffffff",
-      width: scrollWidth + 48,
-      height: scrollHeight + 48,
+      width: scrollWidth,
+      height: scrollHeight,
+      cacheBust: true,
     })
     
-    // Clean up
-    document.body.removeChild(tempWrapper)
+    // Restore original styles
+    element.style.overflow = originalOverflow
+    element.style.width = originalWidth
+    element.style.height = originalHeight
+    canvasContent.style.transform = originalTransform
     
     // Convert data URL to actual SVG content
     const svgContent = decodeURIComponent(dataUrl.split(",")[1])
@@ -301,54 +281,46 @@ export async function downloadPDF(element: HTMLElement, filename: string, title?
   try {
     // Find the actual canvas content
     const canvasContent = element.querySelector('[data-export-target="journey-canvas"]') as HTMLElement
-      || element.querySelector('.flex.gap-4') as HTMLElement
-      || element.firstElementChild as HTMLElement
       || element
     
-    // Get the actual scroll dimensions
+    // Get the full scroll dimensions
     const scrollWidth = canvasContent.scrollWidth || canvasContent.offsetWidth
     const scrollHeight = canvasContent.scrollHeight || canvasContent.offsetHeight
     
-    // Create a temporary wrapper for the full content
-    const tempWrapper = document.createElement('div')
-    tempWrapper.style.position = 'absolute'
-    tempWrapper.style.left = '-9999px'
-    tempWrapper.style.top = '0'
-    tempWrapper.style.width = `${scrollWidth}px`
-    tempWrapper.style.height = `${scrollHeight}px`
-    tempWrapper.style.overflow = 'visible'
-    tempWrapper.style.backgroundColor = '#ffffff'
-    tempWrapper.style.padding = '24px'
+    // Store original styles to restore later
+    const originalOverflow = element.style.overflow
+    const originalWidth = element.style.width
+    const originalHeight = element.style.height
+    const originalTransform = canvasContent.style.transform
     
-    // Clone the canvas content
-    const clonedContent = canvasContent.cloneNode(true) as HTMLElement
-    clonedContent.style.transform = 'none'
-    clonedContent.style.transformOrigin = 'top left'
-    clonedContent.style.width = 'auto'
-    clonedContent.style.height = 'auto'
-    clonedContent.style.overflow = 'visible'
+    // Temporarily expand the container and reset zoom for capture
+    element.style.overflow = 'visible'
+    element.style.width = `${scrollWidth + 48}px`
+    element.style.height = `${scrollHeight + 48}px`
+    canvasContent.style.transform = 'none'
     
-    tempWrapper.appendChild(clonedContent)
-    document.body.appendChild(tempWrapper)
-    
-    // Wait for styles to apply
-    await new Promise(resolve => setTimeout(resolve, 100))
+    // Wait for reflow
+    await new Promise(resolve => setTimeout(resolve, 50))
     
     // Capture as PNG with high quality
-    const dataUrl = await toPng(tempWrapper, {
+    const dataUrl = await toPng(canvasContent, {
       quality: 1,
       pixelRatio: 2,
       backgroundColor: "#ffffff",
-      width: scrollWidth + 48,
-      height: scrollHeight + 48,
+      width: scrollWidth,
+      height: scrollHeight,
+      cacheBust: true,
     })
     
-    // Clean up temp element
-    document.body.removeChild(tempWrapper)
+    // Restore original styles
+    element.style.overflow = originalOverflow
+    element.style.width = originalWidth
+    element.style.height = originalHeight
+    canvasContent.style.transform = originalTransform
     
     // Calculate PDF dimensions - landscape orientation for journey maps
-    const imgWidth = scrollWidth + 48
-    const imgHeight = scrollHeight + 48
+    const imgWidth = scrollWidth
+    const imgHeight = scrollHeight
     
     // Use landscape format with custom page size to fit content
     // Add some margins (50px on each side)
