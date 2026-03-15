@@ -3,7 +3,7 @@ import { createClient } from "@/lib/supabase/server"
 import Link from "next/link"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card"
-import { Clock, User, Eye, Calendar, ArrowRight } from "lucide-react"
+import { Clock, User, ArrowRight, Sparkles } from "lucide-react"
 
 export const metadata: Metadata = {
   title: "Words - CX Journey Studio Blog",
@@ -108,6 +108,11 @@ export default async function WordsPage({
     }))
   }
 
+  // Split into featured (first post) and rest
+  const featuredPost = filteredPosts[0]
+  const recentPosts = filteredPosts.slice(1, 7)
+  const olderPosts = filteredPosts.slice(7)
+
   return (
     <>
       <script
@@ -115,26 +120,19 @@ export default async function WordsPage({
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
       <div className="min-h-screen bg-background">
-        {/* Compact Header */}
-        <section className="border-b bg-muted/30">
-          <div className="container mx-auto px-4 py-8 md:py-12">
-            <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-              <div>
-                <h1 className="text-2xl md:text-3xl font-bold tracking-tight">
-                  Words
-                </h1>
-                <p className="text-muted-foreground mt-1">
-                  Insights and best practices in customer experience
-                </p>
-              </div>
+        {/* Header */}
+        <section className="border-b">
+          <div className="container mx-auto px-4 py-6">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+              <h1 className="text-2xl font-bold tracking-tight">Words</h1>
               
-              {/* Categories inline */}
+              {/* Categories */}
               {categories.length > 0 && (
                 <div className="flex flex-wrap items-center gap-2">
                   <Link href="/words">
                     <Badge 
                       variant={!selectedCategory ? "default" : "outline"}
-                      className="cursor-pointer"
+                      className="cursor-pointer hover:bg-primary/90"
                     >
                       All
                     </Badge>
@@ -155,62 +153,147 @@ export default async function WordsPage({
           </div>
         </section>
 
-        {/* Posts Grid */}
-        <section className="py-12 md:py-16">
-          <div className="container mx-auto px-4">
-            {filteredPosts.length === 0 ? (
-              <div className="text-center py-16">
-                <h2 className="text-2xl font-semibold mb-2">No articles yet</h2>
-                <p className="text-muted-foreground">Check back soon for new content</p>
-              </div>
-            ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {filteredPosts.map((post, idx) => (
-                  <article key={post.id}>
-                    <Link href={`/words/${post.slug}`}>
-                      <Card className="h-full hover:shadow-lg transition-shadow group">
-                        {post.featured_image && (
-                          <div className="aspect-video bg-muted overflow-hidden rounded-t-lg">
-                            <img 
-                              src={post.featured_image}
-                              alt={post.title}
-                              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                              loading={idx < 6 ? "eager" : "lazy"}
-                            />
-                          </div>
-                        )}
-                        <CardHeader className="pb-2">
-                          <Badge variant="secondary" className="w-fit mb-2">{post.category}</Badge>
-                          <h2 className="text-xl font-semibold line-clamp-2 group-hover:text-primary transition-colors">
-                            {post.title}
-                          </h2>
-                        </CardHeader>
-                        <CardContent className="pb-2">
-                          <p className="text-muted-foreground line-clamp-3">{post.excerpt}</p>
-                        </CardContent>
-                        <CardFooter className="pt-2 text-sm text-muted-foreground">
-                          <div className="flex items-center justify-between w-full">
-                            <div className="flex items-center gap-3">
-                              <span className="flex items-center gap-1">
-                                <User className="h-3.5 w-3.5" />
-                                {post.author_name}
-                              </span>
-                              <span className="flex items-center gap-1">
-                                <Clock className="h-3.5 w-3.5" />
-                                {post.reading_time || 5} min
-                              </span>
-                            </div>
-                            <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
-                          </div>
-                        </CardFooter>
-                      </Card>
-                    </Link>
-                  </article>
-                ))}
-              </div>
+        {filteredPosts.length === 0 ? (
+          <section className="py-20">
+            <div className="container mx-auto px-4 text-center">
+              <h2 className="text-2xl font-semibold mb-2">No articles yet</h2>
+              <p className="text-muted-foreground">Check back soon for new content</p>
+            </div>
+          </section>
+        ) : (
+          <>
+            {/* Featured Post */}
+            {featuredPost && !selectedCategory && (
+              <section className="py-10 border-b">
+                <div className="container mx-auto px-4">
+                  <Link href={`/words/${featuredPost.slug}`}>
+                    <article className="group grid md:grid-cols-2 gap-8 items-center">
+                      {featuredPost.featured_image ? (
+                        <div className="aspect-[16/10] bg-muted rounded-xl overflow-hidden">
+                          <img 
+                            src={featuredPost.featured_image}
+                            alt={featuredPost.title}
+                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                          />
+                        </div>
+                      ) : (
+                        <div className="aspect-[16/10] bg-gradient-to-br from-primary/10 via-primary/5 to-background rounded-xl flex items-center justify-center">
+                          <Sparkles className="h-16 w-16 text-primary/30" />
+                        </div>
+                      )}
+                      <div className="space-y-4">
+                        <div className="flex items-center gap-2">
+                          <Badge>{featuredPost.category}</Badge>
+                          <span className="text-sm text-muted-foreground">Featured</span>
+                        </div>
+                        <h2 className="text-3xl md:text-4xl font-bold tracking-tight group-hover:text-primary transition-colors">
+                          {featuredPost.title}
+                        </h2>
+                        <p className="text-lg text-muted-foreground line-clamp-3">
+                          {featuredPost.excerpt}
+                        </p>
+                        <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                          <span className="flex items-center gap-1.5">
+                            <User className="h-4 w-4" />
+                            {featuredPost.author_name}
+                          </span>
+                          <span className="flex items-center gap-1.5">
+                            <Clock className="h-4 w-4" />
+                            {featuredPost.reading_time || 5} min read
+                          </span>
+                        </div>
+                      </div>
+                    </article>
+                  </Link>
+                </div>
+              </section>
             )}
-          </div>
-        </section>
+
+            {/* Recent Posts */}
+            {recentPosts.length > 0 && (
+              <section className="py-10">
+                <div className="container mx-auto px-4">
+                  {!selectedCategory && (
+                    <h2 className="text-xl font-semibold mb-6">Recent Articles</h2>
+                  )}
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {(selectedCategory ? filteredPosts : recentPosts).map((post) => (
+                      <article key={post.id}>
+                        <Link href={`/words/${post.slug}`}>
+                          <Card className="h-full border-0 shadow-none hover:bg-muted/50 transition-colors group -mx-4 px-4 py-3 rounded-lg">
+                            <CardHeader className="p-0 pb-3">
+                              <div className="flex items-center gap-2 mb-2">
+                                <Badge variant="secondary" className="text-xs font-normal">
+                                  {post.category}
+                                </Badge>
+                                <span className="text-xs text-muted-foreground">
+                                  {post.reading_time || 5} min
+                                </span>
+                              </div>
+                              <h3 className="text-lg font-semibold leading-snug line-clamp-2 group-hover:text-primary transition-colors">
+                                {post.title}
+                              </h3>
+                            </CardHeader>
+                            <CardContent className="p-0 pb-3">
+                              <p className="text-sm text-muted-foreground line-clamp-2">
+                                {post.excerpt}
+                              </p>
+                            </CardContent>
+                            <CardFooter className="p-0 text-sm text-muted-foreground">
+                              <div className="flex items-center justify-between w-full">
+                                <span className="flex items-center gap-1.5">
+                                  <User className="h-3.5 w-3.5" />
+                                  {post.author_name}
+                                </span>
+                                <ArrowRight className="h-4 w-4 opacity-0 group-hover:opacity-100 group-hover:translate-x-1 transition-all" />
+                              </div>
+                            </CardFooter>
+                          </Card>
+                        </Link>
+                      </article>
+                    ))}
+                  </div>
+                </div>
+              </section>
+            )}
+
+            {/* Older Posts - Different Style */}
+            {olderPosts.length > 0 && !selectedCategory && (
+              <section className="py-10 bg-muted/30 border-t">
+                <div className="container mx-auto px-4">
+                  <h2 className="text-xl font-semibold mb-6">More Articles</h2>
+                  <div className="grid gap-4">
+                    {olderPosts.map((post) => (
+                      <article key={post.id}>
+                        <Link href={`/words/${post.slug}`}>
+                          <div className="flex items-start gap-4 p-4 rounded-lg hover:bg-background transition-colors group">
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-center gap-2 mb-1">
+                                <Badge variant="outline" className="text-xs">
+                                  {post.category}
+                                </Badge>
+                                <span className="text-xs text-muted-foreground">
+                                  {post.reading_time || 5} min read
+                                </span>
+                              </div>
+                              <h3 className="font-medium group-hover:text-primary transition-colors line-clamp-1">
+                                {post.title}
+                              </h3>
+                              <p className="text-sm text-muted-foreground line-clamp-1 mt-1">
+                                {post.excerpt}
+                              </p>
+                            </div>
+                            <ArrowRight className="h-5 w-5 text-muted-foreground shrink-0 opacity-0 group-hover:opacity-100 transition-opacity" />
+                          </div>
+                        </Link>
+                      </article>
+                    ))}
+                  </div>
+                </div>
+              </section>
+            )}
+          </>
+        )}
       </div>
     </>
   )
