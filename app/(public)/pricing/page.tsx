@@ -2,7 +2,7 @@ import type { Metadata } from "next"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { Check, X } from "lucide-react"
+import { Check, X, Sparkles, Zap, Building2, Crown } from "lucide-react"
 import { PricingCards } from "@/components/pricing-cards"
 
 export const metadata: Metadata = {
