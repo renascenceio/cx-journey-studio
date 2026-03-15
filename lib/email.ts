@@ -1,7 +1,14 @@
 import { Resend } from "resend"
 
-// Initialize Resend client (requires RESEND_API_KEY env var)
-const resend = process.env.RESEND_API_KEY ? new Resend(process.env.RESEND_API_KEY) : null
+// Lazy initialization to ensure env vars are available at runtime
+let resendClient: Resend | null = null
+
+function getResendClient(): Resend | null {
+  if (!resendClient && process.env.RESEND_API_KEY) {
+    resendClient = new Resend(process.env.RESEND_API_KEY)
+  }
+  return resendClient
+}
 
 export interface EmailOptions {
   to: string | string[]
@@ -13,15 +20,19 @@ export interface EmailOptions {
 }
 
 export async function sendEmail(options: EmailOptions): Promise<{ success: boolean; error?: string; id?: string }> {
+  const resend = getResendClient()
+  
   // Check if Resend is configured
   if (!resend) {
-    console.warn("[Email] Resend API key not configured - emails will not be sent")
+    console.error("[Email] RESEND_API_KEY not found in environment variables")
     return { success: false, error: "Email service not configured - RESEND_API_KEY missing" }
   }
 
   try {
     // Using verified domain updates.rene.cx
     const fromAddress = options.from || "René Studio <noreply@updates.rene.cx>"
+    
+    console.log("[Email] Sending to:", options.to, "Subject:", options.subject)
     
     const { data, error } = await resend.emails.send({
       from: fromAddress,
@@ -33,10 +44,11 @@ export async function sendEmail(options: EmailOptions): Promise<{ success: boole
     })
 
     if (error) {
-      console.error("[Email] Failed to send:", error.message)
+      console.error("[Email] Resend API error:", error.message, error)
       return { success: false, error: error.message }
     }
 
+    console.log("[Email] Successfully sent! ID:", data?.id)
     return { success: true, id: data?.id }
   } catch (err) {
     console.error("[Email] Exception:", err)
